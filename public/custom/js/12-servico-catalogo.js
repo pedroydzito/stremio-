@@ -2,31 +2,33 @@
    As telas de cada streaming, montadas a partir do catálogo inteiro.
 
    O Painel mostrava só duas fileiras por serviço — "Netflix - Filme" e
-   "Netflix - Série" —, com uma dúzia de itens cada. Mas o catálogo do addon
-   devolve MUITO mais que isso numa única resposta: 98 itens por tipo, cada um
-   com gênero, nota, ano, arte e id do IMDb (medido). Era tudo o que faltava
-   para montar as fileiras por gênero que as telas dos streamings de verdade
-   têm.
+   "Netflix - Série". Mas o catálogo do addon devolve 98 itens por tipo numa
+   única resposta, cada um com gênero, ano, nota, arte e id do IMDb (medido).
+   Era tudo o que faltava para montar as fileiras por gênero que as telas dos
+   streamings de verdade têm.
 
-   Duas descobertas que definiram o desenho:
+   Duas limitações do addon definiram o desenho:
+     · `extraSupported: []` — ele não aceita filtro na requisição, então o
+       agrupamento por gênero é feito aqui, com o que veio;
+     · `skip` não pagina (skip=100 devolve a mesma primeira página), então 98
+       itens por tipo é o teto.
 
-     · o addon declara `extraSupported: []` — não aceita filtro de gênero na
-       requisição. Então o agrupamento é feito aqui, com o que veio;
-     · `skip` não funciona (skip=100 devolve a mesma primeira página), então
-       98 itens por tipo é o teto. É bastante para as fileiras, e nada além
-       disso é alcançável sem outro addon.
+   COMO O DESIGN BATE COM O DO PAINEL
+   A primeira versão montava a marcação à mão e tentava reproduzir os
+   espaçamentos, o tamanho dos cards e o texto por CSS. Ficou parecido e errado
+   em tudo que importa. Esta versão CLONA uma fileira nativa e troca o
+   conteúdo: as classes com hash do app vêm junto, e com elas todo o estilo,
+   inclusive o hover que precisa de `overflow` nos ancestrais certos.
 
-   Os cards são construídos com as MESMAS classes dos nativos
-   (`meta-item-container`, `poster-container`), de propósito: assim o selo de
-   biblioteca, os estilos de card e o resto do que já existe continuam valendo
-   sem nenhuma adaptação. */
+   O que se perde no clone são os manipuladores do React (o nó copiado não tem
+   fiber). Navegar continua funcionando porque o card é um `<a href>` — que é
+   como o próprio app navega. */
 
 (function () {
     const TTL = 30 * 60 * 1000;
     const cache = new Map();        // "base|tipo|id" -> { quando, itens }
     const buscando = new Set();
 
-    // O catálogo devolve os gêneros em inglês.
     const GENEROS = {
         Action: 'Ação', Adventure: 'Aventura', Animation: 'Animação', Biography: 'Biografia',
         Comedy: 'Comédia', Crime: 'Crime', Documentary: 'Documentário', Drama: 'Drama',
@@ -37,19 +39,19 @@
     };
     const traduz = (g) => GENEROS[g] || g;
 
-    // Quantos itens uma fileira de gênero precisa ter para valer a pena.
-    const MINIMO_POR_GENERO = 6;
-    const MAX_FILEIRAS = 9;
+    const MINIMO_POR_GENERO = 8;
+    const MAX_FILEIRAS = 10;
+    const POR_FILEIRA = 20;         // o que cabe numa fileira rolável
 
     function catalogosDoServico(servico) {
         let perfil;
         try { perfil = JSON.parse(localStorage.getItem('profile') || '{}'); } catch (_) { return []; }
         const achados = [];
         (perfil.addons || []).forEach((a) => {
-            const base = (a.transportUrl || '').replace(/manifest\.json$/, '');
+            const url = a.transportUrl || '';
             (a.manifest?.catalogs || []).forEach((c) => {
                 const nome = String(c.name || '').replace(/\s+/g, ' ').trim().toLowerCase();
-                if (nome === servico) achados.push({ base, tipo: c.type, id: c.id });
+                if (nome === servico) achados.push({ url, base: url.replace(/manifest\.json$/, ''), tipo: c.type, id: c.id });
             });
         });
         return achados;
@@ -65,8 +67,7 @@
         fetch(cat.base + 'catalog/' + cat.tipo + '/' + encodeURIComponent(cat.id) + '.json')
             .then((r) => r.json())
             .then((j) => {
-                // Só o necessário fica na memória: a resposta crua passa de
-                // 240KB por catálogo, e nada disso precisa sobreviver à sessão.
+                // Só o necessário: a resposta crua passa de 240KB por catálogo.
                 const itens = (j.metas || [])
                     .filter((m) => m.imdb_id || /^tt\d+/.test(m.id || ''))
                     .map((m) => ({
@@ -74,8 +75,6 @@
                         tipo: m.type || cat.tipo,
                         nome: m.name || '',
                         poster: m.poster || '',
-                        ano: (m.releaseInfo || m.year || '').toString().slice(0, 4),
-                        nota: m.imdbRating || '',
                         generos: m.genres || m.genre || [],
                     }));
                 cache.set(chave, { quando: Date.now(), itens });
@@ -85,26 +84,49 @@
         return null;
     }
 
+    // Trocar de serviço só é instantâneo se o catálogo já estiver na mão. Como
+    // são cinco e a resposta é grande, o adiantamento vai um por vez, em
+    // segundo plano, e nunca atrapalha o que você está vendo.
+    function adianta() {
+        if (buscando.size) return;
+        const botoes = document.querySelectorAll('.cu-servico-btn');
+        for (const b of botoes) {
+            const nome = String(b.getAttribute('aria-label') || b.textContent).replace(/\s+/g, ' ').trim().toLowerCase();
+            if (!nome || nome === 'tudo') continue;
+            const cats = catalogosDoServico(nome);
+            for (const c of cats) {
+                const chave = c.base + '|' + c.tipo + '|' + c.id;
+                const g = cache.get(chave);
+                if (!g || Date.now() - g.quando >= TTL) { pede(c); return; }
+            }
+        }
+    }
+
     function montaFileiras(servico) {
         const cats = catalogosDoServico(servico);
         if (!cats.length) return null;
 
         const porTipo = {};
-        let faltando = false;
+        const catPorTipo = {};
         cats.forEach((c) => {
             const itens = pede(c);
-            if (!itens) { faltando = true; return; }
-            porTipo[c.tipo] = itens;
+            if (itens) { porTipo[c.tipo] = itens; catPorTipo[c.tipo] = c; }
         });
-        if (faltando && !Object.keys(porTipo).length) return null;
+        if (!Object.keys(porTipo).length) return null;
+
+        // "Ver tudo" leva ao Explorar já no catálogo daquele serviço — é o
+        // mesmo destino que a fileira nativa tinha.
+        const verTudo = (tipo) => {
+            const c = catPorTipo[tipo];
+            return c ? '#/discover/' + encodeURIComponent(c.url) + '/' + c.tipo + '/' + encodeURIComponent(c.id) : null;
+        };
 
         const fileiras = [];
-        if (porTipo.movie?.length) fileiras.push({ titulo: 'Filmes', itens: porTipo.movie });
-        if (porTipo.series?.length) fileiras.push({ titulo: 'Séries', itens: porTipo.series });
+        if (porTipo.movie?.length) fileiras.push({ titulo: 'Filmes', itens: porTipo.movie, verTudo: verTudo('movie') });
+        if (porTipo.series?.length) fileiras.push({ titulo: 'Séries', itens: porTipo.series, verTudo: verTudo('series') });
 
-        // Gêneros a partir do que veio, os mais numerosos primeiro. Filmes e
-        // séries entram na mesma fileira de gênero: quem procura "Terror" quer
-        // terror, não uma lista de filmes de terror e outra de séries.
+        // Filmes e séries entram juntos nas fileiras de gênero: quem procura
+        // "Terror" quer terror, não uma lista de cada.
         const todos = [...(porTipo.movie || []), ...(porTipo.series || [])];
         const porGenero = new Map();
         todos.forEach((it) => {
@@ -118,33 +140,95 @@
             .filter(([, itens]) => itens.length >= MINIMO_POR_GENERO)
             .sort((a, b) => b[1].length - a[1].length)
             .slice(0, MAX_FILEIRAS - fileiras.length)
-            .forEach(([g, itens]) => fileiras.push({ titulo: traduz(g), itens }));
+            .forEach(([g, itens]) => {
+                // Gênero não é catálogo do addon; o "Ver tudo" leva ao catálogo
+                // do tipo predominante, que é o destino mais próximo que existe.
+                const filmes = itens.filter((x) => x.tipo === 'movie').length;
+                fileiras.push({
+                    titulo: traduz(g),
+                    itens,
+                    verTudo: verTudo(filmes >= itens.length / 2 ? 'movie' : 'series'),
+                });
+            });
 
         return fileiras;
     }
 
-    function cardHTML(it) {
-        const nome = String(it.nome).replace(/"/g, '&quot;').replace(/</g, '&lt;');
-        const href = '#/detail/' + it.tipo + '/' + encodeURIComponent(it.id);
-        // As classes são as mesmas dos cards nativos para que os selos e o
-        // estilo já existentes se apliquem sem tratamento especial.
-        return `<a class="meta-item-container cu-cat-card" href="${href}" title="${nome}">
-            <div class="poster-container">
-                ${it.poster ? `<img class="poster-image" src="${it.poster}" alt="" loading="lazy" />` : '<div class="cu-cat-sem-arte"></div>'}
-            </div>
-            <div class="cu-cat-nome">${nome}</div>
-            ${it.ano ? `<div class="cu-cat-ano">${it.ano}</div>` : ''}
-        </a>`;
+    // ---- clonagem da fileira nativa --------------------------------------
+    let moldeFileira = null;
+    let moldeItem = null;
+
+    function pegaMoldes() {
+        if (moldeFileira && moldeItem) return true;
+        const fileiras = document.querySelectorAll('[class*="meta-row-container"]');
+        for (const f of fileiras) {
+            if (f.classList.contains('custom-continue-watching-row')) continue;   // essa é paisagem
+            if (f.classList.contains('cu-cat-fileira')) continue;                 // não clonar a nossa
+            const it = f.querySelector('[class*="meta-item-container"]');
+            if (!it) continue;
+            moldeFileira = f.cloneNode(false);      // só a casca, com as classes
+            const cabecalho = f.querySelector('[class*="header-container"]');
+            const itens = f.querySelector('[class*="meta-items-container"]');
+            if (!cabecalho || !itens) { moldeFileira = null; continue; }
+            moldeFileira.appendChild(cabecalho.cloneNode(true));
+            const caixa = itens.cloneNode(false);
+            moldeFileira.appendChild(caixa);
+            moldeItem = it.cloneNode(true);
+            return true;
+        }
+        return false;
+    }
+
+    function fazItem(it) {
+        const el = moldeItem.cloneNode(true);
+        el.classList.add('cu-cat-card');
+        el.setAttribute('href', '#/detail/' + it.tipo + '/' + encodeURIComponent(it.id));
+        el.setAttribute('title', it.nome);
+        el.removeAttribute('style');                       // o molde pode vir com largura fixa
+        el.classList.remove('force-landscape', 'cw-overflow', 'cu-ep-visto');
+
+        const img = el.querySelector('img[class*="poster-image"]');
+        if (img) {
+            img.src = it.poster || '';
+            delete img.dataset.origPoster;
+        }
+        // Camadas que pertencem ao estado do app, não a um card recém-criado.
+        el.querySelectorAll('[class*="dismiss-icon-layer"], [class*="watched-icon-layer"], [class*="menu-container"], .cu-lib-selo, .cu-lb-nota')
+            .forEach((x) => x.remove());
+
+        const titulo = el.querySelector('[class*="title-bar"], [class*="title-container"]');
+        if (titulo) titulo.textContent = it.nome;
+        return el;
+    }
+
+    function fazFileira(f) {
+        const linha = moldeFileira.cloneNode(true);
+        linha.classList.add('cu-cat-fileira');
+        linha.classList.remove('cu-fileira-oculta');
+
+        const t = linha.querySelector('[class*="title-container"] [class*="title"]') || linha.querySelector('[class*="title"]');
+        if (t) { t.textContent = f.titulo; t.setAttribute('title', f.titulo); }
+
+        const verTudo = linha.querySelector('a[class*="see-all"]');
+        if (verTudo) {
+            if (f.verTudo) { verTudo.setAttribute('href', f.verTudo); verTudo.style.removeProperty('display'); }
+            else verTudo.style.display = 'none';
+        }
+
+        const caixa = linha.querySelector('[class*="meta-items-container"]');
+        caixa.innerHTML = '';
+        f.itens.slice(0, POR_FILEIRA).forEach((it) => caixa.appendChild(fazItem(it)));
+        return linha;
     }
 
     function render(servico) {
         const conteudo = document.querySelector('[class*="board-content"]:not([class*="container"])');
-        if (!conteudo) return;
+        if (!conteudo || !pegaMoldes()) return;
 
-        let area = conteudo.querySelector(':scope > .cu-cat-area');
         const fileiras = montaFileiras(servico);
+        let area = conteudo.querySelector(':scope > .cu-cat-area');
+
         if (!fileiras) {
-            // Ainda buscando: não apaga o que já está na tela.
             if (!area) {
                 area = document.createElement('div');
                 area.className = 'cu-cat-area';
@@ -163,11 +247,8 @@
             conteudo.appendChild(area);
         }
         area.dataset.assinatura = assinatura;
-        area.innerHTML = fileiras.map((f) => `
-            <section class="cu-cat-fileira">
-                <h3 class="cu-cat-titulo">${f.titulo}</h3>
-                <div class="cu-cat-itens">${f.itens.map(cardHTML).join('')}</div>
-            </section>`).join('');
+        area.innerHTML = '';
+        fileiras.forEach((f) => area.appendChild(fazFileira(f)));
     }
 
     function limpa() {
@@ -176,11 +257,14 @@
 
     function sync() {
         if (window.__cu.utils.currentRoute()) { limpa(); return; }
+
+        pegaMoldes();
+        adianta();
+
         const escolhido = document.querySelector('.cu-servico-btn.selecionado');
         const rotulo = escolhido ? (escolhido.getAttribute('aria-label') || escolhido.textContent) : '';
         const servico = String(rotulo || '').replace(/\s+/g, ' ').trim().toLowerCase();
 
-        // "Tudo" não é serviço: ali o Painel segue como sempre foi.
         if (!servico || servico === 'tudo') { limpa(); return; }
         render(servico);
     }

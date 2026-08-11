@@ -66,7 +66,7 @@
    ============================================================ */
 /* O card da direita vinha do nada; agora chega de fora, que é de onde ele
    deveria vir. */
-.disney-side-card { animation: cu-vem-da-direita 0.36s var(--ease-emphasis) both; }
+.disney-side-card { animation: cu-vem-da-direita 0.36s var(--ease-emphasis) 0.2s both; }
 
 /* Título, dados e descrição sobem juntos, um átimo antes dos botões. */
 [class*="meta-preview"] [class*="logo"],
@@ -75,10 +75,14 @@
 [class*="meta-preview"] [class*="description-container"] {
     animation: cu-sobe-pouco 0.32s var(--ease-emphasis) both;
 }
-[class*="meta-preview"] [class*="runtime-release-info-container"] { animation-delay: 0.05s; }
-[class*="meta-preview"] [class*="description-container"] { animation-delay: 0.08s; }
+/* O atraso é o que faz o fundo LIDERAR: sem ele, arte e interface entravam
+   juntas e o zoom passava despercebido. */
+[class*="meta-preview"] [class*="logo"],
+[class*="meta-preview"] [class*="title-container"] { animation-delay: 0.16s; }
+[class*="meta-preview"] [class*="runtime-release-info-container"] { animation-delay: 0.22s; }
+[class*="meta-preview"] [class*="description-container"] { animation-delay: 0.27s; }
 
-.disney-buttons-row { animation: cu-sobe-pouco 0.3s var(--ease-emphasis) 0.1s both; }
+.disney-buttons-row { animation: cu-sobe-pouco 0.3s var(--ease-emphasis) 0.32s both; }
 
 /* Abas do card lateral e o conteúdo delas. Ao trocar de aba o conteúdo é
    remontado, então a mesma regra serve para a troca — sem precisar de gancho. */
@@ -109,10 +113,13 @@ body.route-calendar [class*="table"] { animation: cu-surge 0.28s ease both; }
 
 /* O fundo da tela de detalhes ganha o mesmo gesto do destaque: a arte assenta
    em vez de aparecer pronta. Mais lento que as entradas de interface — é
-   ambiente, não resposta a um clique. */
-[class*="metadetails-container"] [class*="background-image"] {
+   ambiente, não resposta a um clique.
+   Só a IMAGEM anima. A regra anterior pegava também o `background-image-layer`,
+   o contêiner dela, e duas escalas aninhadas se somavam. */
+[class*="metadetails-container"] img[class*="background-image"] {
     animation: cu-zoom-interno 1.1s var(--ease-cinematic) both;
 }
+[class*="metadetails-container"] [class*="background-image-layer"] { animation: none; }
 
 /* ============================================================
    Só opacidade onde já existe transform

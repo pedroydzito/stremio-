@@ -2303,9 +2303,13 @@ body.route-board [class*="board-content"]::-webkit-scrollbar,
 }
 
 /* ============================================================
-   57. Telas de streaming montadas por nós
+   57. Telas de streaming
    ============================================================ */
-.cu-cat-area { padding-bottom: 3rem; }
+/* Quase nada aqui de propósito: as fileiras são CLONES das nativas, então
+   herdam o estilo do app — espaçamento, tamanho de card, tipografia e o hover
+   que expande sem cortar. Tentar reproduzir isso à mão foi a primeira versão,
+   e cada medida saiu um pouco diferente. */
+.cu-cat-area { padding-bottom: 2rem; }
 
 .cu-cat-carregando {
     padding: 4rem 0;
@@ -2313,59 +2317,3 @@ body.route-board [class*="board-content"]::-webkit-scrollbar,
     font-size: 0.95rem;
     text-align: center;
 }
-
-.cu-cat-fileira { margin-bottom: 1.6rem; }
-
-.cu-cat-titulo {
-    margin: 0 0 0.7rem;
-    font-size: 1.05rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    color: var(--apple-label);
-}
-
-/* Rolagem horizontal como as fileiras nativas. A barra some: a fileira é
-   arrastável e o excesso já se anuncia pelo card cortado na borda. */
-.cu-cat-itens {
-    display: flex;
-    gap: 0.75rem;
-    overflow-x: auto;
-    scrollbar-width: none;
-    padding-bottom: 0.2rem;
-}
-.cu-cat-itens::-webkit-scrollbar { display: none; }
-
-.cu-cat-card {
-    flex: none;
-    width: 9.5rem;
-    text-decoration: none !important;
-    color: inherit;
-}
-.cu-cat-card .poster-container {
-    position: relative;
-    aspect-ratio: 2 / 3;
-    border-radius: var(--radius-card);
-    overflow: hidden;
-    background: var(--apple-surface-1);
-    transition: transform 0.22s var(--ease-emphasis), box-shadow 0.22s ease;
-}
-.cu-cat-card .poster-image { width: 100%; height: 100%; object-fit: cover; display: block; }
-.cu-cat-sem-arte { width: 100%; height: 100%; background: var(--apple-surface-2); }
-
-.cu-cat-card:hover .poster-container {
-    transform: scale(1.045);
-    box-shadow: var(--card-shadow);
-}
-
-.cu-cat-nome {
-    margin-top: 0.45rem;
-    font-size: 0.82rem;
-    font-weight: 600;
-    line-height: 1.25;
-    color: var(--apple-label);
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-.cu-cat-ano { font-size: 0.72rem; color: var(--apple-label-3); }
