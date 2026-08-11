@@ -113,6 +113,13 @@
         barra.dataset.itens = String(lista.length);
         barra.innerHTML = '';
 
+        // Pastilha que desliza de um botão para o outro. É ela que pinta o
+        // fundo do selecionado — o botão só muda de cor. Fosse o fundo do
+        // próprio botão, a troca seria um corte seco.
+        const pilula = document.createElement('span');
+        pilula.className = 'cu-servico-pilula';
+        barra.appendChild(pilula);
+
         const botao = (rotulo, valor) => {
             const b = document.createElement('button');
             b.type = 'button';
@@ -124,7 +131,7 @@
                 // volta para ele, em vez de deixar a tela sem filtro nenhum.
                 selecionado = (selecionado === valor) ? TUDO : valor;
                 try { localStorage.setItem(CHAVE, selecionado); } catch (_) { /* ignore */ }
-                aplica();
+                aplica(true);
             });
             barra.appendChild(b);
         };
@@ -134,7 +141,54 @@
         return barra;
     }
 
-    function aplica() {
+    // Leva a pastilha até o botão escolhido. `animar` desliga a transição na
+    // primeira pintura: sem isso ela entraria voando do canto esquerdo toda vez
+    // que a tela é montada.
+    function moveP1lula(animar) {
+        const barra = document.querySelector('.cu-servicos');
+        const pilula = barra?.querySelector('.cu-servico-pilula');
+        const alvo = barra?.querySelector('.cu-servico-btn.selecionado');
+        if (!pilula || !alvo) return;
+        // Anima `left`, não `transform`: dentro desta barra o translateX era
+        // aplicado no estilo mas não chegava a valer na pintura (medido: style
+        // dizia 67px e a pastilha renderizava nos 5px anteriores). `left` não
+        // depende de pilha de transformação e aqui não custa nada — é um
+        // elemento pequeno numa barra pequena.
+        pilula.style.transition = animar ? '' : 'none';
+        pilula.style.width = alvo.offsetWidth + 'px';
+        pilula.style.left = alvo.offsetLeft + 'px';
+        pilula.style.opacity = '1';
+        if (!animar) requestAnimationFrame(() => { pilula.style.transition = ''; });
+    }
+
+    // A barra não pode empurrar o conteúdo: ela flutua por cima. Uma margem
+    // inferior negativa do tamanho dela devolve o espaço, e o destaque grande
+    // volta para onde estava — sem abrir mão do `sticky`.
+    function naoOcuparEspaco() {
+        const barra = document.querySelector('.cu-servicos');
+        if (!barra) return;
+        const alt = Math.round(barra.getBoundingClientRect().height);
+        if (!alt) return;
+        const desejado = (-alt) + 'px';
+        if (barra.style.marginBottom !== desejado) barra.style.marginBottom = desejado;
+    }
+
+    // Cada catálogo em 3 linhas em vez de uma fileira só. O número de colunas
+    // sai da quantidade de itens (teto de n/3), com um mínimo para os pôsteres
+    // não virarem painéis quando o catálogo traz poucos.
+    function tresLinhas(ligado) {
+        document.querySelectorAll('[class*="meta-row-container"]').forEach((f) => {
+            const itens = f.querySelector('[class*="meta-items-container"]');
+            if (!itens) return;
+            if (!ligado) { itens.style.removeProperty('--cu-colunas'); return; }
+            const n = itens.querySelectorAll('[class*="meta-item-container"]').length;
+            if (!n) return;
+            const colunas = Math.max(4, Math.ceil(n / 3));
+            itens.style.setProperty('--cu-colunas', colunas);
+        });
+    }
+
+    function aplica(animar) {
         document.querySelectorAll('.cu-servico-btn').forEach((b) => {
             b.classList.toggle('selecionado', b.dataset.servico === selecionado);
         });
@@ -153,6 +207,8 @@
         });
 
         document.body.classList.toggle('cu-servico-ativo', !emTudo);
+        tresLinhas(!emTudo);
+        moveP1lula(animar !== false);
     }
 
     function sync() {
@@ -170,9 +226,11 @@
         const lista = servicos();
         if (!lista.length) return;
 
+        const nova = !document.querySelector('.cu-servicos');
         if (!montaBarra(lista)) return;
         document.body.classList.add('cu-com-servicos');
-        aplica();
+        naoOcuparEspaco();
+        aplica(!nova);
     }
 
     window.__cu.register(sync);
