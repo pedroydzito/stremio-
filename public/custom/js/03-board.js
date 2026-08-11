@@ -25,7 +25,8 @@
     //
     // O endereço sai do perfil, não fica fixo aqui: qualquer addon que ofereça
     // um catálogo com "tendências"/"trending" no nome serve.
-    const CHAVE_TEND = 'cu:tendencias';
+    // v2: a v1 guardava os ids do TMDB, que a tela de detalhes não abre.
+    const CHAVE_TEND = 'cu:tendencias2';
     const TTL_TEND = 30 * 60 * 1000;
     let tendencias = null;
     let buscandoTend = false;
@@ -55,12 +56,23 @@
         fetch(alvo.base + 'catalog/' + alvo.tipo + '/' + encodeURIComponent(alvo.id) + '.json')
             .then((r) => r.json())
             .then((j) => {
-                const itens = (j.metas || []).filter((m) => m.background || m.poster).slice(0, 8);
+                // Só itens com id do IMDb. O catálogo do TMDB identifica cada
+                // filme como `tmdb:1315772`, e quem responde pela tela de
+                // detalhes é o Cinemeta, que não conhece esse prefixo — clicar
+                // no destaque caía em "Não foram encontrados metadados". O
+                // mesmo id também é o que o botão de avaliar precisa: ele
+                // procura um `tt` na rota.
+                const itens = (j.metas || [])
+                    .filter((m) => m.imdb_id && (m.background || m.poster))
+                    .slice(0, 8);
                 if (!itens.length) return;
-                // O item vindo do catálogo não tem `deepLinks` (isso é coisa do
-                // modelo do app), então o endereço é montado aqui — no mesmo
-                // formato que as fileiras produzem.
-                itens.forEach((m) => { m.deepLinks = { metaDetailsVideos: '#/detail/' + m.type + '/' + encodeURIComponent(m.id) }; });
+                itens.forEach((m) => {
+                    m.id = m.imdb_id;
+                    // O item vindo do catálogo não tem `deepLinks` (isso é do
+                    // modelo do app), então o endereço é montado aqui — no
+                    // mesmo formato que as fileiras produzem.
+                    m.deepLinks = { metaDetailsVideos: '#/detail/' + m.type + '/' + encodeURIComponent(m.id) };
+                });
                 tendencias = itens;
                 try { localStorage.setItem(CHAVE_TEND, JSON.stringify({ quando: Date.now(), itens })); } catch (_) { /* ignore */ }
             })
