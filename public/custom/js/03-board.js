@@ -15,6 +15,59 @@
     let carouselItems = [];
     let isCarouselPaused = false;
 
+    // ---- tendências, buscadas direto no addon ---------------------------
+    //
+    // O Painel carrega as fileiras conforme você rola, então o catálogo de
+    // tendências só ficava `Ready` depois de você chegar até ele — e o
+    // destaque, que escolhe entre os catálogos prontos, nunca o via de saída.
+    // Buscar direto resolve na origem: o destaque deixa de depender de onde a
+    // página está rolada.
+    //
+    // O endereço sai do perfil, não fica fixo aqui: qualquer addon que ofereça
+    // um catálogo com "tendências"/"trending" no nome serve.
+    const CHAVE_TEND = 'cu:tendencias';
+    const TTL_TEND = 30 * 60 * 1000;
+    let tendencias = null;
+    let buscandoTend = false;
+    try {
+        const salvo = JSON.parse(localStorage.getItem(CHAVE_TEND) || 'null');
+        if (salvo && Date.now() - salvo.quando < TTL_TEND) tendencias = salvo.itens;
+    } catch (_) { /* ignore */ }
+
+    function buscaTendencias() {
+        if (tendencias || buscandoTend) return;
+        let perfil;
+        try { perfil = JSON.parse(localStorage.getItem('profile') || '{}'); } catch (_) { return; }
+
+        let alvo = null;
+        (perfil.addons || []).forEach((a) => {
+            if (alvo) return;
+            (a.manifest?.catalogs || []).forEach((c) => {
+                if (alvo || c.type !== 'movie') return;
+                if (/tend[êe]ncia|trending/i.test(c.name || '')) {
+                    alvo = { base: (a.transportUrl || '').replace(/manifest\.json$/, ''), tipo: c.type, id: c.id };
+                }
+            });
+        });
+        if (!alvo || !alvo.base) return;
+
+        buscandoTend = true;
+        fetch(alvo.base + 'catalog/' + alvo.tipo + '/' + encodeURIComponent(alvo.id) + '.json')
+            .then((r) => r.json())
+            .then((j) => {
+                const itens = (j.metas || []).filter((m) => m.background || m.poster).slice(0, 8);
+                if (!itens.length) return;
+                // O item vindo do catálogo não tem `deepLinks` (isso é coisa do
+                // modelo do app), então o endereço é montado aqui — no mesmo
+                // formato que as fileiras produzem.
+                itens.forEach((m) => { m.deepLinks = { metaDetailsVideos: '#/detail/' + m.type + '/' + encodeURIComponent(m.id) }; });
+                tendencias = itens;
+                try { localStorage.setItem(CHAVE_TEND, JSON.stringify({ quando: Date.now(), itens })); } catch (_) { /* ignore */ }
+            })
+            .catch(() => { /* segue com os catálogos da tela */ })
+            .finally(() => { buscandoTend = false; });
+    }
+
     // Qual catálogo alimenta o destaque. Antes era simplesmente o PRIMEIRO
     // que estivesse pronto — o que dava um resultado imprevisível, dependente
     // da ordem de carregamento. Agora há uma preferência declarada, e a ordem
@@ -39,6 +92,10 @@
     }
 
     function pickHeroItems(catalogs) {
+        // Tendências buscadas direto têm prioridade sobre o que estiver na tela.
+        buscaTendencias();
+        if (tendencias && tendencias.length) return tendencias;
+
         const seen = new Set();
         const items = [];
         for (const catalog of ordenaCatalogos(catalogs)) {

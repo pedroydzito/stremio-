@@ -117,7 +117,10 @@
             Array.from(el.classList)
                 .filter((c) => c.startsWith('route-'))
                 .forEach((c) => el.classList.remove(c));
-            if (route) el.classList.add('route-' + route);
+            // O Painel tem rota vazia, então nunca ganhava classe nenhuma — e
+            // sem ela o CSS não conseguia agir na tela dele no MESMO quadro da
+            // navegação. `route-board` é o nome que faltava.
+            el.classList.add(route ? 'route-' + route : 'route-board');
 
             // Aliases já usados pelos módulos existentes
             el.classList.toggle('route-player', route === 'player');

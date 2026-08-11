@@ -2146,8 +2146,17 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] > [clas
     box-shadow: var(--outer-glow);
     overflow-x: auto;
     scrollbar-width: none;
+    /* Entra descendo e clareando em vez de surgir pronta. Só na montagem: a
+       animação não se repete a cada volta do laço porque ela é disparada pelo
+       elemento nascer, não por uma classe que fica sendo reposta. */
+    animation: cu-entra-barra 0.34s var(--ease-emphasis) both;
 }
 .cu-servicos::-webkit-scrollbar { display: none; }
+
+@keyframes cu-entra-barra {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
 
 /* A pastilha desliza entre os botões; o fundo do selecionado é ela. */
 .cu-servico-pilula {
@@ -2251,14 +2260,22 @@ html { scroll-behavior: smooth; }
    certo neste Mac e erraria em qualquer outro. */
 /* Esconder a nativa devolve os 10px que ela reservava, e o destaque passa a
    ocupar a janela inteira. A barra desenhada por 11-rolagem-flutuante.js
-   entra no lugar, por cima do conteúdo. Vale só para o Painel. */
+   entra no lugar, por cima do conteúdo. Vale só para o Painel.
+   O gancho é a CLASSE DE ROTA, aplicada no hashchange: quando dependia de uma
+   classe posta pelo laço de 400ms, a barra antiga sobrevivia por um instante
+   ao chegar no Painel e o conteúdo se reajustava na frente do usuário. */
+body.route-board [class*="board-content"],
 .cu-sem-barra { scrollbar-width: none !important; }
+body.route-board [class*="board-content"]::-webkit-scrollbar,
 .cu-sem-barra::-webkit-scrollbar { width: 0 !important; height: 0 !important; }
 [class*="board-content"] { overflow-x: hidden !important; }
 
 .cu-rolagem-trilho {
     position: absolute;
-    top: var(--horizontal-nav-bar-size);
+    /* O pai (`nav-content-container`) JÁ começa abaixo da barra de navegação;
+       somar a altura dela aqui empurrava o trilho para baixo da barra de
+       streamings, 63px além do lugar. */
+    top: 2px;
     right: 2px;
     bottom: 2px;
     width: 10px;
