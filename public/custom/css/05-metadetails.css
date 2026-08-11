@@ -26,10 +26,16 @@
        navbar gradient) isn't the most important part. */
     object-position: center 15% !important;
     opacity: 1 !important;
-    transform: none !important;
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
+}
+/* O `transform: none` continua valendo para anular o que o app aplica — mas
+   NÃO durante a entrada. Uma declaração com `!important` vence uma animação:
+   com ela aqui, o zoom rodava (o nome da animação estava lá, medido) e a
+   imagem não saía do lugar. */
+[class*="metadetails-container"] [class*="background-image"]:not(.cu-fundo-zoom) {
+    transform: none !important;
 }
 /* Gradient concentrated in the BOTTOM-LEFT corner, behind the info block.
    Rest of the image stays clean. */
