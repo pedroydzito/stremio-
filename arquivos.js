@@ -22,6 +22,7 @@ module.exports = {
             "07-biblioteca.js",
             "08-calendario.js",
             "09-servicos.js",
+            "10-rolagem.js",
             "99-main.js"
     ],
 };

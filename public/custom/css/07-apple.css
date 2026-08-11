@@ -2125,7 +2125,11 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] > [clas
        tela, é uma pastilha flutuando sobre o conteúdo. */
     width: fit-content;
     max-width: calc(100% - 1rem);
-    margin: 1rem auto 0;
+    /* A margem define onde ela COMEÇA; o `top` acima define onde ela para ao
+       grudar. Os 10px a mais aqui descem a posição inicial sem mexer na que
+       você aprovou depois da rolagem. A margem inferior (negativa, calculada
+       no JS) desconta isso, para o destaque grande não descer junto. */
+    margin: 1.7rem auto 0;
     padding: 0.35rem;
     border-radius: var(--radius-pill);
     background: var(--glass-bg);
@@ -2181,7 +2185,7 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] > [clas
 @media (max-width: 640px) {
     .cu-servicos { max-width: calc(100% - 0.7rem); }
     .cu-servico-btn { padding: 0.32rem 0.5rem; font-size: 0.8rem; }
-    .cu-logo { height: 12px; }
+    .cu-logo { height: 17px; }
 }
 
 /* ---- logotipos ----
@@ -2191,7 +2195,10 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] > [clas
    senão todos sairiam esticados para a mesma caixa. */
 .cu-logo {
     display: block;
-    height: 14px;
+    /* Os arquivos novos vêm com respiro em volta do desenho (viewBox mais alto
+       que a arte), então a caixa cresce para a arte manter o tamanho ótico de
+       antes. As larguras saem da proporção de cada viewBox. */
+    height: 20px;
     background-color: currentColor;
     -webkit-mask-repeat: no-repeat;
     mask-repeat: no-repeat;
@@ -2201,14 +2208,14 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] > [clas
     mask-size: contain;
     transition: background-color 0.2s ease;
 }
-.cu-logo-netflix     { width: 43px; -webkit-mask-image: url("/custom/img/netflix.svg");     mask-image: url("/custom/img/netflix.svg"); }
-.cu-logo-hbo-max     { width: 28px; -webkit-mask-image: url("/custom/img/hbo-max.svg");     mask-image: url("/custom/img/hbo-max.svg"); }
-.cu-logo-disney-plus { width: 41px; -webkit-mask-image: url("/custom/img/disney-plus.svg"); mask-image: url("/custom/img/disney-plus.svg"); }
-.cu-logo-prime-video { width: 38px; -webkit-mask-image: url("/custom/img/prime-video.svg"); mask-image: url("/custom/img/prime-video.svg"); }
-.cu-logo-apple-tv    { width: 23px; -webkit-mask-image: url("/custom/img/apple-tv.svg");    mask-image: url("/custom/img/apple-tv.svg"); }
+.cu-logo-netflix     { width: 52px; -webkit-mask-image: url("/custom/img/netflix.svg");     mask-image: url("/custom/img/netflix.svg"); }
+.cu-logo-hbo-max     { width: 34px; -webkit-mask-image: url("/custom/img/hbo-max.svg");     mask-image: url("/custom/img/hbo-max.svg"); }
+.cu-logo-disney-plus { width: 50px; -webkit-mask-image: url("/custom/img/disney-plus.svg"); mask-image: url("/custom/img/disney-plus.svg"); }
+.cu-logo-prime-video { width: 51px; -webkit-mask-image: url("/custom/img/prime-video.svg"); mask-image: url("/custom/img/prime-video.svg"); }
+.cu-logo-apple-tv    { width: 28px; -webkit-mask-image: url("/custom/img/apple-tv.svg");    mask-image: url("/custom/img/apple-tv.svg"); }
 
 /* Com logotipo o botão vira uma caixa de ícone: o respiro passa a ser dele. */
-.cu-servico-btn:has(.cu-logo) { padding: 0.42rem 0.85rem; }
+.cu-servico-btn:has(.cu-logo) { padding: 0.3rem 0.8rem; }
 
 /* Com um serviço escolhido, a página é só dele: o destaque grande do topo sai
    junto das fileiras genéricas. */
@@ -2228,3 +2235,12 @@ body.cu-servico-ativo [class*="meta-row-container"] [class*="meta-item-container
 }
 
 .cu-fileira-oculta { display: none !important; }
+
+
+/* ============================================================
+   55. Rolagem
+   ============================================================ */
+/* Vale para saltos de âncora, teclado e `scrollIntoView`. A roda do mouse não
+   passa por aqui — o sistema a entrega em degraus fixos —, e é o 10-rolagem.js
+   que a suaviza. */
+html { scroll-behavior: smooth; }

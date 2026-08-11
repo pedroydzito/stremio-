@@ -182,16 +182,26 @@
         if (!animar) requestAnimationFrame(() => { pilula.style.transition = ''; });
     }
 
-    // A barra não pode empurrar o conteúdo: ela flutua por cima. Uma margem
-    // inferior negativa do tamanho dela devolve o espaço, e o destaque grande
-    // volta para onde estava — sem abrir mão do `sticky`.
-    function naoOcuparEspaco() {
+    // A barra não pode empurrar o conteúdo: ela flutua por cima. A margem
+    // inferior negativa devolve o espaço que ela ocuparia.
+    //
+    // A conta é sobre o espaço LÍQUIDO até o que vem depois:
+    //     líquido = margemSuperior + altura + margemInferior
+    // Então a margem inferior sai do espaço desejado. Isso desacopla as duas
+    // coisas: a margem superior decide onde a barra começa (e pode crescer sem
+    // empurrar nada), enquanto o espaço antes do destaque grande fica fixo aqui.
+    const ESPACO_TUDO = 11;      // 3px a menos que os 14 de antes
+    const ESPACO_SERVICO = 14;
+
+    function naoOcuparEspaco(emTudo) {
         const barra = document.querySelector('.cu-servicos');
         if (!barra) return;
         const alt = Math.round(barra.getBoundingClientRect().height);
         if (!alt) return;
-        const desejado = (-alt) + 'px';
-        if (barra.style.marginBottom !== desejado) barra.style.marginBottom = desejado;
+        const topo = Math.round(parseFloat(getComputedStyle(barra).marginTop) || 0);
+        const desejado = emTudo ? ESPACO_TUDO : ESPACO_SERVICO;
+        const valor = (desejado - topo - alt) + 'px';
+        if (barra.style.marginBottom !== valor) barra.style.marginBottom = valor;
     }
 
     // Cada catálogo em 3 linhas em vez de uma fileira só. O número de colunas
@@ -228,6 +238,7 @@
         });
 
         document.body.classList.toggle('cu-servico-ativo', !emTudo);
+        naoOcuparEspaco(emTudo);
         tresLinhas(!emTudo);
         moveP1lula(animar !== false);
     }
@@ -250,7 +261,6 @@
         const nova = !document.querySelector('.cu-servicos');
         if (!montaBarra(lista)) return;
         document.body.classList.add('cu-com-servicos');
-        naoOcuparEspaco();
         aplica(!nova);
     }
 
