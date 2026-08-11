@@ -709,7 +709,13 @@
                 // da imagem quebrada, ganha um visual próprio de bloqueado.
                 const semNome = !titleTxt || /^(tba|tbd)$/i.test(titleTxt.trim());
                 const noFuturo = v.released ? new Date(v.released).getTime() > Date.now() : false;
-                const bloqueado = (!thumb && semNome) || (noFuturo && semNome);
+                // Data de estreia no futuro basta para bloquear. Antes eu exigia
+                // TAMBÉM que o episódio não tivesse nome, e por isso os que já
+                // foram anunciados — com nome e arte, mas sem ter ido ao ar —
+                // apareciam como disponíveis e não davam fonte nenhuma. É a
+                // mesma data que o calendário usa, então as duas telas passam a
+                // concordar. Sem data, segue valendo a falta de nome e arte.
+                const bloqueado = noFuturo || (!thumb && semNome);
                 // Já lançado, com nome, mas o metahub ainda não gerou a arte:
                 // é espera, não bloqueio — daí o relógio no lugar do cadeado.
                 const semArte = !bloqueado && !thumb;

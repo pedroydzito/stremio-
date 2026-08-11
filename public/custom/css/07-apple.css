@@ -1987,7 +1987,13 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="heading"] {
     align-items: baseline !important;
     justify-content: space-between !important;
     gap: 0.5rem !important;
-    margin-bottom: 0.2rem !important;
+    /* O elemento vinha com 49px de altura para um texto de 13px — 32px de vão
+       morto DENTRO dele, que era a distância real entre a data e o card (35px
+       medidos), não a margem. Altura livre resolve. */
+    height: auto !important;
+    min-height: 0 !important;
+    line-height: 1.25 !important;
+    margin-bottom: 0.3rem !important;
     padding: 0 0.15rem !important;
     font-size: 0.75rem !important;
     font-weight: 600 !important;

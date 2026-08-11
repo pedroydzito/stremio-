@@ -168,10 +168,17 @@
     try { epsCache = JSON.parse(localStorage.getItem(CHAVE_EPS) || '{}'); } catch (_) { /* ignore */ }
     const epsPedidos = new Set();
 
-    function episodiosDe(imdb) {
-        if (imdb in epsCache) return epsCache[imdb];
-        if (epsPedidos.has(imdb)) return undefined;
-        epsPedidos.add(imdb);
+    // Fila com no máximo 3 buscas ao mesmo tempo: o adiantamento pede várias
+    // séries de uma vez, e disparar tudo junto só atrasaria a que o usuário
+    // está olhando.
+    const fila = [];
+    let ativos = 0;
+
+    function processa() {
+        while (ativos < 3 && fila.length) { ativos += 1; busca(fila.shift()); }
+    }
+
+    function busca(imdb) {
         fetch('https://v3-cinemeta.strem.io/meta/series/' + imdb + '.json')
             .then((r) => r.json())
             .then((j) => {
@@ -182,8 +189,33 @@
                 epsCache[imdb] = n || null;
                 try { localStorage.setItem(CHAVE_EPS, JSON.stringify(epsCache)); } catch (_) { /* ignore */ }
             })
-            .catch(() => { epsCache[imdb] = null; });
+            .catch(() => { epsCache[imdb] = null; })
+            .finally(() => { ativos -= 1; processa(); });
+    }
+
+    function episodiosDe(imdb) {
+        if (imdb in epsCache) return epsCache[imdb];
+        if (epsPedidos.has(imdb)) return undefined;
+        epsPedidos.add(imdb);
+        fila.push(imdb);
+        processa();
         return undefined;
+    }
+
+    // Adiantamento: busca a contagem das séries visíveis na grade ANTES de
+    // você clicar. Sem isto, a primeira seleção de cada série mostrava a
+    // duração e trocava para a contagem um segundo depois — o dado só começava
+    // a ser buscado no clique. Como o cache é permanente, isso acontece uma
+    // vez por série na vida.
+    function adianta() {
+        document.querySelectorAll('[class*="meta-item-container"]').forEach((card) => {
+            const r = card.getBoundingClientRect();
+            if (r.bottom < 0 || r.top > window.innerHeight || !r.width) return;
+            const href = card.getAttribute('href') || card.querySelector('a')?.getAttribute('href') || '';
+            if (!/\/(detail|metadetails)\/series\//.test(decodeURIComponent(href))) return;
+            const imdb = (decodeURIComponent(href).match(/tt\d+/) || [])[0];
+            if (imdb) episodiosDe(imdb);
+        });
     }
 
     function syncContagemEpisodios() {
@@ -202,11 +234,19 @@
         if (!imdb) return;
 
         const n = episodiosDe(imdb);
-        if (!n) return;
+        if (!n) {
+            // Ainda buscando: melhor não mostrar nada do que mostrar a duração
+            // e trocar no segundo seguinte. O espaço é reservado para o texto
+            // não dar um salto quando chegar.
+            if (n === undefined) rot.style.visibility = 'hidden';
+            return;
+        }
+        rot.style.visibility = '';
         const novo = n + (n === 1 ? ' episódio' : ' episódios');
         if (rot.textContent.trim() !== novo) rot.textContent = novo;
     }
 
     window.__cu.register(syncPanelActions);
     window.__cu.register(syncContagemEpisodios);
+    window.__cu.register(adianta);
 })();
