@@ -2065,8 +2065,24 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] {
     height: 16px;
     filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.7));
 }
-/* A data de estreia ocupa o lugar do selo de duração. */
-.cu-ep-estreia { font-size: 0.55rem !important; letter-spacing: 0 !important; }
+/* A data de estreia fica no canto superior direito do CARD — o lugar do check,
+   que não existe num episódio que ainda não saiu. Na miniatura ela disputava
+   espaço com o cadeado; aqui é a primeira coisa que se lê depois do título. */
+.cu-ep-estreia {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    z-index: 4;
+    padding: 0.1rem 0.35rem;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.10);
+    color: var(--apple-label-2);
+    font-size: 0.62rem;
+    font-weight: 600;
+    line-height: 1.5;
+    letter-spacing: -0.01em;
+    pointer-events: none;
+}
 
 /* Ícones vazados que substituem os preenchidos do Stremio: sem isto o `fill`
    herdado da barra os pintaria por dentro e o traço sumiria. */
@@ -2087,3 +2103,56 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] {
 body.route-calendar [class*="content"] > [class*="list"] [class*="item"] > [class*="body"] {
     border-radius: 10px !important;
 }
+
+/* ============================================================
+   54. Barra de serviços de streaming no Painel
+   ============================================================ */
+/* Fica logo abaixo da navbar e não sai da tela ao rolar. `position: fixed` e
+   não `sticky`: o conteúdo do Painel rola dentro de um contêiner próprio, e um
+   sticky ali acompanharia esse contêiner em vez da janela. */
+.cu-servicos {
+    position: fixed;
+    top: var(--horizontal-nav-bar-size);
+    left: 0;
+    right: 0;
+    z-index: 90;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    height: 3rem;
+    padding: 0 1rem;
+    background: var(--glass-bg-thin);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border-bottom: 1px solid var(--apple-hairline);
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.cu-servicos::-webkit-scrollbar { display: none; }
+
+.cu-servico-btn {
+    flex: none;
+    padding: 0.34rem 0.85rem;
+    border: none;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    /* Mesmo cinza das abas da navbar; branco quando escolhido. */
+    color: var(--apple-label-2);
+    font-size: 0.82rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+.cu-servico-btn:hover { color: var(--apple-label); }
+.cu-servico-btn.selecionado {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.14);
+}
+
+/* O primeiro conteúdo do Painel precisa começar abaixo da barra. */
+body.cu-com-servicos [class*="board-container"] { padding-top: 3rem !important; }
+
+.cu-fileira-oculta { display: none !important; }

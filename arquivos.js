@@ -21,6 +21,7 @@ module.exports = {
             "06-trakt.js",
             "07-biblioteca.js",
             "08-calendario.js",
+            "09-servicos.js",
             "99-main.js"
     ],
 };

@@ -88,7 +88,10 @@
                 buildTabsInto(tabsContainer);
             }
             tabsContainer.querySelectorAll('.custom-tab-item').forEach((el) => {
-                if (el.dataset.route && el.dataset.route === route) {
+                // `el.dataset.route && …` nunca era verdade para o Painel: a
+                // rota dele é a string vazia, que é falsy. A aba ficava cinza
+                // mesmo estando aberta.
+                if ((el.dataset.route || '') === (route || '')) {
                     el.classList.add('selected');
                 } else {
                     el.classList.remove('selected');

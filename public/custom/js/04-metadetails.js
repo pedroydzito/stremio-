@@ -758,12 +758,12 @@
                 return `<div class="disney-episode-card${bloqueado ? ' cu-ep-bloqueado' : ''}" data-href="${href}" data-temporada="${selected}" data-episodio="${epNum != null ? epNum : ''}">
                     <div class="disney-episode-thumb-wrap">
                         ${miniatura}
-                        ${dataEstreia ? `<span class="disney-episode-duracao cu-ep-estreia">${dataEstreia}</span>` : ''}
                     </div>
                     <div class="disney-episode-info">
                         <span class="disney-episode-title">${rotulo}</span>
                         ${segundaLinha ? `<span class="disney-episode-overview">${segundaLinha}</span>` : ''}
                     </div>
+                    ${dataEstreia ? `<span class="cu-ep-estreia">${dataEstreia}</span>` : ''}
                     <div class="cu-ep-acoes">
                         <a class="cu-ep-nota" target="_blank" rel="noopener noreferrer"></a>
                     </div>
@@ -792,7 +792,10 @@
                     if (!wrap || wrap.querySelector('.disney-episode-thumb-vazia')) return;
                     const vazia = document.createElement('div');
                     vazia.className = 'disney-episode-thumb disney-episode-thumb-vazia';
-                    vazia.innerHTML = RELOGIO_SVG;
+                    // Num episódio bloqueado o cadeado JÁ está sobreposto: pôr o
+                    // relógio aqui deixava os dois ícones no mesmo quadrado.
+                    // O vão entra vazio e quem identifica o estado é o cadeado.
+                    vazia.innerHTML = wrap.querySelector('.cu-ep-cadeado') ? '' : RELOGIO_SVG;
                     img.replaceWith(vazia);
                 }, { once: true });
             });
