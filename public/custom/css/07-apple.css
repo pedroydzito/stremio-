@@ -2097,6 +2097,16 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] {
     fill: none !important;
     stroke: currentColor !important;
 }
+/* E também nos FILHOS. Existe uma regra `.cu-details-btn * { fill: currentColor
+   !important }` para os botões claros, e ela pinta o <circle> e os <path>
+   diretamente — o `fill: none` posto no <svg> só é herdado por quem não tem
+   valor próprio, então o ícone saía como um disco preto. */
+.custom-tab-item .tab-icon[stroke] *,
+.hero-btn .btn-icon[stroke] *,
+.cu-details-btn svg[stroke] * {
+    fill: none !important;
+    stroke: currentColor !important;
+}
 
 /* Cantos do card no calendário: o item nativo arredondava só embaixo.
    SEM `overflow: hidden` aqui — ele anularia a liberação que faz o card

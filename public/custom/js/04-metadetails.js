@@ -1649,6 +1649,27 @@
     // usam, sem ter que redescobri-lo pela árvore de fibers.
     window.__cu.debug = Object.assign(window.__cu.debug || {}, { detalhes: () => lastDd });
 
+    // O zoom do fundo precisa começar QUANDO A IMAGEM CARREGA, não quando o
+    // elemento monta: a arte chega segundos depois, e uma animação disparada na
+    // montagem já terminou antes de haver o que ver. Aqui a classe é posta no
+    // `load`, e retirada/reposta a cada troca de título para reiniciar o gesto.
+    function animaFundo() {
+        const img = document.querySelector('[class*="metadetails-container"] img[class*="background-image"]');
+        if (!img) return;
+        const src = img.currentSrc || img.src || '';
+        if (!src || img.dataset.cuFundo === src) return;
+
+        const aplicar = () => {
+            img.dataset.cuFundo = src;
+            img.classList.remove('cu-fundo-zoom');
+            void img.offsetWidth;          // força o reinício da animação
+            img.classList.add('cu-fundo-zoom');
+        };
+        if (img.complete && img.naturalWidth) aplicar();
+        else img.addEventListener('load', aplicar, { once: true });
+    }
+
+    window.__cu.register(animaFundo);
     window.__cu.register(syncEpisodiosVistos);
     window.__cu.register(syncNotasEpisodios);
     window.__cu.register(syncDuracoes);

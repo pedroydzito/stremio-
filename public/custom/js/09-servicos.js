@@ -221,6 +221,11 @@
         const lista = servicos().map(chave);
 
         document.querySelectorAll('[class*="meta-row-container"]').forEach((fileira) => {
+            // As fileiras que o 12-servico-catalogo monta são CLONES das
+            // nativas, então carregam `meta-row-container` e caíam nesta
+            // varredura: apareciam e sumiam no mesmo instante.
+            if (fileira.closest('.cu-cat-area')) return;
+
             const titulo = tituloDaFileira(fileira);
             const dono = lista.find((s) => titulo.startsWith(s));
             // Em "Tudo": as genéricas aparecem e as de streaming somem.
@@ -261,6 +266,17 @@
         document.body.classList.add('cu-com-servicos');
         aplica(!nova);
     }
+
+    // Clicar em "Painel" leva à tela inicial — e tela inicial é "Tudo". Sem
+    // isto ela reabria no serviço da última visita, o que não é o que se
+    // espera de um botão de "início".
+    document.addEventListener('click', (e) => {
+        const aba = e.target.closest('.custom-tab-item');
+        if (!aba) return;
+        if ((aba.dataset.route || '') !== '') return;
+        selecionado = TUDO;
+        try { localStorage.setItem(CHAVE, selecionado); } catch (_) { /* ignore */ }
+    }, true);
 
     window.__cu.register(sync);
 })();

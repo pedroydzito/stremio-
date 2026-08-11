@@ -116,7 +116,11 @@ body.route-calendar [class*="table"] { animation: cu-surge 0.28s ease both; }
    ambiente, não resposta a um clique.
    Só a IMAGEM anima. A regra anterior pegava também o `background-image-layer`,
    o contêiner dela, e duas escalas aninhadas se somavam. */
-[class*="metadetails-container"] img[class*="background-image"] {
+/* A animação NÃO fica no seletor do elemento: ela roda quando ele é pintado, e
+   a arte de fundo só chega depois — quando a imagem enfim aparecia, o gesto já
+   tinha acabado e não se via nada. Quem põe a classe é o JS, no momento em que
+   a imagem termina de carregar. */
+[class*="metadetails-container"] img[class*="background-image"].cu-fundo-zoom {
     animation: cu-zoom-interno 1.1s var(--ease-cinematic) both;
 }
 [class*="metadetails-container"] [class*="background-image-layer"] { animation: none; }
