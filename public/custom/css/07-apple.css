@@ -2107,25 +2107,29 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] > [clas
 /* ============================================================
    54. Barra de serviços de streaming no Painel
    ============================================================ */
-/* Fica logo abaixo da navbar e não sai da tela ao rolar. `position: fixed` e
-   não `sticky`: o conteúdo do Painel rola dentro de um contêiner próprio, e um
-   sticky ali acompanharia esse contêiner em vez da janela. */
+/* Card flutuante dentro do conteúdo do Painel, não solto no body.
+   `sticky` e não `fixed`: como filha do conteúdo, a barra herda a largura das
+   fileiras e gruda ao rolar sem que ninguém precise abrir espaço para ela — o
+   `padding-top` que eu usava antes caía no `board-container`, que inclui a
+   NAVBAR, e empurrava a barra do app inteira para baixo. */
 .cu-servicos {
-    position: fixed;
-    top: var(--horizontal-nav-bar-size);
-    left: 0;
-    right: 0;
-    z-index: 90;
+    position: sticky;
+    top: 0.75rem;
+    z-index: 50;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.4rem;
-    height: 3rem;
-    padding: 0 1rem;
-    background: var(--glass-bg-thin);
+    gap: 0.3rem;
+    /* Sem margem lateral: o contêiner do conteúdo JÁ recua 14px, o mesmo
+       recuo das fileiras. Acrescentar 1rem aqui dobrava o recuo e a barra
+       ficava mais estreita que os cards (28→1241 contra 14→1255). */
+    margin: 0.75rem 0 1.1rem;
+    padding: 0.35rem;
+    border-radius: var(--border-radius-lg);
+    background: var(--glass-bg);
     -webkit-backdrop-filter: var(--glass-blur);
     backdrop-filter: var(--glass-blur);
-    border-bottom: 1px solid var(--apple-hairline);
+    border: var(--glass-border);
+    box-shadow: var(--outer-glow);
     overflow-x: auto;
     scrollbar-width: none;
 }
@@ -2133,7 +2137,7 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] > [clas
 
 .cu-servico-btn {
     flex: none;
-    padding: 0.34rem 0.85rem;
+    padding: 0.34rem 0.9rem;
     border: none;
     border-radius: var(--radius-pill);
     background: transparent;
@@ -2149,10 +2153,11 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] > [clas
 .cu-servico-btn:hover { color: var(--apple-label); }
 .cu-servico-btn.selecionado {
     color: #ffffff;
-    background: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.16);
 }
 
-/* O primeiro conteúdo do Painel precisa começar abaixo da barra. */
-body.cu-com-servicos [class*="board-container"] { padding-top: 3rem !important; }
+/* Com um serviço escolhido, a página é só dele: o destaque grande do topo sai
+   junto das fileiras genéricas. */
+body.cu-servico-ativo .hero-carousel { display: none !important; }
 
 .cu-fileira-oculta { display: none !important; }

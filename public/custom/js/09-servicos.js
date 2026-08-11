@@ -17,8 +17,9 @@
 
 (function () {
     const CHAVE = 'cu:servico';
-    let selecionado = '';
-    try { selecionado = localStorage.getItem(CHAVE) || ''; } catch (_) { /* ignore */ }
+    const TUDO = '\u0000tudo';          // valor reservado: nenhum serviço se chama assim
+    let selecionado = TUDO;
+    try { selecionado = localStorage.getItem(CHAVE) || TUDO; } catch (_) { /* ignore */ }
 
     // Normaliza para comparar: um dos catálogos do addon vem com espaço duplo
     // no nome ("Prime  Video"), o que criava dois botões para o mesmo serviço.
@@ -91,13 +92,23 @@
     }
 
     function montaBarra(lista) {
-        let barra = document.querySelector('.cu-servicos');
+        // A barra vive DENTRO do conteúdo do Painel, não solta no body. Na
+        // primeira versão ela era `fixed` e eu dava padding-top no
+        // `board-container` para abrir espaço — só que esse contêiner inclui a
+        // NAVBAR, que desceu 42px junto. Como filha do conteúdo, ela herda a
+        // largura das fileiras e gruda sozinha ao rolar, sem empurrar nada.
+        const conteudo = document.querySelector('[class*="board-content"]:not([class*="container"])')
+            || document.querySelector('[class*="board-content-container"]');
+        if (!conteudo) return null;
+
+        let barra = conteudo.querySelector(':scope > .cu-servicos');
         if (barra && barra.dataset.itens === String(lista.length)) return barra;
 
         if (!barra) {
+            document.querySelectorAll('.cu-servicos').forEach((b) => b.remove());
             barra = document.createElement('div');
             barra.className = 'cu-servicos';
-            document.body.appendChild(barra);
+            conteudo.insertBefore(barra, conteudo.firstChild);
         }
         barra.dataset.itens = String(lista.length);
         barra.innerHTML = '';
@@ -109,15 +120,16 @@
             b.textContent = rotulo;
             b.dataset.servico = valor;
             b.addEventListener('click', () => {
-                // Clicar no que já está escolhido desliga o filtro — sem isso
-                // não haveria como voltar para "nenhum" sem um botão extra.
-                selecionado = (selecionado === valor) ? '' : valor;
+                // "Tudo" é o estado de repouso: clicar no serviço já escolhido
+                // volta para ele, em vez de deixar a tela sem filtro nenhum.
+                selecionado = (selecionado === valor) ? TUDO : valor;
                 try { localStorage.setItem(CHAVE, selecionado); } catch (_) { /* ignore */ }
                 aplica();
             });
             barra.appendChild(b);
         };
 
+        botao('Tudo', TUDO);
         lista.forEach((nome) => botao(nome, chave(nome)));
         return barra;
     }
@@ -127,13 +139,20 @@
             b.classList.toggle('selecionado', b.dataset.servico === selecionado);
         });
 
+        const emTudo = selecionado === TUDO;
         const lista = servicos().map(chave);
+
         document.querySelectorAll('[class*="meta-row-container"]').forEach((fileira) => {
             const titulo = tituloDaFileira(fileira);
             const dono = lista.find((s) => titulo.startsWith(s));
-            if (!dono) { fileira.classList.remove('cu-fileira-oculta'); return; }   // genérica: sempre visível
-            fileira.classList.toggle('cu-fileira-oculta', dono !== selecionado);
+            // Em "Tudo": as genéricas aparecem e as de streaming somem.
+            // Num serviço: só as dele — o resto da página sai de cena, incluindo
+            // o destaque grande do topo (pela classe no body).
+            const mostrar = dono ? (!emTudo && dono === selecionado) : emTudo;
+            fileira.classList.toggle('cu-fileira-oculta', !mostrar);
         });
+
+        document.body.classList.toggle('cu-servico-ativo', !emTudo);
     }
 
     function sync() {
@@ -144,14 +163,14 @@
             if (barra) barra.remove();
             // Sair do Painel não pode deixar fileira escondida em outra tela.
             document.querySelectorAll('.cu-fileira-oculta').forEach((f) => f.classList.remove('cu-fileira-oculta'));
-            document.body.classList.remove('cu-com-servicos');
+            document.body.classList.remove('cu-com-servicos', 'cu-servico-ativo');
             return;
         }
 
         const lista = servicos();
         if (!lista.length) return;
 
-        montaBarra(lista);
+        if (!montaBarra(lista)) return;
         document.body.classList.add('cu-com-servicos');
         aplica();
     }
