@@ -35,13 +35,22 @@
     from { opacity: 0; transform: scale(0.97); }
     to   { opacity: 1; transform: scale(1); }
 }
+/* Zoom que acontece DENTRO da moldura: a imagem entra um pouco maior e assenta
+   no tamanho certo. O card não muda de largura em momento nenhum — quem se
+   move é a arte, contida pelo `overflow: hidden` do contêiner. */
+@keyframes cu-zoom-interno {
+    from { opacity: 0; transform: scale(1.06); }
+    to   { opacity: 1; transform: scale(1); }
+}
 
 /* ============================================================
    Painel
    ============================================================ */
-/* O destaque abre com um leve zoom-out: dá a sensação de a imagem "assentar"
-   em vez de piscar na tela. */
-.hero-carousel { animation: cu-cresce 0.42s var(--ease-cinematic) both; }
+/* O destaque não muda de tamanho: quem faz o zoom é a IMAGEM, por dentro. A
+   versão anterior animava o card inteiro, e ele nascia mais estreito e
+   crescia até a largura total — dava para ver a borda andando. */
+.hero-carousel { animation: cu-surge 0.3s ease both; }
+.hero-slide.active .hero-image { animation: cu-zoom-interno 0.9s var(--ease-cinematic) both; }
 
 /* As fileiras entram em cascata. A escada é curta de propósito: passa de ~5
    fileiras e a última chegaria tarde demais para parecer resposta ao clique. */
@@ -97,6 +106,13 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] {
     animation: cu-sobe-pouco 0.3s var(--ease-emphasis) both;
 }
 body.route-calendar [class*="table"] { animation: cu-surge 0.28s ease both; }
+
+/* O fundo da tela de detalhes ganha o mesmo gesto do destaque: a arte assenta
+   em vez de aparecer pronta. Mais lento que as entradas de interface — é
+   ambiente, não resposta a um clique. */
+[class*="metadetails-container"] [class*="background-image"] {
+    animation: cu-zoom-interno 1.1s var(--ease-cinematic) both;
+}
 
 /* ============================================================
    Só opacidade onde já existe transform

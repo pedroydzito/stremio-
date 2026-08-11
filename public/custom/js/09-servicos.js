@@ -226,7 +226,10 @@
             // Em "Tudo": as genéricas aparecem e as de streaming somem.
             // Num serviço: só as dele — o resto da página sai de cena, incluindo
             // o destaque grande do topo (pela classe no body).
-            const mostrar = dono ? (!emTudo && dono === selecionado) : emTudo;
+            // Num serviço, TODAS as fileiras nativas saem: as do próprio
+            // serviço também, porque quem monta a tela dele agora é o
+            // 12-servico-catalogo.js, com muito mais listas.
+            const mostrar = emTudo ? !dono : false;
             fileira.classList.toggle('cu-fileira-oculta', !mostrar);
         });
 

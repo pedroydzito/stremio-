@@ -25,6 +25,7 @@ module.exports = {
             "09-servicos.js",
             "10-rolagem.js",
             "11-rolagem-flutuante.js",
+            "12-servico-catalogo.js",
             "99-main.js"
     ],
 };
