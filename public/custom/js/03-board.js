@@ -15,10 +15,33 @@
     let carouselItems = [];
     let isCarouselPaused = false;
 
+    // Qual catálogo alimenta o destaque. Antes era simplesmente o PRIMEIRO
+    // que estivesse pronto — o que dava um resultado imprevisível, dependente
+    // da ordem de carregamento. Agora há uma preferência declarada, e a ordem
+    // de chegada só decide o desempate quando nenhuma delas está pronta.
+    const PREFERIDOS = [/tend[êe]ncia/i, /popular/i, /destaque|featured/i];
+
+    function nomeDoCatalogo(catalog) {
+        return String(catalog?.title || catalog?.name || catalog?.id || '');
+    }
+
+    function ordenaCatalogos(catalogs) {
+        const prontos = (catalogs || []).filter((c) => c?.content?.type === 'Ready');
+        const nota = (c) => {
+            const nome = nomeDoCatalogo(c);
+            const i = PREFERIDOS.findIndex((re) => re.test(nome));
+            // Filme antes de série: o destaque é uma arte grande e horizontal,
+            // e as de filme costumam ser mais bem acabadas.
+            const ehSerie = /s[ée]rie|series/i.test(nome) ? 1 : 0;
+            return (i < 0 ? PREFERIDOS.length : i) * 2 + ehSerie;
+        };
+        return prontos.slice().sort((a, b) => nota(a) - nota(b));
+    }
+
     function pickHeroItems(catalogs) {
         const seen = new Set();
         const items = [];
-        for (const catalog of catalogs || []) {
+        for (const catalog of ordenaCatalogos(catalogs)) {
             if (catalog?.content?.type !== 'Ready') continue;
             for (const item of catalog.content.content) {
                 const id = item.id || item.name;
@@ -482,6 +505,8 @@
     }
 
     window.addEventListener('resize', recalculaJa);
+
+
 
     // O redimensionamento da JANELA não cobre tudo: abrir o painel lateral ou
     // trocar de rota muda a largura do conteúdo sem um evento de resize.

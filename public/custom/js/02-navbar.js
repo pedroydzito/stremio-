@@ -160,7 +160,13 @@
     // dependia só do loop de 400ms, o CSS escopado por rota (calendário,
     // explorar…) chegava atrasado: a tela pintava sem estilo e "consertava"
     // sozinha um instante depois. Um listener de hashchange resolve.
-    window.addEventListener('hashchange', () => syncRouteClass(true));
+    // O realce da aba também precisa do hashchange. Sem isso ele só era
+    // corrigido no laço de 400ms, e ao voltar do Explorar para o Painel a aba
+    // "Explorar" seguia acesa por um instante depois de a tela já ter trocado.
+    window.addEventListener('hashchange', () => {
+        syncRouteClass(true);
+        try { syncTabs(); } catch (_) { /* ignore */ }
+    });
     syncRouteClass(true);
 
     window.__cu.register(syncTabs);

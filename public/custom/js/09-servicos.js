@@ -247,6 +247,9 @@
             return;
         }
 
+        // A lista sai do manifesto guardado no perfil, que já está no
+        // localStorage quando a página abre — a barra não precisa esperar as
+        // fileiras chegarem. Era essa espera que a fazia aparecer atrasada.
         const lista = servicos();
         if (!lista.length) return;
 

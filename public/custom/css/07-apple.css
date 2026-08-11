@@ -2133,8 +2133,10 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] > [clas
     max-width: calc(100% - 1rem);
     /* Sem margem superior: quem define a altura é o `top` do sticky, e assim
        o começo e o ponto de parada são o mesmo lugar. A margem inferior é
-       negativa e sai do JS, para a barra não empurrar nada. */
-    margin: 0 auto;
+       negativa e sai do JS — mas já nasce aqui com um valor próximo do real,
+       senão o primeiro quadro empurraria o conteúdo para baixo e ele subiria
+       de volta um instante depois. Era esse o solavanco ao abrir o Painel. */
+    margin: 0 auto -40px;
     padding: 0.35rem;
     border-radius: var(--radius-pill);
     background: var(--glass-bg);
@@ -2236,3 +2238,49 @@ body.cu-servico-ativo .hero-carousel { display: none !important; }
    passa por aqui — o sistema a entrega em degraus fixos —, e é o 10-rolagem.js
    que a suaviza. */
 html { scroll-behavior: smooth; }
+
+
+/* ============================================================
+   56. Barra de rolagem sobreposta
+   ============================================================ */
+/* A barra de rolagem reserva largura, e o destaque de ponta a ponta parava
+   antes da borda por causa disso. `overflow: overlay` seria a solução direta,
+   mas o WebKit desta versão a ignora e cai em `auto` (medido) — então a saída
+   é o destaque avançar por baixo dela.
+   A largura real vem do JS, em `--cu-barra-rolagem`: chutar um valor daria
+   certo neste Mac e erraria em qualquer outro. */
+/* Esconder a nativa devolve os 10px que ela reservava, e o destaque passa a
+   ocupar a janela inteira. A barra desenhada por 11-rolagem-flutuante.js
+   entra no lugar, por cima do conteúdo. Vale só para o Painel. */
+.cu-sem-barra { scrollbar-width: none !important; }
+.cu-sem-barra::-webkit-scrollbar { width: 0 !important; height: 0 !important; }
+[class*="board-content"] { overflow-x: hidden !important; }
+
+.cu-rolagem-trilho {
+    position: absolute;
+    top: var(--horizontal-nav-bar-size);
+    right: 2px;
+    bottom: 2px;
+    width: 10px;
+    z-index: 60;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+}
+.cu-rolagem-trilho.visivel { opacity: 1; pointer-events: auto; }
+
+.cu-rolagem-polegar {
+    position: absolute;
+    top: 0;
+    right: 2px;
+    width: 6px;
+    border-radius: 999px;
+    background-color: rgba(235, 235, 245, 0.28);
+    cursor: default;
+    transition: background-color 0.15s ease, width 0.15s ease;
+}
+.cu-rolagem-trilho:hover .cu-rolagem-polegar,
+.cu-rolagem-trilho.arrastando .cu-rolagem-polegar {
+    width: 8px;
+    background-color: rgba(235, 235, 245, 0.5);
+}

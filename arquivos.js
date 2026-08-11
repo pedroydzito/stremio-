@@ -23,6 +23,7 @@ module.exports = {
             "08-calendario.js",
             "09-servicos.js",
             "10-rolagem.js",
+            "11-rolagem-flutuante.js",
             "99-main.js"
     ],
 };
