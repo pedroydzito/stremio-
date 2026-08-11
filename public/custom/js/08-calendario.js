@@ -89,8 +89,56 @@
         }
     }
 
+    // ---- semana começando no domingo ------------------------------------
+    //
+    // A grade é UMA grade só de 7 colunas (medido: `display: grid`, 36 células
+    // irmãs), não uma pilha de linhas de semana — por isso dá para virar a
+    // semana mexendo em uma coluna. O Stremio monta segunda→domingo porque o
+    // app está em português; a ordem vem do idioma, não de uma preferência.
+    //
+    // Cada data precisa andar uma coluna para a direita. Em vez de fixar "+1",
+    // que erraria no mês que começa num domingo, a coluna sai da própria
+    // grade: o número de células vazias antes do dia 1 revela o dia da semana
+    // dele, e daí sai a coluna certa na contagem que começa no domingo.
+    const DIAS = ['DOMINGO', 'SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO'];
+
+    function viraSemana() {
+        const grade = document.querySelector('[class*="table"] [class*="grid"]');
+        if (!grade) return;
+
+        const celulas = Array.from(grade.children);
+        if (!celulas.length) return;
+
+        const temDia = (c) => /\d/.test((c.textContent || '').trim());
+        const primeira = celulas.findIndex(temDia);
+        if (primeira < 0) return;
+
+        // primeira === quantidade de células vazias antes do dia 1.
+        // Na contagem que começa na segunda, o dia 1 cai na coluna primeira+1;
+        // na que começa no domingo, uma adiante (com o domingo voltando para 1).
+        const coluna = ((primeira + 1) % 7) + 1;
+        const alvo = celulas[primeira];
+        if (alvo.style.gridColumnStart !== String(coluna)) {
+            alvo.style.gridColumnStart = String(coluna);
+        }
+        // As vazias do começo não servem mais: quem abre a linha agora é a
+        // coluna definida acima. Deixá-las visíveis empurraria tudo de volta.
+        celulas.slice(0, primeira).forEach((c) => { c.style.display = 'none'; });
+
+        // Cabeçalhos: "SEGUNDA-FEIRA" → "SEGUNDA", e domingo na frente.
+        const cabecalhos = Array.from(document.querySelectorAll('[class*="table"] *'))
+            .filter((e) => !e.children.length && /-feira|sábado|domingo/i.test(e.textContent || ''));
+        if (cabecalhos.length === 7) {
+            cabecalhos.forEach((e, i) => {
+                const texto = DIAS[i];
+                if (e.textContent.trim() !== texto) e.textContent = texto;
+            });
+        }
+    }
+
     function sync() {
         if (!document.body.classList.contains('route-calendar')) return;
+        viraSemana();
         const lista = document.querySelector('[class*="content"] > [class*="list"]');
         if (!lista) return;
 

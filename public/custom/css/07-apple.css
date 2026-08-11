@@ -1973,7 +1973,10 @@ body.route-calendar [class*="cell"] [class*="items"] [class*="item"] [class*="ic
    não tinha nada. */
 body.route-calendar [class*="content"] > [class*="list"] {
     padding: 1.25rem 1rem 1rem !important;
-    gap: 0.6rem !important;
+    /* O respiro fica ENTRE os blocos (card → próxima data). Dentro do bloco, a
+       data cola no seu card: é ela que o rotula, e a distância antiga fazia a
+       data parecer legenda do card de cima. */
+    gap: 1.1rem !important;
     overflow-y: auto !important;
 }
 
@@ -1984,7 +1987,7 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="heading"] {
     align-items: baseline !important;
     justify-content: space-between !important;
     gap: 0.5rem !important;
-    margin-bottom: 0.35rem !important;
+    margin-bottom: 0.2rem !important;
     padding: 0 0.15rem !important;
     font-size: 0.75rem !important;
     font-weight: 600 !important;
@@ -2003,12 +2006,24 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="heading"] {
 
 /* O card em si reusa `.disney-episode-card`; aqui só o que muda no contexto
    da lista — ele é um link, não uma div, e não tem coluna de ações. */
+/* O card cresce com o texto. Ele herda de `.disney-episode-card` um
+   `overflow: hidden` que existe para a miniatura; com o nome do episódio
+   quebrando em duas linhas, isso cortava a segunda. Altura livre e overflow
+   liberado no card — o recorte continua onde precisa estar, na miniatura. */
 .cu-cal-card {
     display: flex !important;
     align-items: center !important;
     gap: 0.6rem !important;
     padding: 0.55rem !important;
+    min-height: 3.9rem !important;
+    height: auto !important;
+    overflow: visible !important;
     text-decoration: none !important;
+}
+body.route-calendar [class*="content"] > [class*="list"] [class*="item"],
+body.route-calendar [class*="content"] > [class*="list"] [class*="body"] {
+    height: auto !important;
+    overflow: visible !important;
 }
 .cu-cal-card .disney-episode-info { padding-right: 0 !important; }
 /* O ícone nativo de play era um disco branco do tamanho do card; o card
