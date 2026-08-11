@@ -975,13 +975,16 @@ body.route-discover [class*="meta-preview-container"] {
 /* ============================================================
    27. Ajustes finais
    ============================================================ */
-/* Hero da home com o MESMO raio dos cards do Continuar a ver (12px, medido).
-   Ele estava em 7px, herdado do --border-radius antigo. */
+/* O destaque da home deixou de ser um card: vai de ponta a ponta e encosta na
+   barra de navegação, como o da Apple TV+. O raio de 12px que ele tinha aqui
+   (para casar com os cards do Continuar assistindo) agora seria justamente o
+   que denunciaria a borda. O `overflow: hidden` fica: é ele que recorta a arte
+   dos slides. */
 .hero-carousel,
 .hero-stage,
 .hero-slide,
 .hero-image-wrapper {
-    border-radius: var(--radius-card) !important;
+    border-radius: 0 !important;
     overflow: hidden !important;
 }
 
@@ -2116,7 +2119,10 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] > [clas
    impede a barra de empurrar o destaque grande para baixo. */
 .cu-servicos {
     position: sticky;
-    top: 0.9rem;
+    /* 1rem = os 14px de padding do `board-content`. Igualar os dois faz a
+       posição inicial coincidir com a posição em que ela gruda — antes ela
+       nascia mais baixa e subia ao rolar. */
+    top: 1rem;
     z-index: 50;
     display: flex;
     align-items: center;
@@ -2125,11 +2131,10 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] > [clas
        tela, é uma pastilha flutuando sobre o conteúdo. */
     width: fit-content;
     max-width: calc(100% - 1rem);
-    /* A margem define onde ela COMEÇA; o `top` acima define onde ela para ao
-       grudar. Os 10px a mais aqui descem a posição inicial sem mexer na que
-       você aprovou depois da rolagem. A margem inferior (negativa, calculada
-       no JS) desconta isso, para o destaque grande não descer junto. */
-    margin: 1.7rem auto 0;
+    /* Sem margem superior: quem define a altura é o `top` do sticky, e assim
+       o começo e o ponto de parada são o mesmo lugar. A margem inferior é
+       negativa e sai do JS, para a barra não empurrar nada. */
+    margin: 0 auto;
     padding: 0.35rem;
     border-radius: var(--radius-pill);
     background: var(--glass-bg);
@@ -2220,19 +2225,6 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] > [clas
 /* Com um serviço escolhido, a página é só dele: o destaque grande do topo sai
    junto das fileiras genéricas. */
 body.cu-servico-ativo .hero-carousel { display: none !important; }
-
-/* …e cada catálogo passa de uma fileira rolável para uma grade de 3 linhas.
-   O número de colunas vem do JS, calculado a partir da quantidade de itens. */
-body.cu-servico-ativo [class*="meta-row-container"] [class*="meta-items-container"] {
-    display: grid !important;
-    grid-template-columns: repeat(var(--cu-colunas, 5), minmax(0, 1fr)) !important;
-    gap: 0.6rem !important;
-    overflow: visible !important;
-}
-body.cu-servico-ativo [class*="meta-row-container"] [class*="meta-item-container"] {
-    width: auto !important;
-    max-width: none !important;
-}
 
 .cu-fileira-oculta { display: none !important; }
 

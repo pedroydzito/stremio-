@@ -72,10 +72,14 @@
 /* === Hero Carousel ===
    Margin matches the .meta-item-container 0.5rem inner padding so the hero
    aligns horizontally with the cards below ("Continuar assistindo"). */
+/* Destaque de ponta a ponta, encostado no topo e nas laterais — como o da
+   Apple TV+. As margens laterais negativas cancelam os 14px de padding do
+   `board-content`, e a superior cancela o padding de cima; sem isso o card
+   ficaria "quase" na borda, que é pior que estar recuado de propósito. */
 .hero-carousel {
     position: relative;
     width: auto;
-    margin: 1.25rem 0.5rem 2.5rem 0.5rem;
+    margin: -14px -14px 2.5rem;
     z-index: 0;
     overflow: visible;
 }
@@ -85,9 +89,13 @@
     aspect-ratio: 21 / 9;
     max-height: 550px !important;
     overflow: hidden;
-    border-radius: 0.75rem;
+    /* Sem cantos e sem sombra: o destaque agora vai de ponta a ponta e nasce
+       colado na barra de navegação — não é mais um card sobre a página, é a
+       própria página. Canto arredondado encostado na borda só denunciaria que
+       ele foi feito para ser um card. */
+    border-radius: 0;
     background: #0c0c0f;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+    box-shadow: none;
 }
 .hero-slide {
     position: absolute;

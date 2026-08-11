@@ -190,7 +190,10 @@
     // Então a margem inferior sai do espaço desejado. Isso desacopla as duas
     // coisas: a margem superior decide onde a barra começa (e pode crescer sem
     // empurrar nada), enquanto o espaço antes do destaque grande fica fixo aqui.
-    const ESPACO_TUDO = 11;      // 3px a menos que os 14 de antes
+    // Em "Tudo" o destaque vai de ponta a ponta e encosta na navbar, então a
+    // barra não pode deixar folga acima dele — ela flutua por cima. Num
+    // serviço não há destaque, e a primeira fileira precisa de respiro.
+    const ESPACO_TUDO = 0;
     const ESPACO_SERVICO = 14;
 
     function naoOcuparEspaco(emTudo) {
@@ -204,20 +207,10 @@
         if (barra.style.marginBottom !== valor) barra.style.marginBottom = valor;
     }
 
-    // Cada catálogo em 3 linhas em vez de uma fileira só. O número de colunas
-    // sai da quantidade de itens (teto de n/3), com um mínimo para os pôsteres
-    // não virarem painéis quando o catálogo traz poucos.
-    function tresLinhas(ligado) {
-        document.querySelectorAll('[class*="meta-row-container"]').forEach((f) => {
-            const itens = f.querySelector('[class*="meta-items-container"]');
-            if (!itens) return;
-            if (!ligado) { itens.style.removeProperty('--cu-colunas'); return; }
-            const n = itens.querySelectorAll('[class*="meta-item-container"]').length;
-            if (!n) return;
-            const colunas = Math.max(4, Math.ceil(n / 3));
-            itens.style.setProperty('--cu-colunas', colunas);
-        });
-    }
+    // As 3 linhas por catálogo foram revertidas: cada catálogo entrega só 10
+    // itens (medido no Painel), e 10 pôsteres no tamanho normal não chegam a
+    // formar 3 linhas. Para forçá-las eu teria que esticar os cards, que foi
+    // justamente o que ficou ruim. Fica uma fileira, como no resto do app.
 
     function aplica(animar) {
         document.querySelectorAll('.cu-servico-btn').forEach((b) => {
@@ -239,7 +232,6 @@
 
         document.body.classList.toggle('cu-servico-ativo', !emTudo);
         naoOcuparEspaco(emTudo);
-        tresLinhas(!emTudo);
         moveP1lula(animar !== false);
     }
 
