@@ -10,10 +10,10 @@
    no código. Se você ativar ou desativar um serviço na configuração do addon,
    a barra acompanha sozinha.
 
-   Sobre as marcas: os botões usam o NOME de cada serviço, não o logotipo.
-   Redesenhar logotipo de marca é reproduzir material de terceiros, e eu não
-   faço isso por conta própria — se você me passar os arquivos oficiais, eu
-   troco os textos pelas imagens em monocromático. */
+   Os logotipos são os arquivos que você forneceu, em custom/img/. Eles entram
+   como MÁSCARA, não como imagem: assim herdam a cor do botão e acompanham o
+   cinza/branco do estado, sem precisar de uma versão colorida e outra não.
+   Serviço sem arquivo correspondente continua mostrando o nome em texto. */
 
 (function () {
     const CHAVE = 'cu:servico';
@@ -120,12 +120,33 @@
         pilula.className = 'cu-servico-pilula';
         barra.appendChild(pilula);
 
+        // nome do serviço → arquivo do logotipo
+        const LOGOS = {
+            'netflix': 'netflix',
+            'hbo max': 'hbo-max',
+            'disney+': 'disney-plus',
+            'prime video': 'prime-video',
+            'apple tv+': 'apple-tv',
+        };
+
         const botao = (rotulo, valor) => {
             const b = document.createElement('button');
             b.type = 'button';
             b.className = 'cu-servico-btn';
-            b.textContent = rotulo;
             b.dataset.servico = valor;
+
+            const arquivo = LOGOS[valor];
+            if (arquivo) {
+                // O nome fica no title e como rótulo acessível: o logotipo é
+                // desenho, não texto, e sem isso o botão ficaria mudo.
+                b.title = rotulo;
+                b.setAttribute('aria-label', rotulo);
+                const logo = document.createElement('span');
+                logo.className = 'cu-logo cu-logo-' + arquivo;
+                b.appendChild(logo);
+            } else {
+                b.textContent = rotulo;
+            }
             b.addEventListener('click', () => {
                 // "Tudo" é o estado de repouso: clicar no serviço já escolhido
                 // volta para ele, em vez de deixar a tela sem filtro nenhum.

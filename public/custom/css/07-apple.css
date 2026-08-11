@@ -2121,9 +2121,11 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] > [clas
     display: flex;
     align-items: center;
     gap: 0.2rem;
-    /* 0.5rem de cada lado: o mesmo recuo do card de destaque, para os dois
-       terminarem na mesma linha vertical. */
-    margin: 1rem 0.5rem 0;
+    /* Só a largura dos botões, centralizada — não é uma barra que atravessa a
+       tela, é uma pastilha flutuando sobre o conteúdo. */
+    width: fit-content;
+    max-width: calc(100% - 1rem);
+    margin: 1rem auto 0;
     padding: 0.35rem;
     border-radius: var(--radius-pill);
     background: var(--glass-bg);
@@ -2177,9 +2179,36 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] > [clas
     .cu-servico-btn { padding: 0.34rem 0.75rem; font-size: 0.86rem; }
 }
 @media (max-width: 640px) {
-    .cu-servicos { margin-inline: 0.35rem; }
-    .cu-servico-btn { padding: 0.32rem 0.6rem; font-size: 0.8rem; }
+    .cu-servicos { max-width: calc(100% - 0.7rem); }
+    .cu-servico-btn { padding: 0.32rem 0.5rem; font-size: 0.8rem; }
+    .cu-logo { height: 12px; }
 }
+
+/* ---- logotipos ----
+   Entram como MÁSCARA e não como imagem: o desenho recorta a cor do botão, de
+   modo que o mesmo arquivo serve para o cinza e para o branco do selecionado.
+   A largura de cada um vem da proporção do próprio SVG (altura × proporção),
+   senão todos sairiam esticados para a mesma caixa. */
+.cu-logo {
+    display: block;
+    height: 14px;
+    background-color: currentColor;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    transition: background-color 0.2s ease;
+}
+.cu-logo-netflix     { width: 43px; -webkit-mask-image: url("/custom/img/netflix.svg");     mask-image: url("/custom/img/netflix.svg"); }
+.cu-logo-hbo-max     { width: 28px; -webkit-mask-image: url("/custom/img/hbo-max.svg");     mask-image: url("/custom/img/hbo-max.svg"); }
+.cu-logo-disney-plus { width: 41px; -webkit-mask-image: url("/custom/img/disney-plus.svg"); mask-image: url("/custom/img/disney-plus.svg"); }
+.cu-logo-prime-video { width: 38px; -webkit-mask-image: url("/custom/img/prime-video.svg"); mask-image: url("/custom/img/prime-video.svg"); }
+.cu-logo-apple-tv    { width: 23px; -webkit-mask-image: url("/custom/img/apple-tv.svg");    mask-image: url("/custom/img/apple-tv.svg"); }
+
+/* Com logotipo o botão vira uma caixa de ícone: o respiro passa a ser dele. */
+.cu-servico-btn:has(.cu-logo) { padding: 0.42rem 0.85rem; }
 
 /* Com um serviço escolhido, a página é só dele: o destaque grande do topo sai
    junto das fileiras genéricas. */

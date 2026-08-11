@@ -462,4 +462,39 @@
 
     window.__cu.register(handleHeroCarousel);
     window.__cu.register(handleContinueWatchingLandscape);
+
+    // A largura dos cards de Continuar assistindo é calculada em JS (2× a de um
+    // pôster). Enquanto isso só acontecia no laço de 400ms, arrastar a borda da
+    // janela fazia os cards saltarem de tamanho em degraus, em vez de
+    // acompanhar o ponteiro. Aqui o recálculo passa a ser disparado pelo
+    // próprio redimensionamento — o resultado final é o mesmo, o caminho até
+    // ele é que fica contínuo.
+    let agendado = false;
+    function recalculaJa() {
+        if (agendado) return;
+        agendado = true;
+        // Um quadro por vez: o resize dispara dezenas de vezes por segundo e
+        // remedir a cada um custaria mais do que o olho percebe.
+        requestAnimationFrame(() => {
+            agendado = false;
+            try { handleContinueWatchingLandscape(); } catch (_) { /* ignore */ }
+        });
+    }
+
+    window.addEventListener('resize', recalculaJa);
+
+    // O redimensionamento da JANELA não cobre tudo: abrir o painel lateral ou
+    // trocar de rota muda a largura do conteúdo sem um evento de resize.
+    if (window.ResizeObserver) {
+        const observador = new ResizeObserver(recalculaJa);
+        let observado = null;
+        window.__cu.register(function vigiaLargura() {
+            const alvo = document.querySelector('[class*="board-content"]:not([class*="container"])');
+            if (alvo && alvo !== observado) {
+                if (observado) observador.unobserve(observado);
+                observador.observe(alvo);
+                observado = alvo;
+            }
+        });
+    }
 })();
