@@ -1,0 +1,377 @@
+/* -------- 04-board.css --------
+   Board (home) route: Continue Watching row + Hero carousel. */
+
+/* === Continue Watching ===
+   JS sets each item's width to exactly 2x a poster card (via inline style),
+   so the row is one perfectly-aligned strip of landscape (16:9) cards. */
+.custom-continue-watching-row [class*="meta-items-container"] {
+    /* NÃO usar overflow:hidden aqui: o CSS não permite cortar só na
+       horizontal (se um eixo não é `visible`, o outro deixa de ser também), e
+       isso decepava o popup dos 3 pontinhos, que abre para baixo. O corte do
+       último card fica por conta do recorte da própria página. */
+    overflow: visible !important;
+    flex-wrap: nowrap !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+}
+.custom-continue-watching-row [class*="meta-items-container"] > .cw-overflow {
+    /* Antes eram escondidos, o que deixava um vazio quando a largura não
+       fechava um número inteiro de cards. Agora ficam visíveis e a fileira os
+       corta na borda, dando a dica de que há mais conteúdo. */
+    display: block !important;
+}
+.custom-continue-watching-row [class*="meta-item-container"] [class*="poster-container"] {
+    padding-top: 56.25% !important; /* 16:9 */
+}
+.custom-continue-watching-row [class*="meta-item-container"] [class*="poster-image"] {
+    object-fit: cover !important;
+    object-position: center !important;
+}
+/* CW card containers don't scale on hover (so the title/text remains static) */
+.custom-continue-watching-row [class*="meta-item-container"],
+.custom-continue-watching-row [class*="meta-item-container"]:hover,
+.custom-continue-watching-row [class*="meta-item-container"]:focus,
+.custom-continue-watching-row [class*="meta-item-container"].active,
+.custom-continue-watching-row [class*="meta-item-container"].selected {
+    transform: none !important;
+}
+
+/* But when hovered/active, the card container's z-index goes up to prevent clipping */
+.custom-continue-watching-row [class*="meta-item-container"]:hover,
+.custom-continue-watching-row [class*="meta-item-container"]:focus,
+.custom-continue-watching-row [class*="meta-item-container"].active,
+.custom-continue-watching-row [class*="meta-item-container"].selected {
+    z-index: 10 !important;
+}
+
+.custom-continue-watching-row [class*="meta-item-container"]:hover [class*="poster-container"],
+.custom-continue-watching-row [class*="meta-item-container"]:focus [class*="poster-container"],
+.custom-continue-watching-row [class*="meta-item-container"].active [class*="poster-container"],
+.custom-continue-watching-row [class*="meta-item-container"].selected [class*="poster-container"] {
+    transform: scale(1.04) !important;
+}
+.custom-continue-watching-row [class*="meta-item-container"] [class*="title-bar-container"] {
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    height: auto !important;
+    padding-top: 0.85rem !important;
+    margin-top: 0 !important;
+}
+.custom-continue-watching-row [class*="meta-item-container"] [class*="title-label"] {
+    text-align: left !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+    font-size: 0.88rem !important;
+    color: rgba(249, 249, 249, 0.88) !important;
+}
+
+/* === Hero Carousel ===
+   Margin matches the .meta-item-container 0.5rem inner padding so the hero
+   aligns horizontally with the cards below ("Continuar assistindo"). */
+.hero-carousel {
+    position: relative;
+    width: auto;
+    margin: 1.25rem 0.5rem 2.5rem 0.5rem;
+    z-index: 0;
+    overflow: visible;
+}
+.hero-stage {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 21 / 9;
+    max-height: 550px !important;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    background: #0c0c0f;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+.hero-slide {
+    position: absolute;
+    inset: 0;
+    text-decoration: none;
+    color: inherit;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.6s ease, visibility 0s linear 0.6s;
+    pointer-events: none;
+}
+.hero-slide.active {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.6s ease, visibility 0s linear 0s;
+    pointer-events: auto;
+}
+.hero-image-wrapper {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+.hero-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+    display: block;
+}
+.hero-gradient {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: radial-gradient(ellipse 70% 90% at 0% 100%,
+        rgba(12, 12, 15, 0.92) 0%,
+        rgba(12, 12, 15, 0.72) 22%,
+        rgba(12, 12, 15, 0.35) 45%,
+        rgba(12, 12, 15, 0.0) 70%);
+}
+.hero-content {
+    position: absolute;
+    left: 3rem;
+    bottom: 2.25rem;
+    max-width: 34rem;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    pointer-events: none;
+    overflow: visible;
+}
+.hero-content > * { pointer-events: auto; }
+.hero-logo {
+    width: auto;
+    max-width: 16rem;
+    max-height: 5.5rem;
+    object-fit: contain;
+    object-position: left center;
+    display: block;
+    filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.5));
+}
+.hero-title {
+    font-size: 2.4rem;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    color: #fff;
+    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.55);
+    margin: 0;
+}
+.hero-meta {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    color: rgba(249, 249, 249, 0.88);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.hero-meta .meta-pill {
+    padding: 0.15rem 0.55rem;
+    border-radius: 0.3rem;
+    background: rgba(249, 249, 249, 0.14);
+}
+.hero-meta .meta-rating {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    color: #F6C700;
+}
+.hero-meta .meta-rating svg {
+    width: 0.95rem;
+    height: 0.95rem;
+    fill: currentColor;
+}
+.hero-description {
+    color: rgba(249, 249, 249, 0.88);
+    font-size: 0.92rem;
+    line-height: 1.45;
+    max-width: 32rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    margin: 0;
+}
+.hero-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.3rem;
+    overflow: visible;
+    padding: 0.25rem;
+    margin-left: -0.25rem;
+}
+.hero-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    height: 2.5rem;
+    padding: 0 1.25rem;
+    border-radius: 999px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: transform 0.18s ease, background-color 0.18s ease;
+    border: none;
+}
+.hero-btn svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex: none;
+}
+.hero-btn-primary {
+    background-color: #fff;
+    color: #0c0c0f;
+}
+.hero-btn-primary:hover {
+    background-color: rgba(255, 255, 255, 0.92);
+    transform: scale(1.03);
+}
+.hero-btn-secondary {
+    background-color: rgba(249, 249, 249, 0.18);
+    color: #fff;
+    border: 1px solid rgba(249, 249, 249, 0.22);
+}
+.hero-btn-secondary svg {
+    color: #fff !important;
+    fill: currentColor !important;
+}
+.hero-btn-secondary:hover {
+    background-color: rgba(249, 249, 249, 0.26);
+    transform: scale(1.03);
+}
+.hero-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.22s ease, background-color 0.18s ease, transform 0.18s ease;
+}
+.hero-arrow svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: #fff;
+    opacity: 1;
+    fill: currentColor;
+}
+.hero-arrow:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-50%) scale(1.05);
+}
+.hero-arrow-prev { left: 1rem; }
+.hero-arrow-next { right: 1rem; }
+.hero-carousel:hover .hero-arrow { opacity: 1; }
+
+.hero-dots {
+    position: absolute;
+    bottom: 1rem;
+    left: 0;
+    right: 0;
+    z-index: 4;
+    display: flex;
+    flex-direction: row;
+    gap: 0.45rem;
+    justify-content: center;
+    pointer-events: auto;
+}
+.hero-dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: rgba(249, 249, 249, 0.32);
+    cursor: pointer;
+    transition: background-color 0.25s ease, width 0.25s ease;
+    border: none;
+    padding: 0;
+}
+.hero-dot:hover { background: rgba(249, 249, 249, 0.55); }
+.hero-dot.active {
+    background: #fff;
+    width: 1.4rem;
+    border-radius: 0.45rem;
+}
+
+@media only screen and (max-width: 2200px) {
+    .hero-title { font-size: 2rem; }
+    .hero-content { left: 2rem; bottom: 2rem; gap: 0.7rem; }
+}
+@media only screen and (max-width: 1600px) {
+    .hero-stage { aspect-ratio: 16 / 9; border-radius: 0.5rem; }
+    .hero-title { font-size: 1.6rem; }
+    .hero-logo { max-width: 12rem; max-height: 4.5rem; }
+    .hero-content { left: 1.5rem; bottom: 1.5rem; gap: 0.6rem; }
+    .hero-description { -webkit-line-clamp: 2; font-size: 0.85rem; }
+}
+@media only screen and (max-width: 640px) {
+    .hero-stage { aspect-ratio: 16 / 10; }
+    .hero-arrow { display: none; }
+    .hero-description { display: none; }
+    .hero-dots {
+        top: 0.75rem;
+        left: 0.75rem;
+        right: auto;
+        bottom: auto;
+        justify-content: flex-start;
+        width: auto;
+    }
+    .hero-content {
+        left: 1rem;
+        right: 1rem;
+        bottom: 1rem;
+        max-width: none;
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+    .hero-content > *:not(.hero-actions) { flex: 0 1 auto; }
+    .hero-title { font-size: 1.2rem; }
+    .hero-logo { max-width: 9rem; max-height: 3.5rem; }
+    .hero-meta { font-size: 0.75rem; gap: 0.45rem; }
+    .hero-actions {
+        flex: none;
+        flex-direction: column-reverse;
+        align-items: center;
+        gap: 0.55rem;
+        margin-top: 0;
+    }
+    .hero-btn {
+        width: 2.85rem;
+        height: 2.85rem;
+        padding: 0;
+        border-radius: 50%;
+        font-size: 0;
+        gap: 0;
+    }
+    .hero-btn span:not(.btn-icon) { display: none; }
+    .hero-btn .btn-icon { width: 1.3rem; height: 1.3rem; }
+    .hero-btn-primary {
+        background-color: #fff;
+        color: #0c0c0f;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+    }
+    .hero-btn-secondary {
+        background-color: rgba(20, 20, 25, 0.78);
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.25);
+    }
+}

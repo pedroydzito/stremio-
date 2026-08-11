@@ -1,0 +1,1967 @@
+/* -------- 07-apple.css --------
+   Materiais e componentes no estilo Apple TV+ / macOS.
+
+   Carregado por ÚLTIMO de propósito: aqui ficam (a) os materiais de vidro, que
+   são acréscimo e não cor, e (b) as sobrescritas dos poucos pontos onde os
+   módulos 02–06 fixaram cor na mão (#0c0c0f, #47DAE8, #F6C700…). A paleta em
+   si mora no 01-base.css — mexa lá, não aqui.
+
+   Nota sobre o vidro: `backdrop-filter` só funciona se o elemento tiver fundo
+   translúcido. Fundo opaco + blur = nada acontece. Por isso cada regra abaixo
+   define background E filtro juntos. */
+
+/* ============================================================
+   1. Barra de navegação
+   ============================================================ */
+/* Cor chapada (#242629), um degrau acima do fundo. Sem blur aqui de propósito:
+   com fundo opaco o backdrop-filter não faria efeito nenhum. O vidro fica onde
+   ele aparece de verdade — popovers, modais, chips e botões sobre conteúdo. */
+body:not(.route-player):not(.route-metadetails) [class*="horizontal-nav-bar-container"] {
+    background-color: var(--apple-nav) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+/* A linha sob a navbar vira hairline da Apple: contínua e discreta, em vez do
+   gradiente que sumia nas pontas. */
+[class*="horizontal-nav-bar-container"]::after {
+    background: var(--apple-hairline) !important;
+    height: 0.5px !important;
+}
+
+/* Player e detalhes: degradê do fundo do app, não mais o #151a1e azulado */
+body.route-player [class*="horizontal-nav-bar-container"],
+body.route-metadetails [class*="horizontal-nav-bar-container"] {
+    background-color: transparent !important;
+    background-image: linear-gradient(
+        180deg,
+        rgba(29, 31, 32, 0.92) 0%,
+        rgba(29, 31, 32, 0) 100%
+    ) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+/* Aba selecionada: no TV+ o destaque é peso + branco puro, sem cor */
+.custom-tab-item { color: var(--apple-label-2) !important; }
+.custom-tab-item:hover,
+.custom-tab-item.selected { color: var(--apple-label) !important; }
+
+/* Busca colapsada: pílula de vidro no hover */
+[class*="search-bar-container"]:hover {
+    background-color: var(--glass-bg-chip) !important;
+    -webkit-backdrop-filter: var(--glass-blur-soft) !important;
+    backdrop-filter: var(--glass-blur-soft) !important;
+}
+
+/* ============================================================
+   2. Popovers, menus e modais — vidro
+   ============================================================ */
+[class*="menu-container"],
+[class*="nav-menu-container"],
+[class*="popup-container"] > [class*="menu-container"] {
+    background-color: var(--glass-bg) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    border: var(--glass-border) !important;
+    border-radius: var(--radius-card) !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
+}
+[class*="nav-menu-section"] {
+    border-top: 0.5px solid var(--apple-hairline) !important;
+}
+[class*="nav-menu-option-container"]:hover {
+    background-color: rgba(255, 255, 255, 0.09) !important;
+}
+
+[class*="modal-container"] [class*="modal-dialog-container"],
+[class*="modal-dialog-container"] {
+    background-color: var(--glass-bg) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    border: var(--glass-border) !important;
+    border-radius: var(--radius-card) !important;
+}
+
+/* ============================================================
+   3. Botões
+   ============================================================ */
+/* Primário: pílula branca com texto preto (o "Assistir", o "Reproduzir
+   Episódio" do TV+). */
+[class*="play-button-container"],
+[class*="button-container"][class*="primary"] {
+    border-radius: var(--radius-pill) !important;
+}
+
+/* Secundário: pílula/círculo de vidro (o "Detalhes", o "+") */
+[class*="action-buttons-container"] [class*="button-container"]:not([class*="play-button"]),
+.disney-hero-details,
+[class*="dismiss-icon-layer"],
+[class*="dismiss-button"] {
+    background-color: var(--glass-bg-chip) !important;
+    -webkit-backdrop-filter: var(--glass-blur-soft) !important;
+    backdrop-filter: var(--glass-blur-soft) !important;
+    border: var(--glass-border) !important;
+    border-radius: var(--radius-pill) !important;
+    color: var(--apple-label) !important;
+}
+
+/* ============================================================
+   4. Chips de metadados (ano, duração, 4K, Dolby…)
+   ============================================================ */
+/* No TV+ são retângulos de canto arredondado com borda hairline. */
+[class*="meta-info-container"] [class*="duration-label"],
+[class*="meta-info-container"] [class*="release-info-label"],
+[class*="runtime-release-info-container"] > [class*="runtime-label"],
+[class*="runtime-release-info-container"] > [class*="imdb-button-container"],
+.disney-meta-chip,
+.hero-chip {
+    background-color: var(--glass-bg-chip) !important;
+    -webkit-backdrop-filter: var(--glass-blur-soft) !important;
+    backdrop-filter: var(--glass-blur-soft) !important;
+    border: 0.5px solid rgba(255, 255, 255, 0.22) !important;
+    border-radius: 6px !important;
+    color: var(--apple-label) !important;
+}
+
+/* ============================================================
+   5. Cards
+   ============================================================ */
+[class*="meta-item-container"] [class*="poster-container"],
+[class*="meta-item-container"] [class*="poster-image-layer"] {
+    border-radius: var(--radius-card) !important;
+}
+
+/* Sem sombra parada: a capa encosta no fundo, como no TV+. */
+[class*="meta-item-container"] [class*="poster-container"] {
+    box-shadow: none !important;
+}
+
+/* Sombra E anel branco só no hover/foco/selecionado.
+   Os dois PRECISAM vir juntos nesta regra: `box-shadow` é uma propriedade só,
+   então declarar a sombra sozinha aqui apagava o anel do 03-cards.css — era
+   por isso que o card clicado só mostrava a borda depois que o mouse saía. */
+[class*="meta-item-container"]:hover [class*="poster-container"],
+[class*="meta-item-container"]:focus [class*="poster-container"],
+[class*="meta-item-container"].active [class*="poster-container"],
+[class*="meta-item-container"].selected [class*="poster-container"],
+[class*="meta-item-container"][class*="selected"] [class*="poster-container"] {
+    box-shadow:
+        0 0 0 2px rgba(255, 255, 255, 0.92),
+        0 14px 38px rgba(0, 0, 0, 0.55) !important;
+}
+
+/* Fileiras e placeholders em cinza do sistema, não no antigo #0c0c0f */
+[class*="meta-items-container"] [class*="placeholder"],
+[class*="poster-container"] {
+    background-color: var(--apple-surface-1) !important;
+}
+
+/* ============================================================
+   6. Restos de cor dos módulos antigos
+   ============================================================ */
+/* Amarelo da nota do IMDb → branco (o TV+ não usa cor pra isso) */
+[class*="rating"],
+.disney-rating,
+.hero-rating {
+    color: var(--apple-label) !important;
+}
+
+/* Texto sobre superfície clara (pílula branca) */
+[class*="button-container"][class*="primary"],
+.disney-hero-play {
+    color: #000000 !important;
+}
+
+/* ============================================================
+   7. Tipografia
+   ============================================================ */
+/* Títulos de fileira: no TV+ são médios e colados no conteúdo, com o chevron
+   do "Ver tudo" na mesma linha. Aqui só o peso/tracking. */
+[class*="meta-row-container"] > [class*="header-container"] [class*="title-container"],
+[class*="meta-row-container"] [class*="title"] {
+    letter-spacing: -0.01em !important;
+}
+h1, h2, h3,
+[class*="title-container"],
+[class*="hero-title"] {
+    letter-spacing: -0.02em !important;
+}
+
+/* ============================================================
+   8. Continuar a ver — botão de play sobre a capa
+   ============================================================ */
+/* SVG embutido como data URI: círculo translúcido + triângulo. Vai no ::before
+   porque o ::after do poster-container já é o degradê do 03-cards.css. */
+.custom-continue-watching-row [class*="meta-item-container"] [class*="poster-container"]::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 4rem 4rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='29' fill='%23000' fill-opacity='.34' stroke='%23fff' stroke-opacity='.9' stroke-width='2.5'/%3E%3Cpath d='M26.5 20.5 L45 32 L26.5 43.5 Z' fill='%23fff' fill-opacity='.95'/%3E%3C/svg%3E");
+    opacity: 0.82;
+    transform: scale(0.94);
+    transition: opacity 0.25s var(--ease-emphasis), transform 0.25s var(--ease-emphasis);
+}
+.custom-continue-watching-row [class*="meta-item-container"]:hover [class*="poster-container"]::before,
+.custom-continue-watching-row [class*="meta-item-container"]:focus [class*="poster-container"]::before {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* ============================================================
+   9. Explorar — painel da direita
+   ============================================================ */
+/* O Stremio aplica `filter: blur(10px); opacity: 0.3` na imagem inteira, o que
+   borra justamente o topo, onde está a arte. Aqui a imagem fica nítida e o blur
+   vira um degradê que só existe embaixo, atrás do texto — feito com
+   backdrop-filter + máscara, não com filtro na imagem. */
+[class*="meta-preview-container"] [class*="background-image-layer"] {
+    position: absolute !important;
+    overflow: hidden !important;
+}
+[class*="meta-preview-container"] [class*="background-image-layer"] [class*="background-image"] {
+    filter: none !important;
+    opacity: 0.9 !important;
+    object-fit: cover !important;
+}
+/* Camada de blur progressivo */
+[class*="meta-preview-container"] [class*="background-image-layer"]::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    -webkit-backdrop-filter: blur(26px) saturate(120%);
+    backdrop-filter: blur(26px) saturate(120%);
+    -webkit-mask-image: linear-gradient(180deg, transparent 26%, #000 58%, #000 100%);
+    mask-image: linear-gradient(180deg, transparent 26%, #000 58%, #000 100%);
+}
+/* Escurecimento por cima do blur, para o texto ter contraste */
+[class*="meta-preview-container"] [class*="background-image-layer"]::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(180deg,
+        rgba(29, 31, 32, 0) 22%,
+        rgba(29, 31, 32, 0.55) 52%,
+        rgba(29, 31, 32, 0.92) 100%);
+}
+
+/* ============================================================
+   10. Card de fontes = card de detalhes
+   ============================================================ */
+/* Os dois passam a beber do mesmo token, então não voltam a divergir. */
+.disney-side-card,
+.disney-streams-popup {
+    background: var(--glass-bg) !important;
+    background-image: none !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    border: var(--glass-border) !important;
+    border-radius: 14px !important;
+}
+.disney-streams-popup {
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6) !important;
+}
+.disney-streams-popup-header {
+    border-bottom: 0.5px solid var(--apple-hairline) !important;
+}
+
+/* ============================================================
+   11. Calendário
+   ============================================================ */
+/* Uma placa só, com hairlines internas — em vez de células soltas com borda
+   grossa e fundo cinza cada uma. */
+body.route-calendar [class*="table"] [class*="grid"] {
+    border: 0.5px solid var(--apple-hairline) !important;
+    border-radius: var(--radius-card) !important;
+    overflow: hidden !important;
+    background-color: var(--apple-surface-1) !important;
+    gap: 0 !important;
+}
+
+/* Cabeçalho dos dias da semana */
+body.route-calendar [class*="table"] [class*="week"] [class*="day"] {
+    text-transform: uppercase !important;
+    letter-spacing: 0.06em !important;
+    font-size: 0.72rem !important;
+    font-weight: 600 !important;
+    color: var(--apple-label-2) !important;
+    padding-bottom: 0.5rem !important;
+}
+
+/* Células: sem borda grossa, só hairline separando */
+body.route-calendar [class*="cell"] {
+    background-color: transparent !important;
+    border: none !important;
+    border-right: 0.5px solid var(--apple-hairline) !important;
+    border-bottom: 0.5px solid var(--apple-hairline) !important;
+    border-radius: 0 !important;
+    transition: background-color 0.15s ease !important;
+}
+body.route-calendar [class*="cell"]:hover {
+    background-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Número do dia */
+body.route-calendar [class*="cell"] [class*="heading"] [class*="day"] {
+    color: var(--apple-label-2) !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 100% !important;
+}
+/* Hoje: disco branco com número preto, como no Calendário da Apple */
+body.route-calendar [class*="cell"] [class*="heading"] [class*="day"][class*="selected"],
+body.route-calendar [class*="cell"][class*="today"] [class*="heading"] [class*="day"] {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    font-weight: 600 !important;
+}
+
+/* Itens (episódios) dentro do dia */
+body.route-calendar [class*="cell"] [class*="items"] [class*="item"] {
+    border-radius: 8px !important;
+    overflow: hidden !important;
+}
+body.route-calendar [class*="cell"] [class*="items"] [class*="item"]:hover {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Seletor de mês */
+body.route-calendar [class*="selector"] [class*="label"] {
+    letter-spacing: -0.02em !important;
+}
+body.route-calendar [class*="selector"] [class*="button"]:hover {
+    background-color: var(--glass-bg-chip) !important;
+    border-radius: 100% !important;
+}
+
+/* O botão de avaliar é um <a> (para abrir externo como o botão de IMDb faz),
+   então precisa perder o sublinhado que o .disney-action-btn não previa. */
+a.disney-action-btn { text-decoration: none !important; }
+
+/* ============================================================
+   13. Calendário — layout
+   ============================================================ */
+/* Centrado, com largura máxima e respiro — antes ficava colado à esquerda e
+   com o mês espremido numa fração da tela. */
+body.route-calendar [class*="calendar"] [class*="content"] {
+    width: 100% !important;
+    max-width: 1500px !important;
+    margin: 0 auto !important;
+    padding: 0 2rem 2rem !important;
+    box-sizing: border-box !important;
+}
+body.route-calendar [class*="content"] > [class*="main"],
+body.route-calendar [class*="table"] {
+    width: 100% !important;
+    max-width: none !important;
+    flex: 1 1 auto !important;
+}
+body.route-calendar [class*="table"] [class*="grid"] {
+    min-height: 60vh !important;
+}
+
+/* Seletor de mês: o mês atual grande, os vizinhos discretos, e as setas em
+   botões redondos de vidro em vez de chevrons soltos. */
+body.route-calendar [class*="selector"] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 1rem !important;
+    padding: 1.25rem 0 1.5rem !important;
+}
+body.route-calendar [class*="selector"] [class*="prev"],
+body.route-calendar [class*="selector"] [class*="next"],
+body.route-calendar [class*="selector"] [class*="button"] {
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 100% !important;
+    background-color: var(--glass-bg-chip) !important;
+    -webkit-backdrop-filter: var(--glass-blur-soft) !important;
+    backdrop-filter: var(--glass-blur-soft) !important;
+    border: 0.5px solid rgba(255, 255, 255, 0.16) !important;
+    transition: background-color 0.18s ease !important;
+}
+body.route-calendar [class*="selector"] [class*="button"]:hover {
+    background-color: rgba(255, 255, 255, 0.22) !important;
+}
+
+/* ============================================================
+   14. Calendário — largura e setas (correções)
+   ============================================================ */
+/* A grade não estava "à esquerda": o que comia o espaço era a lista lateral de
+   episódios (`list-…`, 280px), irmã do `main` dentro do `content` — medido
+   subindo a árvore a partir da grade. Como cada célula do mês já mostra os
+   episódios do dia, a lista é redundante; escondida, o mês usa a largura toda.
+   Precisa ser filho DIRETO de content: `[class*="list"]` sozinho é genérico
+   demais e pegaria outras telas. */
+/* A lista lateral VOLTOU. Eu a tinha escondido achando que as células do mês
+   já bastavam, mas ela é o que responde "o que sai em cada dia" sem obrigar a
+   caçar pôster por pôster na grade. O mês divide a largura com ela. */
+body.route-calendar [class*="content"] > [class*="main"] {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+}
+
+/* As setas vinham com padding assimétrico (0 17.5px 0 7px), o que jogava o
+   chevron pra fora do centro do círculo. */
+body.route-calendar [class*="selector"] [class*="prev"],
+body.route-calendar [class*="selector"] [class*="next"] {
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    flex: none !important;
+}
+body.route-calendar [class*="selector"] [class*="prev"] svg,
+body.route-calendar [class*="selector"] [class*="next"] svg {
+    width: 1.15rem !important;
+    height: 1.15rem !important;
+    margin: 0 !important;
+}
+
+/* A grade ficava em 961px mesmo com o `main` já em 1360: o `table` é flex e
+   não esticava o filho. Força o alinhamento e a largura em toda a cadeia. */
+body.route-calendar [class*="content"] > [class*="main"],
+body.route-calendar [class*="main"] > [class*="table"],
+body.route-calendar [class*="table"] {
+    align-items: stretch !important;
+}
+body.route-calendar [class*="table"] > *,
+body.route-calendar [class*="table"] [class*="grid"],
+body.route-calendar [class*="table"] [class*="week"] {
+    width: 100% !important;
+    max-width: none !important;
+    box-sizing: border-box !important;
+}
+
+/* `justify-content: center` no botão não bastou (o ícone ficava colado à
+   esquerda, 1px contra 15px). `margin: auto` no próprio SVG centra dentro do
+   flex sem depender de como o botão distribui os filhos. */
+body.route-calendar [class*="selector"] [class*="prev"] svg,
+body.route-calendar [class*="selector"] [class*="next"] svg {
+    margin: auto !important;
+    display: block !important;
+}
+
+/* Ainda torto: o ícone saía 1px/15px (espelhado entre prev e next), ou seja o
+   pai empurra pra fora. Posicionamento absoluto centra sem depender disso. */
+body.route-calendar [class*="selector"] [class*="prev"],
+body.route-calendar [class*="selector"] [class*="next"] {
+    position: relative !important;
+}
+body.route-calendar [class*="selector"] [class*="prev"] svg,
+body.route-calendar [class*="selector"] [class*="next"] svg {
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+}
+
+/* ============================================================
+   15. Continuar a ver — logo, progresso e T/E
+   ============================================================ */
+/* Logo sobre a capa, canto inferior esquerdo, com degradê escuro + blur atrás —
+   mesma ideia do painel de detalhes. A máscara faz o blur nascer do nada no
+   meio da faixa em vez de cortar numa linha reta. */
+.custom-continue-watching-row [class*="poster-container"] .cu-cw-logo-wrap {
+    position: absolute;
+    inset: 0;
+    /* z-index 1, igual à barra de progresso — e o JS insere esta faixa ANTES
+       da barra no DOM, então a barra fica acima dela. O ganho: as duas passam
+       a ficar acima do degradê de hover (z-index 0), que antes escurecia a
+       logo junto com a thumb. */
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    padding: 0 0.9rem 0.9rem;
+    pointer-events: none;
+    /* Radial ancorado no canto inferior ESQUERDO, não mais uma faixa reta
+       subindo da base: o escurecimento e o blur nascem atrás da logo e se
+       dissolvem em direção ao centro da capa. */
+    /* Sem escurecimento: só o blur, recortado pela máscara radial. */
+    background: none;
+    -webkit-backdrop-filter: blur(7px) saturate(120%);
+    backdrop-filter: blur(7px) saturate(120%);
+    -webkit-mask-image: radial-gradient(105% 88% at 0% 100%,
+        #000 0%, #000 34%, rgba(0, 0, 0, 0.35) 58%, transparent 76%);
+    mask-image: radial-gradient(105% 88% at 0% 100%,
+        #000 0%, #000 34%, rgba(0, 0, 0, 0.35) 58%, transparent 76%);
+}
+.custom-continue-watching-row .cu-cw-logo {
+    max-width: 46%;
+    max-height: 2.3rem;
+    width: auto;
+    object-fit: contain;
+    object-position: left bottom;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
+}
+
+/* "T4:E2" ao lado do nome */
+.custom-continue-watching-row .cu-cw-ep {
+    margin-left: 0.45rem;
+    color: var(--apple-label-2);
+    font-size: 0.82rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* ============================================================
+   16. Episódios e Extras — hover sem corte
+   ============================================================ */
+/* O card cresce dentro de um painel com `overflow: hidden auto`, então sem
+   respiro lateral o hover era cortado nas bordas. O padding na lista dá o
+   espaço que o crescimento precisa. */
+.disney-episodes-list,
+.disney-extras-list {
+    padding: 0.25rem 0.5rem !important;
+    overflow: visible !important;
+}
+.disney-episode-card,
+.disney-extra-card {
+    transform-origin: center center !important;
+}
+.disney-episode-card:hover,
+.disney-extra-card:hover {
+    transform: scale(1.02) !important;
+}
+
+/* O 05-metadetails.css tem `[class*="meta-preview"] [class*="imdb-button-container"]`
+   com o mesmo peso da regra dos chips acima; um seletor a mais desempata. */
+[class*="meta-preview"] [class*="runtime-release-info-container"] > [class*="imdb-button-container"] {
+    border-radius: 6px !important;
+    padding: 0 0.7rem !important;
+}
+
+/* ============================================================
+   17. Fontes — texto inteiro
+   ============================================================ */
+/* Era `-webkit-line-clamp: 2` com ellipsis: cortava justamente o fim da linha,
+   que é onde fica a origem do release. Agora quebra em quantas linhas precisar. */
+.disney-stream-title,
+.disney-stream-desc {
+    display: block !important;
+    -webkit-line-clamp: none !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    line-height: 1.35 !important;
+}
+.disney-stream-item {
+    align-items: flex-start !important;
+}
+.disney-stream-info { min-width: 0 !important; }
+
+/* ============================================================
+   18. Continuar a ver — ajustes
+   ============================================================ */
+/* Logo no dobro do tamanho */
+.custom-continue-watching-row .cu-cw-logo {
+    max-width: 62% !important;
+    max-height: 4.6rem !important;
+}
+.custom-continue-watching-row [class*="poster-container"] .cu-cw-logo-wrap {
+    padding: 3rem 0.9rem 0.95rem !important;
+}
+
+/* O play nativo do Stremio aparece no hover e ficava sobreposto ao nosso */
+.custom-continue-watching-row [class*="play-icon"],
+.custom-continue-watching-row [class*="play-button"],
+.custom-continue-watching-row [class*="play-overlay"] {
+    display: none !important;
+}
+
+/* ============================================================
+   19. Explorar — painel de preview
+   ============================================================ */
+/* Os chips vinham com `justify-content: space-between`, que os jogava para as
+   duas pontas. Alinhados à esquerda, em sequência. */
+[class*="meta-preview"] [class*="runtime-release-info-container"] {
+    justify-content: flex-start !important;
+    gap: 0.5rem !important;
+    row-gap: 0.5rem !important;
+}
+/* A descrição encostava nas bordas do painel (padding 0) */
+[class*="meta-preview"] [class*="meta-info-container"] {
+    padding: 0 1.25rem 1.25rem !important;
+    box-sizing: border-box !important;
+}
+[class*="meta-preview"] [class*="description-container"] {
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+    line-height: 1.5 !important;
+}
+
+/* Estado vazio das fontes: além da frase, o que cada addon respondeu */
+.disney-streams-status {
+    list-style: none;
+    margin: 0.9rem auto 0;
+    padding: 0;
+    max-width: 22rem;
+    text-align: left;
+    font-size: 0.8rem;
+}
+.disney-streams-status li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.4rem 0;
+    border-top: 0.5px solid var(--apple-hairline);
+    color: var(--apple-label-2);
+}
+.disney-streams-status em {
+    font-style: normal;
+    color: var(--apple-label-3);
+    white-space: nowrap;
+}
+
+/* ============================================================
+   20. Continuar a ver — correções
+   ============================================================ */
+/* Logo a 0.6x do tamanho anterior */
+.custom-continue-watching-row .cu-cw-logo {
+    max-width: 37% !important;
+    max-height: 2.75rem !important;
+}
+.custom-continue-watching-row [class*="poster-container"] .cu-cw-logo-wrap {
+    padding: 2.2rem 0.9rem 0.9rem !important;
+}
+
+/* Os 3 pontinhos saem de baixo do nome e vão pro canto superior direito da
+   thumb, espelhando o × de remover que fica no canto esquerdo. */
+.custom-continue-watching-row [class*="meta-item-container"] [class*="menu-label-container"] {
+    position: absolute !important;
+    /* O ancestral posicionado é o meta-item-container, que tem padding de
+       0.5rem — por isso o offset soma esse padding, senão o botão fica pra
+       fora da thumb (medido: 6px além da borda direita). */
+    top: 1.05rem !important;
+    right: 1.05rem !important;
+    bottom: auto !important;
+    left: auto !important;
+    /* Havia um translateX(14px) herdado que empurrava o botão exatamente 14px
+       além da borda da thumb — era ele, não o offset, o culpado. */
+    transform: none !important;
+    z-index: 6 !important;
+    width: 2rem !important;
+    height: 2rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 100% !important;
+    background-color: rgba(0, 0, 0, 0.45) !important;
+    -webkit-backdrop-filter: var(--glass-blur-soft) !important;
+    backdrop-filter: var(--glass-blur-soft) !important;
+    border: 0.5px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* ============================================================
+   21. Marca de "assistido" nos cards
+   ============================================================ */
+/* O `watched-icon-layer` do Stremio usa `background-color:
+   var(--primary-accent-color)` e o ícone em `var(--primary-foreground-color)`.
+   Quando a paleta virou Apple os dois viraram branco — branco no branco, e
+   sobrou só o disco. Vira vidro, com um olho desenhado como background-image
+   (o ícone nativo é um checkmark; trocar o glifo por CSS só dá assim). */
+[class*="meta-item-container"] [class*="watched-icon-layer"] {
+    background-color: var(--glass-bg-chip) !important;
+    -webkit-backdrop-filter: var(--glass-blur-soft) !important;
+    backdrop-filter: var(--glass-blur-soft) !important;
+    border: 0.5px solid rgba(255, 255, 255, 0.3) !important;
+    border-radius: 100% !important;
+    box-shadow: none !important;
+    width: 1.75rem !important;
+    height: 1.75rem !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'%3E%3Cpath d='M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: center !important;
+    background-size: 0.95rem 0.95rem !important;
+}
+[class*="meta-item-container"] [class*="watched-icon-layer"] [class*="watched-icon"] {
+    display: none !important;
+}
+
+/* ============================================================
+   22. Explorar — painel
+   ============================================================ */
+[class*="meta-preview-container"] {
+    border-radius: 0 !important;
+    padding: 1.75rem 1.75rem 1.5rem !important;
+}
+[class*="meta-preview"] [class*="meta-info-container"] {
+    padding: 0 !important;
+}
+
+/* Botão "Ver detalhes" (injetado pelo 05-discover.js) */
+.cu-details-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1.1rem;
+    padding: 0 1.2rem;
+    height: 2.6rem;
+    border-radius: var(--radius-pill);
+    background-color: #ffffff;
+    color: #000000 !important;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    text-decoration: none !important;
+    transition: opacity 0.18s ease;
+}
+.cu-details-btn:hover { opacity: 0.86; }
+.cu-details-btn svg { width: 1.05rem; height: 1.05rem; flex: none; }
+
+/* ============================================================
+   23. Filtros — padrão único no app inteiro
+   ============================================================ */
+/* Antes: dropdowns e chips com desenhos diferentes, e o chip selecionado com
+   fundo branco E texto branco (ilegível). Agora todos são pílulas de vidro, e
+   o selecionado inverte para fundo branco com texto preto. */
+[class*="selectable-inputs-container"] {
+    gap: 0.6rem !important;
+    align-items: center !important;
+    padding: 0.25rem 0 !important;
+}
+
+[class*="select-input-container"],
+[class*="select-input"],
+[class*="multiselect-menu"] {
+    background-color: var(--glass-bg-chip) !important;
+    -webkit-backdrop-filter: var(--glass-blur-soft) !important;
+    backdrop-filter: var(--glass-blur-soft) !important;
+    border: 0.5px solid rgba(255, 255, 255, 0.16) !important;
+    border-radius: var(--radius-pill) !important;
+    transition: background-color 0.18s ease, border-color 0.18s ease !important;
+}
+[class*="select-input-container"]:hover,
+[class*="multiselect-menu"]:hover {
+    background-color: rgba(255, 255, 255, 0.18) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+[class*="multiselect-button"] {
+    padding: 0 1rem !important;
+    gap: 0.5rem !important;
+    color: var(--apple-label) !important;
+}
+[class*="multiselect-button"] [class*="label"] {
+    font-size: 0.88rem !important;
+    font-weight: 500 !important;
+    color: var(--apple-label) !important;
+}
+
+/* Chips (Ordem Alfabética, Z-A, Vistos…) */
+[class*="chips"] { gap: 0.5rem !important; }
+[class*="chip"][class*="button"] {
+    background-color: var(--glass-bg-chip) !important;
+    -webkit-backdrop-filter: var(--glass-blur-soft) !important;
+    backdrop-filter: var(--glass-blur-soft) !important;
+    border: 0.5px solid rgba(255, 255, 255, 0.16) !important;
+    border-radius: var(--radius-pill) !important;
+    padding: 0 1rem !important;
+    color: var(--apple-label) !important;
+    font-size: 0.88rem !important;
+    font-weight: 500 !important;
+}
+[class*="chip"][class*="button"]:hover {
+    background-color: rgba(255, 255, 255, 0.18) !important;
+}
+/* Selecionado: fundo branco E TEXTO PRETO — era branco no branco, ilegível */
+[class*="chip"][class*="active"],
+[class*="chip"][class*="selected"] {
+    background-color: #ffffff !important;
+    border-color: #ffffff !important;
+    color: #000000 !important;
+    font-weight: 600 !important;
+}
+[class*="chip"][class*="active"] *,
+[class*="chip"][class*="selected"] * {
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+
+/* ============================================================
+   25. Correções finais
+   ============================================================ */
+/* Só o ÍCONE é limitado. A versão anterior limitava `> *`, e o popup do menu
+   é filho do mesmo container — ele era esmagado em 1rem e virava um círculo
+   preto sem as opções dentro. */
+.custom-continue-watching-row [class*="menu-label-container"] > svg,
+.custom-continue-watching-row [class*="menu-label-container"] > [class*="icon"] {
+    width: 1rem !important;
+    height: 1rem !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    flex: none !important;
+    color: var(--apple-label) !important;
+}
+/* O popup precisa escapar do círculo de 2rem */
+.custom-continue-watching-row [class*="menu-label-container"] {
+    overflow: visible !important;
+}
+.custom-continue-watching-row [class*="menu-label-container"] [class*="menu-container"] {
+    position: absolute !important;
+    top: calc(100% + 0.4rem) !important;
+    right: 0 !important;
+    left: auto !important;
+    width: max-content !important;
+    min-width: 9rem !important;
+    max-width: none !important;
+    max-height: none !important;
+    height: auto !important;
+    z-index: 1000 !important;
+}
+
+/* Explorar: o conteúdo encostava na borda direita. O padding do painel já era
+   simétrico, mas os filhos (logo e descrição) estouravam a caixa. */
+[class*="meta-preview-container"] {
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+}
+[class*="meta-preview"] [class*="meta-info-container"] > * {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+[class*="meta-preview"] [class*="logo"] {
+    max-width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+    object-position: left center !important;
+}
+
+/* ---- Filtros: menores, espaçados, e o menu aberto no mesmo idioma ---- */
+[class*="selectable-inputs-container"] {
+    gap: 0.75rem !important;
+    padding: 0.5rem 0 !important;
+    flex-wrap: wrap !important;
+    row-gap: 0.6rem !important;
+}
+[class*="select-input-container"],
+[class*="select-input"],
+[class*="multiselect-menu"] {
+    height: 2.15rem !important;
+    min-height: 0 !important;
+}
+[class*="multiselect-button"] {
+    height: 2.15rem !important;
+    min-height: 0 !important;
+    padding: 0 0.85rem !important;
+    gap: 0.45rem !important;
+}
+[class*="multiselect-button"] [class*="label"] {
+    font-size: 0.82rem !important;
+    font-weight: 500 !important;
+}
+[class*="multiselect-button"] [class*="icon"] {
+    width: 0.7rem !important;
+    height: 0.7rem !important;
+    opacity: 0.6 !important;
+}
+[class*="chip"][class*="button"] {
+    height: 2.15rem !important;
+    min-height: 0 !important;
+    padding: 0 0.9rem !important;
+    font-size: 0.82rem !important;
+}
+
+/* O menu que abre no dropdown: vidro, cantos e itens com respiro */
+[class*="multiselect-menu-container"],
+[class*="select-input"] [class*="menu-container"] {
+    background-color: var(--glass-bg) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    border: var(--glass-border) !important;
+    border-radius: var(--radius-card) !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
+    padding: 0.35rem !important;
+    margin-top: 0.4rem !important;
+    overflow: hidden !important;
+}
+[class*="multiselect-menu-container"] [class*="option-container"],
+[class*="select-input"] [class*="option-container"] {
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 8px !important;
+    font-size: 0.85rem !important;
+    color: var(--apple-label) !important;
+}
+[class*="multiselect-menu-container"] [class*="option-container"]:hover,
+[class*="select-input"] [class*="option-container"]:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+[class*="option-container"][class*="selected"] {
+    background-color: rgba(255, 255, 255, 0.14) !important;
+    font-weight: 600 !important;
+}
+
+/* Medido: descrição a 42px da esquerda e 0 da direita. O meta-info-container
+   é posicionado e não tinha amarra do lado direito, então estourava a caixa do
+   painel. Escopado à rota pra não mexer no mesmo container na tela de detalhes,
+   onde ele é ancorado embaixo à esquerda de propósito. */
+body.route-discover [class*="meta-preview"] [class*="meta-info-container"] {
+    left: 0 !important;
+    right: 0 !important;
+    width: auto !important;
+    max-width: none !important;
+    padding: 0 1.5rem !important;
+    box-sizing: border-box !important;
+}
+body.route-discover [class*="meta-preview-container"] {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+/* ============================================================
+   26. Filtros — espaçamento e hover
+   ============================================================ */
+/* Grudavam na borda esquerda e o espaçamento entre eles era grande demais. */
+[class*="selectable-inputs-container"] {
+    gap: 0.5rem !important;
+    row-gap: 0.5rem !important;
+    padding: 0.75rem 1.5rem !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+}
+[class*="chips"] {
+    gap: 0.5rem !important;
+    padding: 0 !important;
+}
+
+/* O hover deixava o texto PRETO: o Stremio usa
+   `--secondary-foreground-color` no estado de hover dos chips, e essa variável
+   virou #000 na paleta Apple (ela é a cor de texto sobre superfície clara).
+   Aqui o hover é escuro, então o texto tem que continuar claro. */
+[class*="chip"][class*="button"]:hover,
+[class*="chip"][class*="button"]:hover *,
+[class*="multiselect-button"]:hover,
+[class*="multiselect-button"]:hover * {
+    color: var(--apple-label) !important;
+    fill: var(--apple-label) !important;
+}
+[class*="chip"][class*="button"]:hover {
+    background-color: rgba(255, 255, 255, 0.16) !important;
+    border-color: rgba(255, 255, 255, 0.28) !important;
+}
+/* …exceto o selecionado, que é claro e por isso pede texto preto */
+[class*="chip"][class*="active"]:hover,
+[class*="chip"][class*="active"]:hover *,
+[class*="chip"][class*="selected"]:hover,
+[class*="chip"][class*="selected"]:hover * {
+    color: #000000 !important;
+    fill: #000000 !important;
+}
+[class*="chip"][class*="active"]:hover,
+[class*="chip"][class*="selected"]:hover {
+    background-color: rgba(255, 255, 255, 0.88) !important;
+}
+
+/* ============================================================
+   27. Ajustes finais
+   ============================================================ */
+/* Hero da home com o MESMO raio dos cards do Continuar a ver (12px, medido).
+   Ele estava em 7px, herdado do --border-radius antigo. */
+.hero-carousel,
+.hero-stage,
+.hero-slide,
+.hero-image-wrapper {
+    border-radius: var(--radius-card) !important;
+    overflow: hidden !important;
+}
+
+/* O × de remover ficava menor (21px) e mais colado (7px) que os 3 pontinhos
+   (28px a 8px). Mesmo tamanho, mesmo respiro, mesmo material. */
+.custom-continue-watching-row [class*="meta-item-container"] [class*="dismiss-icon-layer"] {
+    /* 0.55rem, não 1.05rem: este botão é ancorado no PÔSTER, enquanto os 3
+       pontinhos são ancorados no card (que tem 7px de padding). Com o mesmo
+       valor nos dois, o × ficava 7px mais pra dentro. */
+    top: 0.55rem !important;
+    left: 0.55rem !important;
+    right: auto !important;
+    bottom: auto !important;
+    width: 2rem !important;
+    height: 2rem !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 100% !important;
+    background-color: rgba(0, 0, 0, 0.45) !important;
+    -webkit-backdrop-filter: var(--glass-blur-soft) !important;
+    backdrop-filter: var(--glass-blur-soft) !important;
+    border: 0.5px solid rgba(255, 255, 255, 0.2) !important;
+    transform: none !important;
+}
+.custom-continue-watching-row [class*="dismiss-icon-layer"] svg,
+.custom-continue-watching-row [class*="dismiss-icon-layer"] [class*="icon"] {
+    width: 1rem !important;
+    height: 1rem !important;
+    color: var(--apple-label) !important;
+}
+/* O backdrop separado do ícone nativo vira redundante com o círculo acima */
+.custom-continue-watching-row [class*="dismiss-icon-backdrop"] {
+    display: none !important;
+}
+
+/* ---- Detalhes: botões nunca quebram em duas linhas ---- */
+/* O bloco de informações é ancorado embaixo, então uma descrição longa deve
+   empurrar o conteúdo PRA CIMA — nunca fazer a fileira de botões vazar para
+   uma segunda linha. */
+.disney-buttons-row {
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+}
+body.route-metadetails [class*="meta-preview"] [class*="meta-info-container"] {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+}
+/* Se a descrição crescer demais, ela cede espaço em vez de empurrar os botões */
+body.route-metadetails [class*="meta-preview"] [class*="description-container"] {
+    flex: 0 1 auto !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+}
+
+/* ---- Explorar: fileira de ações do painel ---- */
+.cu-panel-actions {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 0.6rem !important;
+    margin-top: 1.1rem !important;
+}
+.cu-panel-actions .cu-details-btn { margin-top: 0 !important; flex: 0 1 auto; min-width: 0; }
+.cu-panel-actions .disney-action-btn {
+    width: 2.6rem !important;
+    height: 2.6rem !important;
+    flex: none !important;
+}
+.cu-panel-actions .disney-action-btn svg { width: 1.1rem; height: 1.1rem; }
+
+/* ============================================================
+   28. Correções
+   ============================================================ */
+/* Os botões do painel cresciam no hover e eram cortados: o painel tem
+   `overflow: hidden` e a fileira encostava na borda. Respiro pro crescimento. */
+.cu-panel-actions {
+    padding: 0.35rem 0.15rem !important;
+    margin-left: -0.15rem !important;
+    overflow: visible !important;
+}
+body.route-discover [class*="meta-preview-container"] {
+    overflow: visible !important;
+}
+body.route-discover [class*="meta-preview"] [class*="meta-info-container"] {
+    overflow: visible !important;
+}
+
+/* ---- Filtros do Explorar: largura pelo conteúdo ---- */
+/* Cada select vinha com `flex: 0 1 210px`, o que os deixava largos e distantes
+   entre si. Com largura automática ficam do tamanho do rótulo, como os chips
+   da Biblioteca. */
+[class*="selectable-inputs-container"] > [class*="select-input"],
+[class*="selectable-inputs-container"] > [class*="multiselect-menu"] {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+}
+[class*="multiselect-button"] { justify-content: space-between !important; }
+
+/* ---- Biblioteca: tudo numa linha só ---- */
+/* O container quebrava linha (`flex-wrap: wrap`) e a fileira de chips, com
+   1326px, ia inteira pra baixo do dropdown. */
+[class*="selectable-inputs-container"] {
+    flex-wrap: nowrap !important;
+}
+[class*="selectable-inputs-container"] > [class*="chips"] {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+}
+
+/* ---- Calendário: mês vizinho FORA do círculo ---- */
+/* O botão contém <svg> + <div>jul.</div>. O círculo passa a ser desenhado só
+   no ícone; o rótulo fica ao lado, como texto solto. */
+body.route-calendar [class*="selector"] [class*="prev"],
+body.route-calendar [class*="selector"] [class*="next"] {
+    width: auto !important;
+    height: auto !important;
+    background: transparent !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    padding: 0 !important;
+}
+body.route-calendar [class*="selector"] [class*="prev"] svg,
+body.route-calendar [class*="selector"] [class*="next"] svg {
+    position: static !important;
+    transform: none !important;
+    box-sizing: content-box !important;
+    width: 1.15rem !important;
+    height: 1.15rem !important;
+    padding: 0.55rem !important;
+    border-radius: 100% !important;
+    background-color: var(--glass-bg-chip) !important;
+    -webkit-backdrop-filter: var(--glass-blur-soft) !important;
+    backdrop-filter: var(--glass-blur-soft) !important;
+    border: 0.5px solid rgba(255, 255, 255, 0.16) !important;
+    flex: none !important;
+}
+body.route-calendar [class*="selector"] [class*="prev"] > div,
+body.route-calendar [class*="selector"] [class*="next"] > div {
+    color: var(--apple-label-2) !important;
+    font-size: 0.9rem !important;
+    white-space: nowrap !important;
+}
+/* a seta "próximo" fica com o rótulo à esquerda do círculo */
+body.route-calendar [class*="selector"] [class*="next"] {
+    flex-direction: row-reverse !important;
+}
+
+/* ---- 3 pontinhos: mesmo canto do × ---- */
+.custom-continue-watching-row [class*="meta-item-container"] [class*="menu-label-container"] {
+    top: 1.05rem !important;
+    right: 1.05rem !important;
+}
+
+/* O menu dos 3 pontinhos tem DOIS níveis com `menu-container` no nome: o de
+   fora é só uma âncora (2px de altura, `overflow: hidden`) e o de dentro é o
+   menu de verdade (137px, posicionado absoluto). A regra de vidro pegava os
+   dois — o de fora virava um risco de 2px com borda, e o `overflow: hidden`
+   dele decepava o de dentro. Aqui a âncora fica neutra e transparente. */
+.custom-continue-watching-row [class*="menu-label-container"] > [class*="menu-container"] {
+    overflow: visible !important;
+    background: none !important;
+    background-color: transparent !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    height: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+}
+/* o menu de verdade (nível de dentro) mantém o vidro */
+.custom-continue-watching-row [class*="menu-label-container"] [class*="menu-container"] [class*="menu-container"] {
+    background-color: var(--glass-bg) !important;
+    -webkit-backdrop-filter: var(--glass-blur) !important;
+    backdrop-filter: var(--glass-blur) !important;
+    border: var(--glass-border) !important;
+    border-radius: var(--radius-card) !important;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6) !important;
+    overflow: hidden !important;
+    min-width: 9rem !important;
+}
+
+/* Medido: os filtros ficavam com 15px de diferença vertical entre si (o
+   filter-container alinhava diferente dos selects). Centraliza todos. */
+[class*="selectable-inputs-container"] {
+    align-items: center !important;
+}
+[class*="selectable-inputs-container"] > * {
+    align-self: center !important;
+}
+
+/* ============================================================
+   29. Barra de progresso do Continuar a ver
+   ============================================================ */
+/* NADA aqui de propósito.
+   Ao longo das rodadas acumularam-se NOVE regras escopadas em
+   `.custom-continue-watching-row` mexendo em cor, z-index e altura da barra —
+   e era justamente essa pilha que a fazia divergir da Biblioteca (a última a
+   valer pintava trilho e preenchimento quase iguais, dando o efeito de "barra
+   toda branca"). Removidas, o Continuar a ver passa a herdar exatamente as
+   mesmas regras globais que a Biblioteca usa (01-base.css e 03-cards.css),
+   que é o que se pediu: idêntico em visual e comportamento.
+
+   Se um dia precisar mexer nessa barra, mexa nas regras GLOBAIS — assim as
+   duas telas continuam iguais por construção, e não por coincidência. */
+
+/* 3 pontinhos: 3px mais pra cima e 3px mais pra direita */
+.custom-continue-watching-row [class*="meta-item-container"] [class*="menu-label-container"] {
+    top: calc(1.05rem - 3px) !important;
+    right: calc(1.05rem - 3px) !important;
+}
+
+/* ============================================================
+   30. Filtros: maiores e mais juntos
+   ============================================================ */
+[class*="selectable-inputs-container"] {
+    gap: 0.4rem !important;
+    row-gap: 0.4rem !important;
+}
+[class*="selectable-inputs-container"] > [class*="chips"] {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+[class*="chips"] { gap: 0.4rem !important; }
+
+/* Altura e tipografia maiores — antes ficavam pequenos demais e o texto
+   quebrava em duas linhas dentro da pílula. */
+[class*="select-input-container"],
+[class*="select-input"],
+[class*="multiselect-menu"],
+[class*="multiselect-button"],
+[class*="chip"][class*="button"] {
+    height: 2.6rem !important;
+    min-height: 2.6rem !important;
+}
+[class*="multiselect-button"] {
+    padding: 0 1.1rem !important;
+    gap: 0.6rem !important;
+}
+[class*="multiselect-button"] [class*="label"],
+[class*="chip"][class*="button"] {
+    font-size: 0.92rem !important;
+    white-space: nowrap !important;
+}
+[class*="chip"][class*="button"] { padding: 0 1.15rem !important; }
+[class*="multiselect-button"] [class*="icon"] {
+    width: 0.75rem !important;
+    height: 0.75rem !important;
+}
+
+/* O menu aberto também herda o texto sem quebra */
+[class*="multiselect-menu-container"] [class*="option-container"],
+[class*="select-input"] [class*="option-container"] {
+    white-space: nowrap !important;
+    font-size: 0.9rem !important;
+}
+
+/* ============================================================
+   31. Descrição não encolhe ao abrir as fontes
+   ============================================================ */
+/* Com o modal aberto o bloco de informações fica mais curto e a descrição,
+   sendo o item flexível da coluna, era espremida até uma linha só. Um piso de
+   três linhas impede o colapso sem travar o crescimento. */
+body.route-metadetails [class*="meta-preview"] [class*="description-container"] {
+    min-height: 4.5em !important;
+    flex: 0 0 auto !important;
+}
+
+/* ============================================================
+   32. Filtros: margem própria, largura e distância da navbar
+   ============================================================ */
+/* Medido: `gap: 5.6px` mas vão real de 27px entre os filtros — cada um trazia
+   ~21px de margem própria, que o gap não substitui. Zerar as margens é o que
+   realmente aproxima. */
+[class*="selectable-inputs-container"] > *,
+[class*="selectable-inputs-container"] [class*="select-input"],
+[class*="selectable-inputs-container"] [class*="multiselect-menu"],
+[class*="chips"] > * {
+    margin: 0 !important;
+}
+[class*="selectable-inputs-container"] {
+    gap: 0.6rem !important;
+    /* Mais respiro em relação à navbar */
+    padding-top: 1.4rem !important;
+    padding-bottom: 0.9rem !important;
+}
+
+/* Pílulas mais largas */
+[class*="multiselect-button"] {
+    padding: 0 1.6rem !important;
+    gap: 0.85rem !important;
+}
+[class*="chip"][class*="button"] {
+    padding: 0 1.7rem !important;
+}
+
+/* ============================================================
+   33. Barra de filtros: uma linha só, sempre
+   ============================================================ */
+/* Medido na tela de Addons: 6 controles quebrando em 5 LINHAS — não era
+   distância da navbar (85px lá contra 83px na Biblioteca), era a barra
+   inteira crescendo pra baixo. E ao voltar de outra tela a Biblioteca também
+   assentava em 2 linhas. Forçar linha única resolve os dois. */
+[class*="selectable-inputs-container"] {
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    min-height: 0 !important;
+}
+[class*="selectable-inputs-container"] > * {
+    align-self: center !important;
+    flex-shrink: 1 !important;
+}
+/* O campo largo (busca de addons, fileira de chips) é quem cede espaço.
+   `flex: 1 1 0` colapsava a busca dos Addons pra 0px — a base precisa ser
+   `auto` e ter um piso, senão o item some quando a linha aperta. */
+[class*="selectable-inputs-container"] > [class*="chips"],
+[class*="selectable-inputs-container"] > [class*="horizontal-scroll"] {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+}
+[class*="selectable-inputs-container"] > [class*="search"] {
+    flex: 1 1 auto !important;
+    min-width: 12rem !important;
+}
+/* NÃO esconder filhos vazios aqui: na tela de Addons o `filter-button` chega
+   sem conteúdo e sumiria de vez. Espaçadores com 0px já não atrapalham. */
+
+/* O primeiro quadro depois de trocar de tela vem com a barra fora do lugar
+   (medido: topo em 229px aos 60ms, assentando em 89px aos 200ms). É render do
+   próprio app; um fade curto esconde esse quadro intermediário em vez de
+   deixá-lo piscar. */
+[class*="selectable-inputs-container"] {
+    animation: cuFiltrosEntram 0.22s var(--ease-emphasis) both;
+}
+@keyframes cuFiltrosEntram {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ============================================================
+   34. Botões que usavam o cinza #949596
+   ============================================================ */
+/* `--secondary-accent-color` virou branco puro (era rgba(245,245,247,0.55),
+   que compunha #949596 sobre o fundo). Quem usa essa cor de fundo precisa de
+   texto preto — antes era branco no cinza. */
+[class*="action-button"]:not([class*="buttons-container"]),
+[class*="show-button"]:hover {
+    color: #000000 !important;
+}
+[class*="action-button"]:not([class*="buttons-container"]) svg,
+[class*="action-button"]:not([class*="buttons-container"]) [class*="label"],
+[class*="show-button"]:hover svg,
+[class*="show-button"]:hover [class*="label"] {
+    color: #000000 !important;
+    fill: currentColor !important;
+}
+
+/* Na tela de Addons existe um `spacing` de 768px entre os dois seletores e o
+   resto dos controles — é ele que joga tudo para as pontas. Colapsar SÓ ele
+   (e não todo filho vazio, que derrubava o `filter-button` junto). */
+[class*="selectable-inputs-container"] > [class*="spacing"] {
+    display: none !important;
+}
+
+/* Mesmo sem o espaçador os controles ficavam a 397px um do outro: o container
+   distribui o espaço. Empacota tudo à esquerda. */
+[class*="selectable-inputs-container"] {
+    justify-content: flex-start !important;
+}
+[class*="selectable-inputs-container"] > * {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+}
+
+/* ============================================================
+   35. Texto sobre fundo branco
+   ============================================================ */
+/* `--primary-accent-color` e `--secondary-accent-color` são brancos agora, e
+   tudo que os usa como FUNDO ficava com texto branco por cima. */
+[class*="add-button"],
+[class*="action-button"]:not([class*="buttons-container"]),
+[class*="show-button"]:hover,
+[class*="play-button-container"],
+.disney-play-btn,
+.cu-details-btn {
+    color: #000000 !important;
+}
+[class*="add-button"] *,
+[class*="action-button"]:not([class*="buttons-container"]) *,
+[class*="show-button"]:hover *,
+[class*="play-button-container"] *,
+.disney-play-btn *,
+.cu-details-btn * {
+    color: #000000 !important;
+    fill: currentColor !important;
+    opacity: 1 !important;
+}
+
+/* ============================================================
+   36. Switches
+   ============================================================ */
+/* Ligado, a trilha vira `--primary-accent-color` (branco) e a bolinha também
+   era branca — sumia. Bolinha preta quando ligado. */
+[class*="toggle-container"].checked [class*="toggle"]::before,
+[class*="toggle-container"][class*="checked"] [class*="toggle"]::before {
+    background-color: #000000 !important;
+    box-shadow: none !important;
+}
+
+/* ============================================================
+   37. Addons: mesma altura e largura dos demais filtros
+   ============================================================ */
+[class*="selectable-inputs-container"] [class*="add-button"],
+[class*="selectable-inputs-container"] [class*="search-bar"],
+[class*="selectable-inputs-container"] [class*="filter-button"] {
+    height: 2.6rem !important;
+    min-height: 2.6rem !important;
+    border-radius: var(--radius-pill) !important;
+    box-sizing: border-box !important;
+}
+[class*="selectable-inputs-container"] [class*="add-button"] {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    padding: 0 1.6rem !important;
+}
+/* A busca não pode engolir a linha inteira */
+[class*="selectable-inputs-container"] [class*="search-bar"] {
+    flex: 0 1 18rem !important;
+    max-width: 18rem !important;
+    min-width: 10rem !important;
+}
+
+/* ============================================================
+   38. Busca da navbar em pílula
+   ============================================================ */
+/* A barra expandida vinha com `border-radius: 0` (02-navbar.css). */
+[class*="search-bar-container"],
+[class*="search-bar-container"]:focus-within,
+[class*="search-bar-container"].search-expanded {
+    border-radius: var(--radius-pill) !important;
+}
+
+/* ============================================================
+   39. Addons: busca à esquerda do botão, ambos à direita
+   ============================================================ */
+[class*="selectable-inputs-container"] [class*="search-bar"] {
+    order: 8 !important;
+    /* empurra a busca e o botão para a direita, deixando os seletores à esquerda */
+    margin-left: auto !important;
+}
+[class*="selectable-inputs-container"] [class*="add-button"] {
+    order: 9 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1 !important;
+}
+[class*="selectable-inputs-container"] [class*="add-button"] > * {
+    display: flex !important;
+    align-items: center !important;
+    line-height: 1 !important;
+}
+
+/* ============================================================
+   40. Botões brancos: texto preto, invertendo no hover
+   ============================================================ */
+/* Vale para o "Adicionar URL" das Definições e para o "Adicionar addon".
+   ATENÇÃO ao seletor: a versão anterior incluía
+   `[class*="button-container"][class*="add"]`, e o CARD de cada addon é
+   clicável — ele carrega `button-container` e a própria classe dele contém
+   "add" (de add-on). Resultado: o card inteiro, título, descrição e ícone
+   viravam pretos. Só os nomes completos dos botões, nada de prefixo solto. */
+[class*="add-button"],
+[class*="add-url"] {
+    color: #000000 !important;
+    transition: background-color 0.18s ease, color 0.18s ease !important;
+}
+[class*="add-button"] *,
+[class*="add-url"] * {
+    color: #000000 !important;
+    fill: currentColor !important;
+    opacity: 1 !important;
+}
+/* O hover precisa zerar o fundo do elemento E dos filhos: o botão é composto
+   (um container por fora e a pílula branca por dentro), e ao deixar só o de
+   fora transparente aparecia uma pílula branca DENTRO de um contorno — parecia
+   um segundo botão. */
+[class*="add-button"]:hover,
+[class*="add-url"]:hover {
+    background-color: transparent !important;
+    outline: 1px solid rgba(255, 255, 255, 0.6) !important;
+    outline-offset: -1px !important;
+    color: #ffffff !important;
+}
+[class*="add-button"]:hover *,
+[class*="add-url"]:hover * {
+    background-color: transparent !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+[class*="add-button"]:hover *,
+[class*="add-url"]:hover * {
+    color: #ffffff !important;
+}
+
+/* ============================================================
+   41. Episódios e Extras na largura da temporada
+   ============================================================ */
+/* A lista tinha padding lateral próprio, o que deixava os cards mais estreitos
+   que o seletor de temporada. Sem ele, todos alinham na mesma largura — e o
+   crescimento do hover não é cortado porque `overflow` recorta na caixa de
+   PADDING do painel, e o padding de 1.25rem do .disney-tab-body dá a folga. */
+.disney-episodes-list,
+.disney-extras-list {
+    padding: 0 !important;
+}
+.disney-episode-card,
+.disney-extra-card {
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* ============================================================
+   42. Calendário: só as setas
+   ============================================================ */
+/* Fora o "jul." / "set." — ficam só os círculos com as setas. */
+body.route-calendar [class*="selector"] [class*="prev"] > div,
+body.route-calendar [class*="selector"] [class*="next"] > div {
+    display: none !important;
+}
+/* Sem o rótulo, o botão encolhe para o tamanho do círculo, e o hover passa a
+   acontecer no círculo em vez de num oval que sobrava para o lado. */
+body.route-calendar [class*="selector"] [class*="prev"],
+body.route-calendar [class*="selector"] [class*="next"] {
+    width: auto !important;
+    gap: 0 !important;
+    background: transparent !important;
+    border-radius: 100% !important;
+}
+body.route-calendar [class*="selector"] [class*="prev"]:hover svg,
+body.route-calendar [class*="selector"] [class*="next"]:hover svg {
+    background-color: rgba(255, 255, 255, 0.22) !important;
+    border-color: rgba(255, 255, 255, 0.32) !important;
+}
+body.route-calendar [class*="selector"] [class*="prev"] svg,
+body.route-calendar [class*="selector"] [class*="next"] svg {
+    transition: background-color 0.18s ease, border-color 0.18s ease !important;
+}
+
+/* ============================================================
+   43. Episódios: marcar como visto
+   ============================================================ */
+.disney-episode-card { position: relative !important; }
+/* Coluna de ações na direita do episódio: assistido em cima, avaliar embaixo.
+   Ambos SEMPRE visíveis — são as duas ações do episódio, e escondê-las no
+   hover só fazia o usuário caçar. */
+/* O texto do episódio não pode correr por baixo da coluna de ações. Esta é a
+   ÚNICA regra de padding-right do card: havia três competindo, e vencia a
+   última do arquivo, não a que fazia sentido. */
+.disney-episode-card .disney-episode-info { padding-right: 3.6rem !important; }
+
+/* Uma folga só, usada nos quatro lugares: à direita, acima, abaixo e entre os
+   dois botões. Com o card na altura da miniatura (42px + 2×7,7px de padding),
+   dois botões de 18px e 6px de respiro dão exatamente a mesma sobra em cima e
+   embaixo — e a centralização mantém isso quando o nome do episódio quebra em
+   duas linhas e o card cresce. */
+.cu-ep-acoes {
+    position: absolute;
+    top: 50%;
+    /* 7 e não 8: o card tem 1px de borda, e `right` conta a partir do
+       padding-box — 8 aqui vira 9 na medida de fora, destoando do topo. */
+    right: 7px;
+    transform: translateY(-50%);
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Os dois controles são do MESMO tamanho e ambos círculos completos. O estado
+   de "assistido" não se lê pelo brilho do botão (era isso que confundia: card
+   apagando, botão acendendo e miniatura clareando, três sinais brigando), e sim
+   por um par simples:
+
+     não assistido → anel vazio, quase invisível
+     assistido     → círculo preenchido, e o CONTEÚDO do card apagado
+
+   Um só eixo, duas pontas. */
+.cu-ep-check,
+.cu-ep-nota {
+    width: 18px;
+    height: 18px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 100%;
+    box-sizing: border-box;
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: rgba(255, 255, 255, 0.32);
+    cursor: pointer;
+    transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease, opacity 0.15s ease;
+}
+.cu-ep-check svg { width: 11px; height: 11px; }
+
+/* Assistido: preenchido, mas num branco contido — não é um alerta. */
+.disney-episode-card.cu-ep-visto .cu-ep-check {
+    background-color: rgba(255, 255, 255, 0.22);
+    border-color: transparent;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.cu-ep-check:hover,
+.cu-ep-nota:hover {
+    background-color: rgba(255, 255, 255, 0.85);
+    border-color: transparent;
+    color: #000;
+}
+
+/* Episódio visto fica mais discreto, como na lista nativa */
+/* Assistido não apaga nada: o card fica idêntico ao de um episódio não visto,
+   e o único sinal de estado é o check preenchido. Esta regra apagava o texto
+   e sobrevivia à outra que eu já tinha neutralizado. */
+.disney-episode-card.cu-ep-visto .disney-episode-title,
+.disney-episode-card.cu-ep-visto .disney-episode-overview { opacity: 1; }
+
+/* ============================================================
+   44. Letterboxd: nota nos cards e no botão
+   ============================================================ */
+/* Sem notas: nenhuma integração de leitura sobreviveu ao portão do VIP, então
+   a capa não carrega mais selo de nota. A regra fica desativada em vez de
+   apagada — se um dia houver como ler as notas, é só religar. */
+.cu-lb-nota { display: none !important; }
+.cu-lb-nota-desativado {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+    height: 1.55rem;
+    padding: 0 0.5rem;
+    border-radius: 999px;
+    background-color: var(--glass-bg-chip);
+    -webkit-backdrop-filter: var(--glass-blur-soft);
+    backdrop-filter: var(--glass-blur-soft);
+    border: 0.5px solid rgba(255, 255, 255, 0.3);
+    color: var(--apple-label);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    pointer-events: none;
+}
+.cu-lb-nota.cu-lb-liked { border-color: rgba(255, 120, 140, 0.75); }
+
+/* Assistido segundo o Letterboxd: mesmo selo de olho do app, para os filmes
+   que o Stremio ainda não sabe que você viu. */
+[class*="meta-item-container"].cu-lb-visto [class*="poster-container"]::before {
+    content: '';
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 3;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 100%;
+    background-color: var(--glass-bg-chip);
+    -webkit-backdrop-filter: var(--glass-blur-soft);
+    backdrop-filter: var(--glass-blur-soft);
+    border: 0.5px solid rgba(255, 255, 255, 0.3);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'%3E%3Cpath d='M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 0.95rem 0.95rem;
+    pointer-events: none;
+}
+/* Em "Continuar assistindo" não entra selo nenhum: nem a nota, nem o olho de
+   assistido (nosso OU o nativo do Stremio). Aquela fileira é sobre retomar de
+   onde parou — o ::before do pôster ali é o play. */
+.custom-continue-watching-row [class*="meta-item-container"].cu-lb-visto [class*="poster-container"]::before {
+    content: '' !important;
+}
+.custom-continue-watching-row .cu-lb-nota,
+.custom-continue-watching-row [class*="watched-icon-layer"] {
+    display: none !important;
+}
+
+/* Botão de avaliar quando já existe nota */
+.disney-rate-btn.cu-tem-nota {
+    width: auto !important;
+    min-width: 3.4rem;
+    padding: 0 0.85rem !important;
+    gap: 0.35rem;
+}
+.cu-rate-nota { font-size: 0.9rem; font-weight: 700; letter-spacing: -0.02em; }
+
+/* ============================================================
+   45. Check do episódio dentro da miniatura
+   ============================================================ */
+.disney-episode-thumb-wrap {
+    position: relative !important;
+    width: 5rem !important;
+    height: 3rem !important;
+    flex-shrink: 0 !important;
+    border-radius: 0.35rem !important;
+    overflow: hidden !important;
+}
+.disney-episode-thumb-wrap .disney-episode-thumb {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 0 !important;
+    display: block !important;
+}
+/* `display: block !important` acima serve para a <img>, mas atropelava as duas
+   miniaturas SEM imagem — o cadeado e o "E7" de reserva ficavam encostados no
+   canto superior esquerdo em vez de centralizados. Precisam da mesma
+   especificidade para recuperar o flex. */
+.disney-episode-thumb-wrap .disney-episode-thumb.disney-episode-thumb-vazia,
+.disney-episode-thumb-wrap .disney-episode-thumb.disney-episode-thumb-placeholder {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    /* O `border-radius: 0 !important` da regra acima existe para a <img>, que
+       fica arredondada pelo RECORTE do contêiner. Aqui não serve: a hairline é
+       desenhada no próprio elemento (box-shadow inset) e segue o raio DELE —
+       com zero, saía um contorno arredondado por fora e um preenchimento de
+       cantos retos por dentro. O raio precisa ser o mesmo do contêiner. */
+    border-radius: 0.35rem !important;
+}
+/* Assistido NÃO apaga mais nada: o card fica idêntico a um não assistido, e o
+   único sinal de estado é o check preenchido. Apagar o conteúdo punia
+   visualmente justamente os episódios que você já viu, que continuam sendo os
+   que você pode querer reabrir. */
+.disney-episode-card.cu-ep-visto .disney-episode-thumb-wrap,
+.disney-episode-card.cu-ep-visto .disney-episode-info { opacity: 1; }
+
+/* ============================================================
+   46. Ícone de play dos cards
+   ============================================================ */
+/* O fundo do play usa `--primary-accent-color` e a seta usa
+   `--primary-foreground-color` — as duas viraram branco na paleta Apple, e o
+   ícone sumia dentro do círculo. Círculo branco, seta preta. */
+[class*="play-icon-background"] {
+    fill: #ffffff !important;
+    color: #ffffff !important;
+}
+[class*="play-icon-outer"] {
+    fill: rgba(255, 255, 255, 0.35) !important;
+}
+[class*="play-icon-triangle"],
+[class*="play-icon"] [class*="triangle"] {
+    fill: #000000 !important;
+    color: #000000 !important;
+}
+
+/* ============================================================
+   47. Trakt: nota por episódio e painel de conexão
+   ============================================================ */
+/* A estrela é ação secundária: só aparece quando o mouse passa pelo episódio.
+   Tamanho, forma e cores vêm da regra que ela divide com o check, mais acima —
+   aqui fica só o que é dela. */
+.cu-ep-nota {
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none !important;
+    opacity: 0;
+    pointer-events: none;
+}
+.disney-episode-card:hover .cu-ep-nota { opacity: 1; pointer-events: auto; }
+
+
+/* ---- painel de primeira conexão ---- */
+.cu-trakt-setup {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.55);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+}
+.cu-trakt-box {
+    width: min(34rem, 90vw);
+    padding: 2rem;
+    border-radius: var(--border-radius-lg);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: var(--glass-border);
+    box-shadow: var(--outer-glow);
+    color: var(--apple-label);
+}
+.cu-trakt-box h2 { margin: 0 0 0.75rem; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; }
+.cu-trakt-box p,
+.cu-trakt-box li { color: var(--apple-label-2); font-size: 0.95rem; line-height: 1.5; }
+.cu-trakt-box ol { margin: 0.75rem 0 1rem 1.1rem; padding: 0; }
+.cu-trakt-box li { margin-bottom: 0.35rem; }
+.cu-trakt-box a { color: var(--apple-blue); }
+.cu-trakt-box code {
+    padding: 0.1rem 0.35rem;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    font-size: 0.85rem;
+}
+.cu-trakt-box input {
+    width: 100%;
+    margin-bottom: 0.6rem;
+    padding: 0.65rem 0.8rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--apple-hairline);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--apple-label);
+    font-size: 0.9rem;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+}
+.cu-trakt-box input:focus { outline: none; border-color: var(--apple-blue); }
+.cu-trakt-acoes { display: flex; justify-content: flex-end; gap: 0.6rem; margin-top: 0.4rem; }
+.cu-trakt-acoes button {
+    padding: 0.55rem 1.1rem;
+    border-radius: var(--radius-pill);
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+.cu-trakt-cancelar { background: rgba(255, 255, 255, 0.12); color: var(--apple-label); }
+.cu-trakt-ok { background: #fff; color: #000; }
+.cu-trakt-msg { margin-top: 1rem; color: var(--apple-label-2); font-size: 0.9rem; line-height: 1.5; }
+.cu-trakt-codigo {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 6px;
+    background: #fff;
+    color: #000;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 1.05rem;
+    letter-spacing: 0.08em;
+}
+
+/* O bug do botão CREATE APP do Trakt (erro de validação engolido) custa uns
+   bons minutos de tentativa e erro — o aviso precisa ser visto. */
+.cu-trakt-aviso {
+    margin-top: 0.9rem;
+    padding: 0.7rem 0.85rem;
+    border-radius: var(--border-radius);
+    border: 1px solid rgba(255, 159, 10, 0.35);
+    background: rgba(255, 159, 10, 0.10);
+    font-size: 0.88rem !important;
+    line-height: 1.45;
+}
+
+/* ============================================================
+   48. Card do episódio: duração, bloqueado e check sob demanda
+   ============================================================ */
+/* O check só aparece quando serve: passando o mouse (para marcar) ou quando o
+   episódio JÁ está visto (para informar). Parado num episódio não assistido
+   ele era só ruído numa lista de dez. */
+.cu-ep-check { opacity: 0; }
+.disney-episode-card:hover .cu-ep-check,
+.disney-episode-card.cu-ep-visto .cu-ep-check { opacity: 1; }
+
+
+
+/* Episódio que ainda não saiu: sem imagem quebrada e sem convite ao clique.
+   O cadeado e o traço interrompido dizem "ainda não" sem precisar de texto. */
+/* Miniatura sem imagem — dois casos, o mesmo material:
+     cadeado → episódio ainda não lançado
+     relógio → já lançou, mas a arte ainda não existe
+   O painel `.disney-side-card` que contém esta lista já tem
+   `backdrop-filter: blur(30px)`, e isso cria um BACKDROP ROOT: um
+   backdrop-filter aqui dentro passa a enxergar só o fundo já achatado do
+   painel, não a arte da série atrás dele. Era essa a origem do cinza chapado —
+   o desfoque estava declarado e não tinha o que desfocar.
+   A solução não é mais filtro, é menos tinta: com o tom bem apagado, o vidro
+   do próprio painel aparece através dele e a miniatura vira um vão, não um
+   bloco. */
+.disney-episode-thumb-vazia {
+    background: rgba(110, 120, 135, 0.16);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
+    color: rgba(255, 255, 255, 0.5);
+}
+.disney-episode-thumb-vazia svg { width: 16px; height: 16px; }
+
+.disney-episode-card.cu-ep-bloqueado { cursor: default; }
+/* Sem realce de hover: não há nada para abrir. */
+.disney-episode-card.cu-ep-bloqueado:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.06);
+    transform: none;
+}
+.disney-episode-card.cu-ep-bloqueado .disney-episode-title { color: rgba(255, 255, 255, 0.45); }
+.disney-episode-card.cu-ep-bloqueado .disney-episode-overview {
+    color: rgba(255, 255, 255, 0.3);
+    font-style: italic;
+}
+/* Nem marcar como visto, nem avaliar algo que não existe ainda. */
+.disney-episode-card.cu-ep-bloqueado .cu-ep-acoes { display: none; }
+
+/* ============================================================
+   49. Selo de "está na biblioteca" no card
+   ============================================================ */
+/* Mesmo material do olho de assistido, para os dois lerem como um par. */
+.cu-lib-selo {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 100%;
+    background-color: var(--glass-bg-chip);
+    -webkit-backdrop-filter: var(--glass-blur-soft);
+    backdrop-filter: var(--glass-blur-soft);
+    border: 0.5px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    pointer-events: none;
+}
+.cu-lib-selo svg { width: 0.95rem; height: 0.95rem; }
+/* Quando o olho de assistido também está lá, este senta ao lado dele. */
+.cu-lib-selo.cu-ao-lado { left: calc(0.5rem + 1.75rem + 0.3rem); }
+
+/* ============================================================
+   50. Duração do episódio na miniatura
+   ============================================================ */
+/* Pastilha escura, não vidro: aqui ela se sobrepõe à imagem, e o desfoque
+   competiria com o que está atrás em vez de separar. */
+.disney-episode-duracao {
+    position: absolute;
+    right: 3px;
+    bottom: 3px;
+    padding: 0.05rem 0.25rem;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.72);
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 0.6rem;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    pointer-events: none;
+}
+
+/* ============================================================
+   51. Calendário: ícone de play sobre o pôster
+   ============================================================ */
+/* O Stremio desenha esse ícone com `border-radius: 50%` e a cor de acento como
+   fundo (regra nativa `.cell .items .item .icon`, 2rem). Quando a paleta virou
+   branco puro, ele passou a ser um disco branco chapado do tamanho do pôster.
+   Vira o mesmo vidro dos outros selos, e menor. */
+body.route-calendar [class*="cell"] [class*="items"] [class*="item"] [class*="icon"] {
+    width: 1.6rem !important;
+    height: 1.6rem !important;
+    padding: 0.4rem !important;
+    background-color: var(--glass-bg-chip) !important;
+    -webkit-backdrop-filter: var(--glass-blur-soft) !important;
+    backdrop-filter: var(--glass-blur-soft) !important;
+    border: 0.5px solid rgba(255, 255, 255, 0.35) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35) !important;
+    color: #ffffff !important;
+}

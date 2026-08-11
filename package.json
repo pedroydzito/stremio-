@@ -1,0 +1,9 @@
+{
+  "name": "stremio-mais",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interface personalizada do Stremio+ servida pela Vercel",
+  "scripts": {
+    "lista": "node gerar-lista.js"
+  }
+}

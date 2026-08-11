@@ -1,0 +1,10 @@
+/* -------- 06-discover.css --------
+   Discover, Library and Search routes:
+   give the first row breathing room so the hover scale(1.06) on the top
+   edge isn't clipped by the parent's `contain: strict` / overflow:hidden. */
+
+[class*="discover-container"] [class*="catalog-container"] [class*="meta-items-container"],
+[class*="library-container"] [class*="meta-items-container"],
+[class*="search-container"] [class*="meta-items-container"] {
+    padding-top: 1rem !important;
+}

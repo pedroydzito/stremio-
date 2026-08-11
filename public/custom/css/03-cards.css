@@ -1,0 +1,148 @@
+/* -------- 03-cards.css --------
+   Generic meta-item poster card styling: idle shadow (Disney+ style),
+   hover scale/glow, gradient overlay, progress bar, landscape rules. */
+
+[class*="meta-item-container"] {
+    padding: 0.5rem !important;
+    overflow: visible !important;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), z-index 0s 0.35s !important;
+    position: relative !important;
+    z-index: 0 !important;
+}
+
+[class*="meta-item-container"]:hover,
+[class*="meta-item-container"]:focus,
+[class*="meta-item-container"].active,
+[class*="meta-item-container"].selected {
+    outline-style: none !important;
+    transform: scale(1.06) !important;
+    z-index: 10 !important;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), z-index 0s !important;
+}
+
+[class*="meta-item-container"] [class*="poster-container"] {
+    position: relative !important;
+    z-index: 0 !important;
+    background-color: rgba(28, 32, 44, 0.6) !important;
+    border-radius: var(--border-radius) !important;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    overflow: hidden !important;
+    /* Disney+ style cinematic dark shadow on every cover, idle state */
+    box-shadow:
+        0 4px 10px rgba(0, 0, 0, 0.45),
+        0 12px 28px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Bottom-fade gradient on hover */
+[class*="meta-item-container"] [class*="poster-container"]::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg,
+        transparent 45%,
+        rgba(0, 0, 0, 0.35) 75%,
+        rgba(0, 0, 0, 0.78) 100%) !important;
+    opacity: 0;
+    transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    z-index: 0 !important;
+}
+[class*="meta-item-container"]:hover [class*="poster-container"]::after,
+[class*="meta-item-container"]:focus [class*="poster-container"]::after,
+[class*="meta-item-container"].active [class*="poster-container"]::after,
+[class*="meta-item-container"].selected [class*="poster-container"]::after {
+    opacity: 1 !important;
+}
+
+[class*="meta-item-container"]:hover [class*="poster-container"],
+[class*="meta-item-container"]:focus [class*="poster-container"],
+[class*="meta-item-container"].active [class*="poster-container"],
+[class*="meta-item-container"].selected [class*="poster-container"] {
+    box-shadow:
+        0 0 0 2px rgba(249, 249, 249, 0.95),
+        0 18px 40px rgba(0, 0, 0, 0.75) !important;
+}
+
+/* Hide titles in generic poster/square catalogs */
+[class*="poster-shape-poster"] [class*="title-bar-container"] { display: none !important; }
+[class*="poster-shape-square"] [class*="title-bar-container"] { display: none !important; }
+
+/* Landscape items behave a little different (zoom only the poster, keep title) */
+[class*="poster-shape-landscape"]:hover,
+[class*="poster-shape-landscape"]:focus,
+[class*="poster-shape-landscape"].active,
+[class*="poster-shape-landscape"].selected {
+    transform: none !important;
+}
+[class*="poster-shape-landscape"]:hover [class*="poster-container"],
+[class*="poster-shape-landscape"]:focus [class*="poster-container"],
+[class*="poster-shape-landscape"].active [class*="poster-container"],
+[class*="poster-shape-landscape"].selected [class*="poster-container"] {
+    transform: scale(1.06) !important;
+    z-index: 10 !important;
+}
+[class*="poster-shape-landscape"] [class*="title-bar-container"] {
+    display: flex !important;
+    margin-top: 0.6rem !important;
+}
+[class*="poster-shape-landscape"] [class*="title-label"] {
+    font-size: 0.88rem !important;
+    text-align: left !important;
+    color: rgba(249, 249, 249, 0.85) !important;
+    padding-left: 0.25rem !important;
+}
+
+[class*="meta-item-container"] [class*="title-bar-container"] [class*="title-label"] {
+    font-size: 0.88rem !important;
+    line-height: 1.25 !important;
+    text-align: left !important;
+    color: rgba(249, 249, 249, 0.88) !important;
+}
+
+/* Progress bar overlay (Continue Watching, etc.) */
+[class*="progress-bar-layer"] {
+    z-index: 1 !important;
+    position: absolute !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 3px !important;
+    border-radius: 0 !important;
+    overflow: hidden !important;
+}
+[class*="progress-bar-layer"] [class*="progress-bar"] {
+    background-image: var(--accent-gradient) !important;
+    background-color: transparent !important;
+}
+[class*="progress-bar-layer"] [class*="progress-bar-background"] {
+    background-color: rgba(249, 249, 249, 0.18) !important;
+    opacity: 0.3 !important;
+}
+
+/* Stacking context fixes for open menus / dropdowns */
+[class*="meta-row-container"]:has(.context-menu-container),
+[class*="meta-row-container"]:has([class*="popup-menu-container"]),
+[class*="meta-row-container"]:has([class*="menu-container"]),
+[class*="meta-row-container"]:has([class*="multiselect-menu-container"]),
+[class*="meta-row-container"]:has([class*="context-menu"]) {
+    z-index: 1000 !important;
+    position: relative !important;
+}
+
+[class*="meta-item-container"]:has(.context-menu-container),
+[class*="meta-item-container"]:has([class*="popup-menu-container"]),
+[class*="meta-item-container"]:has([class*="menu-container"]),
+[class*="meta-item-container"]:has([class*="multiselect-menu-container"]),
+[class*="meta-item-container"]:has([class*="context-menu"]) {
+    z-index: 1000 !important;
+    position: relative !important;
+}
+
+.context-menu-container,
+[class*="context-menu-container"],
+.context-menu,
+[class*="context-menu"],
+[class*="popup-menu-container"],
+[class*="multiselect-menu-container"] {
+    z-index: 99999 !important;
+}

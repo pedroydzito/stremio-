@@ -1,0 +1,1025 @@
+/* -------- 05-metadetails.css --------
+   Disney+ style metadetails:
+   - Hero background starts BELOW navbar (no crop)
+   - Preview (left): logo, year/runtime/imdb, short description, pill buttons
+   - Side card (right, absolute): tabs (Episódios / Sugestões / Extras / Detalhes)
+   - Native genres/cast/director hidden in preview (rendered in Detalhes tab)
+   - Native streams-list shown as centered modal (when user clicks Assistir) */
+
+/* ===== Container ===== */
+[class*="metadetails-container"] {
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+/* ===== Background: full-bleed from top:0 (behind navbar) — the navbar's own
+   gradient (in 02-navbar.css) fades to reveal the image. Disney+ style. ===== */
+[class*="metadetails-container"] [class*="background-image-layer"] {
+    position: absolute !important;
+    inset: 0 !important;
+    height: auto !important;
+    z-index: 0 !important;
+    overflow: hidden !important;
+}
+[class*="metadetails-container"] [class*="background-image"] {
+    /* Push the focal point down a bit so the top of the image (covered by the
+       navbar gradient) isn't the most important part. */
+    object-position: center 15% !important;
+    opacity: 1 !important;
+    transform: none !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+/* Gradient concentrated in the BOTTOM-LEFT corner, behind the info block.
+   Rest of the image stays clean. */
+[class*="metadetails-container"] [class*="background-image-layer"]::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 70% 70% at 0% 100%,
+            rgba(12, 12, 15, 0.95) 0%,
+            rgba(12, 12, 15, 0.75) 25%,
+            rgba(12, 12, 15, 0.40) 50%,
+            rgba(12, 12, 15, 0.10) 70%,
+            transparent 82%),
+        /* Subtle bottom darkening for legibility across full width */
+        linear-gradient(0deg,
+            rgba(12, 12, 15, 0.35) 0%,
+            transparent 18%) !important;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ===== Scrollable content column (transparent so bg image shows through) =====
+   No z-index here — would create a stacking context that traps the streams
+   popup's z-index inside, putting it BEHIND the fixed-position backdrop. */
+[class*="metadetails-content"] {
+    flex-direction: column !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    position: relative !important;
+    background-color: transparent !important;
+}
+
+/* ===== Meta Preview: full-viewport hero with content anchored bottom-left ===== */
+[class*="metadetails-content"] [class*="meta-preview"] {
+    flex: none !important;
+    width: 100% !important;
+    max-width: none !important;
+    min-height: calc(100vh - var(--horizontal-nav-bar-size)) !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    display: block !important;
+    position: relative !important;
+    background: transparent !important;
+    overflow: visible !important;
+}
+/* The info container itself is absolutely anchored to bottom-left, hero-style.
+   This keeps it pinned no matter how tall the preview is. */
+[class*="meta-preview"] [class*="meta-info-container"] {
+    position: absolute !important;
+    left: 3rem !important;
+    bottom: 2.5rem !important;
+    right: auto !important;
+    top: auto !important;
+    width: auto !important;
+    max-width: min(50rem, calc(100vw - 44rem)) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1.1rem !important;
+    padding: 0 !important;
+    background: transparent !important;
+    overflow: visible !important;
+    z-index: 2 !important;
+}
+
+/* Logo — fixed 22x8rem IMG box with image content anchored flush-left.
+   This guarantees the image's left edge sits at the container's left edge
+   regardless of the image's own aspect ratio (extra space goes to the right). */
+[class*="meta-preview"] [class*="meta-info-container"] [class*="logo"] {
+    width: 22rem !important;
+    height: 8rem !important;
+    max-width: 22rem !important;
+    max-height: 8rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    align-self: flex-start !important;
+    object-fit: contain !important;
+    object-position: left center !important;
+    filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.6)) !important;
+}
+[class*="meta-preview"] [class*="logo-placeholder"] {
+    font-size: 3.4rem !important;
+    font-weight: 800 !important;
+    color: #fff !important;
+    margin: 0 !important;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.6) !important;
+    line-height: 1.05 !important;
+    letter-spacing: -0.01em !important;
+}
+
+/* Year / runtime / imdb row — pills RIGHT next to each other, 6px apart */
+[class*="meta-preview"] [class*="runtime-release-info-container"] {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 0.4rem !important;
+    flex-wrap: wrap !important;
+    color: rgba(249, 249, 249, 0.88) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+/* Kill any inherited margin from native styles that would add to the gap */
+[class*="meta-preview"] [class*="runtime-release-info-container"] > * {
+    margin: 0 !important;
+}
+[class*="meta-preview"] [class*="runtime-label"],
+[class*="meta-preview"] [class*="release-info-label"],
+[class*="meta-preview"] [class*="imdb-button-container"] {
+    height: 2.4rem !important;
+    padding: 0 1rem !important;
+    margin: 0 !important;
+    border-radius: 0.45rem !important;
+    background: rgba(249, 249, 249, 0.14) !important;
+    color: rgba(249, 249, 249, 0.95) !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    border: none !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.4rem !important;
+    line-height: 1 !important;
+    min-width: 0 !important;
+    flex: none !important;
+    box-sizing: border-box !important;
+    cursor: default !important;
+    overflow: visible !important;
+}
+[class*="meta-preview"] [class*="imdb-button-container"] {
+    cursor: pointer !important;
+    padding: 0 0.7rem !important;
+    gap: 0.15rem !important; /* tight gap between number and logo */
+}
+[class*="meta-preview"] [class*="imdb-button-container"]:hover {
+    background: rgba(249, 249, 249, 0.22) !important;
+}
+/* IMDb icon doubled in size — overflow: visible keeps card height unchanged */
+[class*="meta-preview"] [class*="imdb-button-container"] [class*="icon"] {
+    width: 2.6rem !important;
+    height: 2.6rem !important;
+    color: #F6C700 !important;
+    flex: none !important;
+    margin: 0 -0.25rem !important;
+}
+[class*="meta-preview"] [class*="imdb-button-container"] [class*="label"] {
+    color: inherit !important;
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+}
+
+/* Hide native genre/cast/director/writer rows */
+[class*="meta-preview"] [class*="meta-links"] {
+    display: none !important;
+}
+
+/* Hide "SUMMARY" label above description */
+[class*="meta-preview"] [class*="description-container"] [class*="label-container"] {
+    display: none !important;
+}
+
+/* Description: full text, aligned with the buttons row below */
+[class*="meta-preview"] [class*="description-container"] {
+    color: rgba(249, 249, 249, 0.92) !important;
+    font-size: 1.1rem !important;
+    line-height: 1.55 !important;
+    max-width: 30rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    display: block !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55) !important;
+    background: transparent !important;
+}
+
+/* Hide native right-side action buttons (Trailer/Library/Eye/Share) */
+[class*="meta-preview"] [class*="action-buttons-container"] {
+    display: none !important;
+}
+[class*="meta-preview"] [class*="meta-info-container"] [class*="imdb-button-container"] {
+    border-radius: 0.3rem !important;
+}
+
+/* ===== Custom button row ===== */
+.disney-buttons-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding: 0.5rem;          /* extra space so hover scale isn't cropped */
+    margin-left: -0.5rem;
+    flex-wrap: wrap;
+    overflow: visible;
+}
+
+/* Fully-rounded pill buttons (bigger, hero-scale) */
+.disney-play-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    height: 3.4rem;
+    padding: 0 2.4rem;
+    border-radius: 999px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    border: none;
+    background-color: #fff;
+    color: #0c0c0f;
+    transition: background-color 0.2s ease, transform 0.18s ease;
+    text-transform: uppercase;
+}
+.disney-play-btn:hover {
+    background-color: rgba(255, 255, 255, 0.88);
+    transform: scale(1.04);
+}
+.disney-play-btn svg {
+    width: 1.6rem;
+    height: 1.6rem;
+    fill: currentColor;
+    flex-shrink: 0;
+}
+
+.disney-trailer-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    height: 3.4rem;
+    padding: 0 1.75rem;
+    border-radius: 999px;
+    font-size: 0.98rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1.5px solid rgba(255, 255, 255, 0.45);
+    background-color: rgba(0, 0, 0, 0.40);
+    color: #fff;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.18s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.disney-trailer-btn:hover {
+    background-color: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.75);
+    transform: scale(1.04);
+}
+.disney-trailer-btn svg {
+    width: 1.35rem;
+    height: 1.35rem;
+    fill: currentColor;
+    flex-shrink: 0;
+}
+
+.disney-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.4rem;
+    height: 3.4rem;
+    border-radius: 999px;
+    border: 1.5px solid rgba(255, 255, 255, 0.40);
+    background: rgba(0, 0, 0, 0.40);
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.18s ease;
+}
+.disney-action-btn:hover {
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.75);
+    transform: scale(1.08);
+}
+.disney-action-btn svg {
+    width: 1.45rem;
+    height: 1.45rem;
+    fill: currentColor;
+}
+
+/* ===== Streaming provider icons (bottom-left, below the info block) ===== */
+.disney-provider-icons {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 3rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.6rem;
+    z-index: 3;
+}
+.disney-provider-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.4rem;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(0, 0, 0, 0.55);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+.disney-provider-icon:hover {
+    transform: scale(1.10);
+    border-color: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+}
+.disney-provider-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* ===== Right-side card with tabs (full-height, fixed) ===== */
+.disney-side-card {
+    position: fixed;
+    top: calc(var(--horizontal-nav-bar-size) + 1.5rem);
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 28rem;
+    max-width: 28vw;
+    height: auto;
+    background: rgba(18, 20, 26, 0.82);
+    backdrop-filter: blur(24px) saturate(140%);
+    -webkit-backdrop-filter: blur(24px) saturate(140%);
+    border-radius: 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    z-index: 50;
+}
+.disney-tabs-bar {
+    display: flex;
+    flex-direction: row;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0.4rem 0.5rem 0;
+    flex: none;
+    gap: 0.15rem;
+}
+.disney-tab-btn {
+    background: transparent;
+    border: none;
+    color: rgba(249, 249, 249, 0.55);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 0.85rem 1rem;
+    cursor: pointer;
+    position: relative;
+    transition: color 0.2s ease;
+    border-radius: 0.4rem 0.4rem 0 0;
+}
+.disney-tab-btn:hover { color: rgba(249, 249, 249, 0.9); }
+.disney-tab-btn.active { color: #fff; }
+.disney-tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0.4rem;
+    right: 0.4rem;
+    height: 3px;
+    background-color: #fff;
+    border-radius: 2px 2px 0 0;
+}
+.disney-tab-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.75rem 1.25rem 1.25rem;
+}
+.disney-tab-body::-webkit-scrollbar { width: 6px; }
+.disney-tab-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 3px;
+}
+
+/* === Details tab inside the side card === */
+.disney-detail-block {
+    margin-bottom: 1.25rem;
+}
+.disney-detail-block-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(249, 249, 249, 0.5);
+    margin: 0 0 0.3rem 0;
+}
+.disney-detail-block-text {
+    font-size: 0.92rem;
+    line-height: 1.45;
+    color: rgba(249, 249, 249, 0.88);
+    margin: 0;
+}
+.disney-detail-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+.disney-detail-row {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+/* Match the same sizes as the person-block titles + values below */
+.disney-detail-key {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(249, 249, 249, 0.5);
+}
+.disney-detail-value {
+    font-size: 0.92rem;
+    color: rgba(249, 249, 249, 0.88);
+    line-height: 1.45;
+}
+
+/* === Extras tab === */
+.disney-extras-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+.disney-extra-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.7rem 0.85rem;
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+}
+.disney-extra-card:hover {
+    background-color: rgba(255, 255, 255, 0.09);
+    transform: translateY(-1px);
+}
+.disney-extra-icon {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: #fff;
+    color: #0c0c0f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.disney-extra-icon svg { width: 1rem; height: 1rem; }
+.disney-extra-info { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.disney-extra-title { font-weight: 700; font-size: 0.88rem; color: #fff; }
+.disney-extra-meta { font-size: 0.75rem; color: rgba(249, 249, 249, 0.5); }
+
+/* === Cast / Director / Writer — minimal: photo + name in a row, no card bg === */
+.disney-cast-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.25rem;
+    margin-top: 0.5rem;
+}
+.disney-cast-card {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.18s, opacity 0.18s;
+    cursor: pointer;
+}
+.disney-cast-card:hover { transform: translateY(-1px); opacity: 0.85; }
+.disney-cast-photo {
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 50%;
+    object-fit: cover;
+    background: rgba(28, 32, 44, 0.7);
+    flex-shrink: 0;
+}
+.disney-cast-photo-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: rgba(249, 249, 249, 0.75);
+    background: linear-gradient(135deg, rgba(70, 80, 110, 0.7), rgba(40, 45, 65, 0.7));
+}
+.disney-cast-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.25;
+    white-space: nowrap;
+}
+/* Inline comma-separated fallback when no photos are available */
+.disney-cast-text {
+    font-size: 0.92rem;
+    line-height: 1.45;
+    color: rgba(249, 249, 249, 0.88);
+    margin: 0.3rem 0 0 0;
+}
+.disney-cast-text a {
+    color: rgba(249, 249, 249, 0.88);
+    text-decoration: none;
+    transition: color 0.15s;
+}
+.disney-cast-text a:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+/* Divider between the detail-grid (Lançamento/Duração/Gêneros) and the first
+   person block (Elenco). Below-divider blocks use the SAME 1rem rhythm as the
+   detail-grid rows (`gap: 1rem`), so the whole tab feels uniform. */
+.disney-detail-grid + .disney-detail-block {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+.disney-detail-block + .disney-detail-block {
+    margin-top: 1rem;
+}
+
+/* === Toast notification === */
+.disney-toast {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: rgba(20, 22, 28, 0.95);
+    color: #fff;
+    padding: 0.85rem 1.5rem;
+    border-radius: 999px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    z-index: 10001;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+.disney-toast.disney-toast-show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* === Suggestions tab === */
+.disney-suggestions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+}
+.disney-suggestion-card {
+    display: block;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-decoration: none;
+}
+.disney-suggestion-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 2px rgba(249, 249, 249, 0.85), 0 12px 24px rgba(0, 0, 0, 0.6);
+}
+.disney-suggestion-poster {
+    width: 100%;
+    aspect-ratio: 2 / 3;
+    object-fit: cover;
+    display: block;
+    background: rgba(28, 32, 44, 0.5);
+}
+
+/* Hide native videos-list ALWAYS — we render our own custom list in the side card */
+[class*="metadetails-content"] [class*="videos-list"],
+[class*="metadetails-content"] [class*="videos-container"],
+[class*="metadetails-content"] [class*="seasons-bar"],
+[class*="metadetails-content"] [class*="seasons-popup"],
+[class*="metadetails-content"] [class*="multiselect-button"],
+[class*="metadetails-content"] [class*="next-season-button"],
+[class*="metadetails-content"] [class*="prev-season-button"] {
+    display: none !important;
+}
+
+/* === Custom episodes list (inside side card body) === */
+.disney-episodes {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+.disney-season-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+.disney-season-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(249, 249, 249, 0.5);
+    margin: 0;
+}
+.disney-episodes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.disney-episode-card {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.55rem;
+    background-color: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s, transform 0.2s;
+}
+.disney-episode-card:hover {
+    background-color: rgba(255, 255, 255, 0.10);
+    border-color: rgba(255, 255, 255, 0.18);
+    transform: translateX(2px);
+}
+.disney-episode-thumb {
+    width: 5rem;
+    height: 3rem;
+    border-radius: 0.35rem;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: rgba(28, 32, 44, 0.5);
+}
+.disney-episode-thumb-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: rgba(249, 249, 249, 0.7);
+    font-size: 0.85rem;
+}
+.disney-episode-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    flex: 1;
+    min-width: 0;
+}
+.disney-episode-title {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+/* Esta linha deixou de ser a sinopse e passou a ser o NOME do episódio. Nome
+   cortado não serve para nada — é justamente o que identifica o episódio —,
+   então nada de line-clamp aqui: ele quebra em quantas linhas precisar. */
+.disney-episode-overview {
+    font-size: 0.82rem;
+    color: rgba(249, 249, 249, 0.72);
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+}
+
+/* === Empty state in tabs === */
+.disney-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    gap: 0.8rem;
+    color: rgba(249, 249, 249, 0.4);
+    text-align: center;
+}
+.disney-empty svg {
+    width: 2.5rem;
+    height: 2.5rem;
+    opacity: 0.7;
+}
+.disney-empty span {
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Native streams-list ALWAYS hidden — we render our own custom popup
+   (.disney-streams-popup) at body root so z-index works correctly. */
+[class*="metadetails-content"] [class*="streams-list"] {
+    display: none !important;
+}
+
+/* ===== Custom streams popup (rendered at body root) ===== */
+.disney-streams-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(92vw, 32rem);
+    max-height: 80vh;
+    background: linear-gradient(180deg, #1a1d24 0%, #0c0c0f 100%);
+    border-radius: 1rem;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: disneyStreamsIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.disney-streams-popup-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    flex: none;
+}
+.disney-streams-popup-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.disney-streams-popup-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.5rem;
+}
+.disney-streams-popup-body::-webkit-scrollbar { width: 6px; }
+.disney-streams-popup-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 3px;
+}
+.disney-stream-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.75rem 0.85rem;
+    border-radius: 0.55rem;
+    cursor: pointer;
+    transition: background-color 0.16s;
+    color: #fff;
+}
+.disney-stream-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+.disney-stream-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 0.4rem;
+    background: rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    color: rgba(255, 255, 255, 0.55);
+}
+.disney-stream-icon svg { width: 1.2rem; height: 1.2rem; }
+.disney-stream-icon-img { width: 100%; height: 100%; object-fit: cover; }
+.disney-stream-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    flex: 1;
+    min-width: 0;
+}
+.disney-stream-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #fff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+.disney-stream-desc {
+    font-size: 0.78rem;
+    color: rgba(249, 249, 249, 0.55);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+.disney-stream-play {
+    width: 1.4rem;
+    height: 1.4rem;
+    color: rgba(255, 255, 255, 0.4);
+    flex-shrink: 0;
+}
+.disney-stream-item:hover .disney-stream-play { color: #fff; }
+.disney-streams-loading,
+.disney-streams-empty {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.95rem;
+}
+.disney-streams-loading-more {
+    padding: 0.85rem 1rem;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+/* ===== Season picker dropdown (episodes tab) ===== */
+.disney-season-picker {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.disney-season-picker-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(249, 249, 249, 0.5);
+}
+.disney-season-select {
+    flex: 1;
+    background: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0.45rem;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    transition: background-color 0.18s, border-color 0.18s;
+}
+.disney-season-select:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+.disney-season-select option {
+    background: #1a1d24;
+    color: #fff;
+}
+@keyframes disneyStreamsIn {
+    from { opacity: 0; transform: translate(-50%, -48%) scale(0.97); }
+    to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+.disney-streams-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.80);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 9998;
+    cursor: pointer;
+    animation: disneyFadeIn 0.2s ease;
+}
+@keyframes disneyFadeIn { from { opacity: 0; } to { opacity: 1; } }
+/* Close button injected INSIDE streams-list, anchored to its top-right corner */
+.disney-streams-close-inline {
+    position: absolute !important;
+    top: 0.75rem !important;
+    right: 0.75rem !important;
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    z-index: 10 !important;
+    border: none !important;
+    padding: 0 !important;
+    transition: background-color 0.18s, transform 0.18s !important;
+    pointer-events: auto !important;
+}
+.disney-streams-close-inline:hover {
+    background: rgba(255, 255, 255, 0.28) !important;
+    transform: scale(1.06) !important;
+}
+.disney-streams-close-inline svg {
+    width: 1.1rem !important;
+    height: 1.1rem !important;
+    fill: currentColor !important;
+}
+
+/* Hide spacing div (Stremio inserts it between preview and tabs/streams) */
+[class*="metadetails-content"] [class*="spacing"] {
+    display: none !important;
+}
+
+/* ===== Responsive ===== */
+@media only screen and (min-width: 2000px) {
+    /* Extra-wide screens: bigger info, more margin */
+    .disney-side-card {
+        width: 32rem;
+        right: 2.5rem;
+        top: calc(var(--horizontal-nav-bar-size) + 2.5rem);
+        bottom: 2.5rem;
+    }
+    [class*="meta-preview"] [class*="meta-info-container"] {
+        left: 4.5rem !important;
+        bottom: 3.5rem !important;
+        max-width: min(60rem, calc(100vw - 38rem)) !important;
+    }
+    [class*="meta-preview"] [class*="meta-info-container"] [class*="logo"] {
+        max-width: 36rem !important;
+        max-height: 12rem !important;
+    }
+}
+@media only screen and (max-width: 1400px) {
+    .disney-side-card {
+        width: 24rem;
+        max-width: 30vw;
+    }
+    [class*="meta-preview"] [class*="meta-info-container"] {
+        max-width: min(46rem, calc(100vw - 28rem)) !important;
+    }
+}
+@media only screen and (max-width: 1100px) {
+    /* Smaller screens: side card stacks below preview */
+    [class*="metadetails-content"] {
+        overflow-y: auto !important;
+    }
+    [class*="metadetails-content"] [class*="meta-preview"] {
+        min-height: 75vh !important;
+    }
+    [class*="meta-preview"] [class*="meta-info-container"] {
+        left: 2rem !important;
+        bottom: 2rem !important;
+        max-width: calc(100vw - 4rem) !important;
+    }
+    .disney-side-card {
+        position: static !important;
+        width: calc(100% - 3rem) !important;
+        max-width: none !important;
+        height: 70vh !important;
+        margin: 0 1.5rem 1.5rem 1.5rem !important;
+        border-radius: 0.8rem !important;
+    }
+    [class*="meta-preview"] [class*="meta-info-container"] [class*="logo"] {
+        max-width: 22rem !important;
+        max-height: 8rem !important;
+    }
+    .disney-provider-icons { right: 2rem; bottom: 2rem; }
+}
+@media only screen and (max-width: 700px) {
+    [class*="meta-preview"] [class*="meta-info-container"] {
+        left: 1.25rem !important;
+        bottom: 1.5rem !important;
+        max-width: calc(100vw - 2.5rem) !important;
+        gap: 0.85rem !important;
+    }
+    [class*="meta-preview"] [class*="meta-info-container"] [class*="logo"] {
+        max-width: 18rem !important;
+        max-height: 6.5rem !important;
+    }
+    .disney-play-btn { height: 3rem; padding: 0 1.75rem; font-size: 0.95rem; }
+    .disney-trailer-btn { height: 3rem; padding: 0 1.4rem; font-size: 0.9rem; }
+    .disney-action-btn { width: 3rem; height: 3rem; }
+    .disney-side-card {
+        width: calc(100% - 2rem) !important;
+        margin: 0 1rem 1rem 1rem !important;
+        height: 60vh !important;
+    }
+    .disney-suggestions-grid { grid-template-columns: repeat(2, 1fr); }
+    .disney-provider-icons { right: 1.25rem; bottom: 1.25rem; }
+    .disney-provider-icon { width: 2.4rem; height: 2.4rem; }
+}

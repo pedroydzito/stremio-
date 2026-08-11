@@ -1,0 +1,258 @@
+/* -------- 02-navbar.css --------
+   Horizontal navigation bar: layout, logo, search-bar collapse/expand,
+   and the centered tabs that 02-navbar.js injects. */
+
+/* Hide the vertical nav on desktop and push content to the top */
+@media only screen and (min-width: 641px) {
+    [class*="vertical-nav-bar-container"],
+    [class*="vertical-nav-bar-"] {
+        display: none !important;
+    }
+    [class*="nav-content-container"] {
+        left: 0 !important;
+        top: var(--horizontal-nav-bar-size) !important;
+    }
+}
+
+/* Horizontal nav container */
+[class*="horizontal-nav-bar-container"] {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    height: var(--horizontal-nav-bar-size) !important;
+    padding-right: 1.5rem !important;
+    background-color: #0c0c0f !important;
+    box-sizing: content-box !important;
+    z-index: 100 !important;
+}
+[class*="horizontal-nav-bar-container"]::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg,
+        rgba(50, 50, 50, 0.0) 0%,
+        rgba(50, 50, 50, 0.95) 50%,
+        rgba(50, 50, 50, 0.0) 100%) !important;
+    pointer-events: none;
+}
+
+/* Logo — left-aligned with .board-content's 2.5rem padding */
+[class*="horizontal-nav-bar-container"] [class*="logo-container"] {
+    padding: 0 1.5rem 0 2.5rem !important;
+    height: var(--horizontal-nav-bar-size) !important;
+    display: flex !important;
+    align-items: center !important;
+}
+[class*="horizontal-nav-bar-container"] [class*="logo"] {
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    opacity: 1 !important;
+    filter: brightness(1.1) !important;
+}
+
+/* Hide the fullscreen toggle button anywhere in the horizontal nav (every route
+   except the player). Some routes nest it inside [class*="nav-right"], others
+   inside [class*="controls-container"], others as a direct child of the nav
+   bar — scope the rule to the whole nav so all variants are caught. */
+/* O último :not() é essencial: o popup do menu do usuário é renderizado DENTRO
+   da navbar, e cada item dele (Logout, Configurações, Addons, Ajuda) carrega a
+   classe `button-container`. Sem excluir os descendentes de `menu-container`,
+   esta regra zera todos e o popup abre só com o avatar e o e-mail.
+   A exclusão precisa ser AQUI, não numa regra de override: esta tem
+   especificidade (0,7,1) e ganharia de qualquer override razoável. */
+body:not(.route-player) [class*="horizontal-nav-bar-container"] [class*="button-container"]:not([class*="menu-button"]):not([class*="back-button"]):not([class*="submit-button"]):not([class*="icon-container"]):not([class*="menu-container"] *) {
+    display: none !important;
+}
+
+/* Search bar: pure-icon collapsed (right side, left of account icon);
+   expands centered when any descendant gets focus OR .search-expanded is set by JS. */
+[class*="search-bar-container"] {
+    --search-bar-size: 2.5rem !important;
+    position: absolute !important;
+    top: 50% !important;
+    /* Derivado, não chutado: padding-right da navbar (1.5rem) + largura do
+       botão do usuário, avatar + seta (5.5rem) + respiro (1rem).
+       Com os 5rem antigos o ícone de busca sobrepunha o avatar em 28px. */
+    right: calc(1.5rem + 5.5rem + 1rem) !important;
+    left: auto !important;
+    transform: translateY(-50%) !important;
+    width: var(--search-bar-size) !important;
+    height: var(--search-bar-size) !important;
+    flex: none !important;
+    background: transparent !important;
+    border: none !important;
+    border-radius: 999px !important;
+    overflow: hidden !important;
+    z-index: 4 !important;
+    transition: width 0.25s ease, right 0.25s ease, left 0.25s ease,
+                transform 0.25s ease, background-color 0.2s ease !important;
+}
+[class*="search-bar-container"]::after { display: none !important; }
+[class*="search-bar-container"] input,
+[class*="search-bar-container"] [class*="search-input"] {
+    background: transparent !important;
+    border: none !important;
+    color: #fff !important;
+    font-size: 0.95rem !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    transition: width 0.2s ease, opacity 0.15s ease, padding 0.2s ease !important;
+}
+[class*="search-bar-container"] [class*="submit-button-container"] {
+    width: var(--search-bar-size) !important;
+    height: var(--search-bar-size) !important;
+    padding: 0 !important;
+    flex: none !important;
+}
+[class*="search-bar-container"]:hover {
+    background-color: rgba(249, 249, 249, 0.08) !important;
+}
+[class*="search-bar-container"]:focus-within {
+    width: 32rem !important;
+    right: auto !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    background-color: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+[class*="search-bar-container"]:focus-within input,
+[class*="search-bar-container"]:focus-within [class*="search-input"] {
+    width: auto !important;
+    flex: 1 1 auto !important;
+    opacity: 1 !important;
+    padding: 0 0.5rem 0 1rem !important;
+    pointer-events: auto !important;
+}
+/* JS-driven expansion class (used as fallback when :focus-within won't fire again) */
+[class*="search-bar-container"].search-expanded {
+    width: 32rem !important;
+    right: auto !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    background-color: transparent !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+[class*="search-bar-container"].search-expanded input,
+[class*="search-bar-container"].search-expanded [class*="search-input"] {
+    width: auto !important;
+    flex: 1 1 auto !important;
+    opacity: 1 !important;
+    padding: 0 0.5rem 0 1rem !important;
+    pointer-events: auto !important;
+}
+
+/* Hide magnifying glass (search) icon in the open search bar when the query is empty */
+[class*="search-bar-container"]:focus-within:has(input:placeholder-shown) [class*="submit-button-container"],
+[class*="search-bar-container"].search-expanded:has(input:placeholder-shown) [class*="submit-button-container"] {
+    display: none !important;
+}
+
+/* Add a line underneath the open search bar matching the style of the line under the navbar */
+[class*="search-bar-container"]:focus-within::after,
+[class*="search-bar-container"].search-expanded::after {
+    display: block !important;
+    content: '' !important;
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    height: 1px !important;
+    background: linear-gradient(90deg,
+        rgba(50, 50, 50, 0.0) 0%,
+        rgba(50, 50, 50, 0.95) 50%,
+        rgba(50, 50, 50, 0.0) 100%) !important;
+    pointer-events: none !important;
+}
+[class*="horizontal-nav-bar-container"]:has([class*="search-bar-container"]:focus-within)
+    .custom-tabs-container,
+[class*="horizontal-nav-bar-container"]:has([class*="search-bar-container"].search-expanded)
+    .custom-tabs-container {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease;
+}
+
+/* Custom centered tabs (injected by 02-navbar.js) */
+.custom-tabs-container {
+    position: absolute !important;
+    left: 50% !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    transform: translateX(-50%) !important;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    height: 100%;
+    overflow: visible;
+    z-index: 1;
+    pointer-events: auto;
+}
+.custom-tab-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.55rem;
+    height: 100%;
+    padding: 0 1.25rem;
+    color: rgba(249, 249, 249, 0.72) !important;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: color 0.18s ease;
+    text-decoration: none;
+    position: relative;
+}
+.custom-tab-item .tab-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: currentColor;
+    flex: none;
+    opacity: 0.85;
+}
+.custom-tab-item .tab-label { white-space: nowrap; }
+.custom-tab-item:hover { color: #ffffff !important; }
+.custom-tab-item.selected {
+    color: #ffffff !important;
+    font-weight: 700;
+}
+.custom-tab-item.selected .tab-icon { opacity: 1; }
+
+/* Only collapse to icon-only when the screen is really tight */
+@media only screen and (max-width: 900px) {
+    .custom-tab-item { padding: 0 0.65rem; }
+    .custom-tab-item .tab-label { display: none; }
+}
+
+/* Player + Metadetails: Disney+ style navbar — clean linear gradient from
+   #151a1e (opaque at top) to fully transparent at the bottom. */
+body.route-player [class*="horizontal-nav-bar-container"],
+body.route-metadetails [class*="horizontal-nav-bar-container"] {
+    background-color: transparent !important;
+    background-image: linear-gradient(
+        180deg,
+        rgba(21, 26, 30, 1) 0%,
+        rgba(21, 26, 30, 0) 100%
+    ) !important;
+}
+body.route-player [class*="horizontal-nav-bar-container"]::after,
+body.route-metadetails [class*="horizontal-nav-bar-container"]::after {
+    display: none !important;
+}
+body.route-player .custom-tabs-container {
+    display: none !important;
+}
