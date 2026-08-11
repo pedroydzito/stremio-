@@ -661,6 +661,13 @@
     // Miniatura de episódio sem imagem: cadeado quando ainda não lançou,
     // relógio quando lançou mas a arte não existe (ou falhou ao carregar).
     const TRACO = 'fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"';
+    // "2026-08-12T…" → "12/08/2026"
+    function dataBR(iso) {
+        if (!iso) return '';
+        const d = new Date(iso);
+        return isNaN(d) ? '' : d.toLocaleDateString('pt-BR');
+    }
+
     const CADEADO_SVG = `<svg viewBox="0 0 24 24" ${TRACO}><rect x="4.5" y="10.5" width="15" height="10" rx="2.2"/><path d="M8.2 10.5V7.2a3.8 3.8 0 0 1 7.6 0v3.3"/></svg>`;
     const RELOGIO_SVG = `<svg viewBox="0 0 24 24" ${TRACO}><circle cx="12" cy="12" r="8.4"/><path d="M12 7.2V12l3.1 2"/></svg>`;
 
@@ -725,9 +732,23 @@
                 // aceitava o appendChild no DOM e simplesmente não aparecia.
                 // temporada/episódio ficam no próprio card: é a chave com que
                 // o Trakt indexa a nota daquele episódio.
-                const miniatura = (bloqueado || semArte)
-                    ? `<div class="disney-episode-thumb disney-episode-thumb-vazia">${bloqueado ? CADEADO_SVG : RELOGIO_SVG}</div>`
-                    : `<img class="disney-episode-thumb" src="${thumb}" alt="" loading="lazy" />`;
+                // Três casos, nesta ordem:
+                //   bloqueado COM arte → a arte fica, apagada, e o cadeado vem
+                //     por cima: dá para reconhecer o episódio e ver que ainda
+                //     não saiu ao mesmo tempo
+                //   bloqueado SEM arte → só o vão com o cadeado
+                //   disponível         → a imagem normal
+                const miniatura = (bloqueado && thumb)
+                    ? `<img class="disney-episode-thumb" src="${thumb}" alt="" loading="lazy" />
+                       <div class="cu-ep-cadeado">${CADEADO_SVG}</div>`
+                    : ((bloqueado || semArte)
+                        ? `<div class="disney-episode-thumb disney-episode-thumb-vazia">${bloqueado ? CADEADO_SVG : RELOGIO_SVG}</div>`
+                        : `<img class="disney-episode-thumb" src="${thumb}" alt="" loading="lazy" />`);
+
+                // No episódio que ainda não saiu, o selo da miniatura mostra a
+                // data de estreia — é a informação que falta ali. Nos demais,
+                // ele é preenchido depois com a duração (ver syncDuracoes).
+                const dataEstreia = bloqueado ? dataBR(v.released) : '';
 
                 // Título vira só a numeração; o NOME do episódio desce para a
                 // linha de baixo, onde cabe inteiro sem corte.
@@ -737,6 +758,7 @@
                 return `<div class="disney-episode-card${bloqueado ? ' cu-ep-bloqueado' : ''}" data-href="${href}" data-temporada="${selected}" data-episodio="${epNum != null ? epNum : ''}">
                     <div class="disney-episode-thumb-wrap">
                         ${miniatura}
+                        ${dataEstreia ? `<span class="disney-episode-duracao cu-ep-estreia">${dataEstreia}</span>` : ''}
                     </div>
                     <div class="disney-episode-info">
                         <span class="disney-episode-title">${rotulo}</span>

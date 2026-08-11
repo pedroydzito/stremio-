@@ -156,7 +156,7 @@
                                 <span>Assistir</span>
                             </div>
                             <div class="hero-btn hero-btn-secondary">
-                                <svg class="btn-icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                                <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M12 11.2v4.6"/><path d="M12 8.1v.15"/></svg>
                                 <span>Detalhes</span>
                             </div>
                         </div>

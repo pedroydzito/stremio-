@@ -2043,3 +2043,47 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] {
     border: none !important;
     box-shadow: none !important;
 }
+
+/* ============================================================
+   53. Episódio ainda não estreado: arte preservada
+   ============================================================ */
+/* Quando o episódio já tem arte mas ainda não foi ao ar, a imagem fica — só
+   apagada, com o cadeado por cima. Assim dá para reconhecer o episódio e ver
+   que ele ainda não saiu ao mesmo tempo. Sem arte, segue o vão de sempre. */
+.disney-episode-card.cu-ep-bloqueado img.disney-episode-thumb { opacity: 0.28; }
+.cu-ep-cadeado {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.85);
+    pointer-events: none;
+}
+.cu-ep-cadeado svg {
+    width: 16px;
+    height: 16px;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.7));
+}
+/* A data de estreia ocupa o lugar do selo de duração. */
+.cu-ep-estreia { font-size: 0.55rem !important; letter-spacing: 0 !important; }
+
+/* Ícones vazados que substituem os preenchidos do Stremio: sem isto o `fill`
+   herdado da barra os pintaria por dentro e o traço sumiria. */
+/* Ícones vazados que substituem os preenchidos do Stremio: sem isto o `fill`
+   herdado pintaria por dentro e o traço sumiria. */
+.custom-tab-item .tab-icon[stroke],
+.hero-btn .btn-icon[stroke],
+.cu-details-btn svg[stroke] {
+    fill: none !important;
+    stroke: currentColor !important;
+}
+
+/* Cantos do card no calendário: o item nativo arredondava só embaixo.
+   SEM `overflow: hidden` aqui — ele anularia a liberação que faz o card
+   crescer com o nome do episódio, e o recorte da miniatura já acontece no
+   contêiner dela. */
+.cu-cal-card { border-radius: 10px !important; }
+body.route-calendar [class*="content"] > [class*="list"] [class*="item"] > [class*="body"] {
+    border-radius: 10px !important;
+}

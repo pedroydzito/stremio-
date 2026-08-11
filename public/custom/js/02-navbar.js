@@ -8,6 +8,14 @@
 (function () {
     const { getReactFiber: _gf, findFiberProps: _ff, routeFromHref, currentRoute } = window.__cu.utils;
 
+    // O Stremio desenha a casa do Painel preenchida, enquanto todos os outros
+    // ícones da barra são vazados — ela puxava o olho sem motivo. Esta é a
+    // única substituída; as demais vêm do próprio app.
+    const CASA_VAZADA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" '
+        + 'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'
+        + '<path d="M3.6 10.4 12 3.6l8.4 6.8"/>'
+        + '<path d="M5.7 9.5V19a1.6 1.6 0 0 0 1.6 1.6h9.4a1.6 1.6 0 0 0 1.6-1.6V9.5"/></svg>';
+
     let cachedTabs = [];
     try {
         const saved = sessionStorage.getItem('stremio:cachedTabs');
@@ -24,7 +32,9 @@
             if (tab.label) tabItem.title = tab.label; // tooltip when icon-only
             if (tab.iconHTML) {
                 const wrap = document.createElement('span');
-                wrap.innerHTML = tab.iconHTML;
+                // A rota do Painel é a vazia: o href dele é "#/", então
+                // routeFromHref devolve ''. Comparar com 'board' nunca casava.
+                wrap.innerHTML = (tab.route === '' || tab.route === 'board') ? CASA_VAZADA : tab.iconHTML;
                 const svg = wrap.querySelector('svg');
                 if (svg) {
                     svg.setAttribute('class', 'tab-icon');
