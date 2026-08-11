@@ -15,13 +15,15 @@
 (function () {
     try { if (localStorage.getItem('cu:rolagemSuave') === '0') return; } catch (_) { /* segue */ }
 
-    const DURACAO = 380;        // ms até assentar
+    const DURACAO = 520;        // ms até assentar
     const DEGRAU_MINIMO = 45;   // abaixo disso é trackpad: não encostar
 
     const animacoes = new WeakMap();
 
-    // Curva de saída: rápido no começo, freando no fim.
-    const suavizar = (t) => 1 - Math.pow(1 - t, 3);
+    // Curva de saída mais longa que a anterior (cúbica → quíntica): parte com
+    // a mesma pressa e freia por mais tempo, que é o que dá a sensação de
+    // deslizar em vez de andar.
+    const suavizar = (t) => 1 - Math.pow(1 - t, 5);
 
     function rolavel(no) {
         while (no && no !== document.body && no !== document.documentElement) {

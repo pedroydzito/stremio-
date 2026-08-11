@@ -1,0 +1,125 @@
+/* -------- 09-animacoes.css --------
+   Entradas do app.
+
+   A regra que segue aqui: 160–320ms, deslocamento pequeno (6–14px) e curva de
+   saída. Animação que se anuncia cansa na segunda vez — a graça é a tela
+   parecer montada, não coreografada.
+
+   Como elas disparam: uma animação CSS roda quando o elemento é PINTADO pela
+   primeira vez. Como o React monta e desmonta essas partes a cada troca de
+   tela, isso acontece sozinho, sem classe nenhuma para pôr e tirar. Por isso
+   nada aqui depende do laço de 400ms.
+
+   Um cuidado que define quase todas as escolhas abaixo: só entra `transform`
+   em elemento que NÃO tenha transform próprio. Onde já existe um (a coluna de
+   ações do episódio, a pastilha da barra de serviços, o polegar da rolagem), a
+   entrada é só de opacidade — senão a animação apagaria o posicionamento. */
+
+@keyframes cu-surge {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+@keyframes cu-sobe {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes cu-sobe-pouco {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes cu-vem-da-direita {
+    from { opacity: 0; transform: translateX(22px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes cu-cresce {
+    from { opacity: 0; transform: scale(0.97); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+/* ============================================================
+   Painel
+   ============================================================ */
+/* O destaque abre com um leve zoom-out: dá a sensação de a imagem "assentar"
+   em vez de piscar na tela. */
+.hero-carousel { animation: cu-cresce 0.42s var(--ease-cinematic) both; }
+
+/* As fileiras entram em cascata. A escada é curta de propósito: passa de ~5
+   fileiras e a última chegaria tarde demais para parecer resposta ao clique. */
+[class*="meta-row-container"] { animation: cu-sobe 0.34s var(--ease-emphasis) both; }
+[class*="meta-row-container"]:nth-of-type(1) { animation-delay: 0.02s; }
+[class*="meta-row-container"]:nth-of-type(2) { animation-delay: 0.06s; }
+[class*="meta-row-container"]:nth-of-type(3) { animation-delay: 0.10s; }
+[class*="meta-row-container"]:nth-of-type(4) { animation-delay: 0.14s; }
+[class*="meta-row-container"]:nth-of-type(n+5) { animation-delay: 0.18s; }
+
+/* ============================================================
+   Detalhes
+   ============================================================ */
+/* O card da direita vinha do nada; agora chega de fora, que é de onde ele
+   deveria vir. */
+.disney-side-card { animation: cu-vem-da-direita 0.36s var(--ease-emphasis) both; }
+
+/* Título, dados e descrição sobem juntos, um átimo antes dos botões. */
+[class*="meta-preview"] [class*="logo"],
+[class*="meta-preview"] [class*="title-container"],
+[class*="meta-preview"] [class*="runtime-release-info-container"],
+[class*="meta-preview"] [class*="description-container"] {
+    animation: cu-sobe-pouco 0.32s var(--ease-emphasis) both;
+}
+[class*="meta-preview"] [class*="runtime-release-info-container"] { animation-delay: 0.05s; }
+[class*="meta-preview"] [class*="description-container"] { animation-delay: 0.08s; }
+
+.disney-buttons-row { animation: cu-sobe-pouco 0.3s var(--ease-emphasis) 0.1s both; }
+
+/* Abas do card lateral e o conteúdo delas. Ao trocar de aba o conteúdo é
+   remontado, então a mesma regra serve para a troca — sem precisar de gancho. */
+.disney-tab-body { animation: cu-surge 0.24s ease both; }
+
+/* Episódios em cascata, mais rápida que a das fileiras porque são muitos. */
+.disney-episode-card { animation: cu-sobe-pouco 0.26s var(--ease-emphasis) both; }
+.disney-episode-card:nth-child(1) { animation-delay: 0.01s; }
+.disney-episode-card:nth-child(2) { animation-delay: 0.03s; }
+.disney-episode-card:nth-child(3) { animation-delay: 0.05s; }
+.disney-episode-card:nth-child(4) { animation-delay: 0.07s; }
+.disney-episode-card:nth-child(n+5) { animation-delay: 0.09s; }
+
+/* O modal de fontes: o fundo escurece, o card cresce. */
+.disney-streams-backdrop { animation: cu-surge 0.18s ease both; }
+.disney-streams-popup { animation: cu-cresce 0.26s var(--ease-emphasis) both; }
+
+/* ============================================================
+   Explorar, Biblioteca, Calendário
+   ============================================================ */
+[class*="discover-container"] [class*="meta-preview-container"] {
+    animation: cu-vem-da-direita 0.32s var(--ease-emphasis) both;
+}
+body.route-calendar [class*="content"] > [class*="list"] [class*="item"] {
+    animation: cu-sobe-pouco 0.3s var(--ease-emphasis) both;
+}
+body.route-calendar [class*="table"] { animation: cu-surge 0.28s ease both; }
+
+/* ============================================================
+   Só opacidade onde já existe transform
+   ============================================================ */
+/* Estes elementos são posicionados por `transform`. Uma entrada que também
+   mexesse nele apagaria o posicionamento e eles apareceriam fora do lugar. */
+.cu-ep-acoes,
+.cu-servico-pilula,
+.cu-rolagem-polegar,
+.cu-ep-estreia,
+.cu-lib-selo,
+[class*="watched-icon-layer"] {
+    animation: none;
+}
+
+/* ============================================================
+   Respeito à preferência do sistema
+   ============================================================ */
+/* Quem pediu menos movimento no macOS recebe as telas prontas, sem entrada. */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-delay: 0ms !important;
+        transition-duration: 0.001ms !important;
+    }
+}

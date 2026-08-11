@@ -9,7 +9,8 @@ module.exports = {
             "05-metadetails.css",
             "06-discover.css",
             "07-apple.css",
-            "08-logo.css"
+            "08-logo.css",
+            "09-animacoes.css"
     ],
     JS: [
             "00-runtime.js",
