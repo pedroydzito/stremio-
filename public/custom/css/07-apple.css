@@ -1965,3 +1965,60 @@ body.route-calendar [class*="cell"] [class*="items"] [class*="item"] [class*="ic
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35) !important;
     color: #ffffff !important;
 }
+
+/* ============================================================
+   52. Calendário: lista lateral com os cards de episódio
+   ============================================================ */
+/* A lista colava no topo da janela — o mês tem o seletor para respirar, ela
+   não tinha nada. */
+body.route-calendar [class*="content"] > [class*="list"] {
+    padding: 1.25rem 1rem 1rem !important;
+    gap: 0.6rem !important;
+    overflow-y: auto !important;
+}
+
+/* Cabeçalho: data à esquerda, série à direita. Duas estreias no mesmo dia
+   precisam se distinguir, e o card em si passou a mostrar só o episódio. */
+body.route-calendar [class*="content"] > [class*="list"] [class*="heading"] {
+    display: flex !important;
+    align-items: baseline !important;
+    justify-content: space-between !important;
+    gap: 0.5rem !important;
+    margin-bottom: 0.35rem !important;
+    padding: 0 0.15rem !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.02em !important;
+    color: var(--apple-label-2) !important;
+}
+.cu-cal-serie {
+    font-weight: 500;
+    color: var(--apple-label-3);
+    text-align: right;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+}
+
+/* O card em si reusa `.disney-episode-card`; aqui só o que muda no contexto
+   da lista — ele é um link, não uma div, e não tem coluna de ações. */
+.cu-cal-card {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.6rem !important;
+    padding: 0.55rem !important;
+    text-decoration: none !important;
+}
+.cu-cal-card .disney-episode-info { padding-right: 0 !important; }
+/* O ícone nativo de play era um disco branco do tamanho do card; o card
+   inteiro já é clicável. */
+body.route-calendar [class*="content"] > [class*="list"] [class*="icon"] {
+    display: none !important;
+}
+/* Item selecionado: o anel branco do Stremio brigava com o card. */
+body.route-calendar [class*="content"] > [class*="list"] [class*="item"] {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}

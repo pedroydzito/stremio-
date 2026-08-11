@@ -1,0 +1,130 @@
+/* -------- 08-calendario.js --------
+   Reconstrói a lista lateral do calendário com os mesmos cards da tela de
+   detalhes: miniatura, "Episódio X" e o nome do episódio embaixo.
+
+   O que o Stremio entrega ali é só data, nome da série e "S4E2" — sem
+   miniatura e sem o nome do episódio. O resto vem do Cinemeta, com cache: uma
+   consulta por série, reaproveitada por todos os episódios dela.
+
+   A data continua no cabeçalho de cada item e ganha o nome da série junto.
+   Sem isso, dois lançamentos no mesmo dia ficariam indistinguíveis — o pedido
+   era "Episódio X" no título, e é o que o card mostra; a série sobe uma linha
+   em vez de sumir.
+
+   As classes são as MESMAS dos cards de episódio (`disney-episode-*`), de
+   propósito: o visual das miniaturas vazias, do cadeado e do relógio já está
+   resolvido lá, e duplicar CSS seria criar dois lugares para consertar. */
+
+(function () {
+    const TRACO = 'fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"';
+    const CADEADO = `<svg viewBox="0 0 24 24" ${TRACO}><rect x="4.5" y="10.5" width="15" height="10" rx="2.2"/><path d="M8.2 10.5V7.2a3.8 3.8 0 0 1 7.6 0v3.3"/></svg>`;
+    const RELOGIO = `<svg viewBox="0 0 24 24" ${TRACO}><circle cx="12" cy="12" r="8.4"/><path d="M12 7.2V12l3.1 2"/></svg>`;
+
+    const CHAVE = 'cu:calMeta';
+    let meta = {};
+    try { meta = JSON.parse(localStorage.getItem(CHAVE) || '{}'); } catch (_) { /* ignore */ }
+    const pedidos = new Set();
+
+    function pedeMeta(imdb) {
+        if (!imdb || meta[imdb] || pedidos.has(imdb)) return;
+        pedidos.add(imdb);
+        fetch('https://v3-cinemeta.strem.io/meta/series/' + imdb + '.json')
+            .then((r) => r.json())
+            .then((j) => {
+                const mapa = {};
+                (j.meta?.videos || []).forEach((v) => {
+                    if (v.season == null || v.episode == null) return;
+                    mapa[v.season + ':' + v.episode] = {
+                        nome: v.name || '',
+                        thumb: v.thumbnail || '',
+                        lancado: !v.released || new Date(v.released).getTime() <= Date.now(),
+                    };
+                });
+                meta[imdb] = mapa;
+                try { localStorage.setItem(CHAVE, JSON.stringify(meta)); } catch (_) { /* ignore */ }
+            })
+            .catch(() => { pedidos.delete(imdb); });
+    }
+
+    // "#/detail/series/tt10986410/tt10986410%3A4%3A1" → { imdb, temporada, episodio }
+    function leEndereco(href) {
+        const bruto = decodeURIComponent(href || '');
+        const m = /(tt\d+):(\d+):(\d+)\s*$/.exec(bruto);
+        if (!m) return null;
+        return { imdb: m[1], temporada: +m[2], episodio: +m[3] };
+    }
+
+    function monta(link, dados, info) {
+        const semNome = !info || !info.nome || /^(tba|tbd)$/i.test(info.nome.trim());
+        const bloqueado = info ? (!info.lancado && semNome) : false;
+        const semArte = !bloqueado && (!info || !info.thumb);
+
+        const miniatura = (bloqueado || semArte || !info)
+            ? `<div class="disney-episode-thumb disney-episode-thumb-vazia">${bloqueado ? CADEADO : RELOGIO}</div>`
+            : `<img class="disney-episode-thumb" src="${info.thumb}" alt="" loading="lazy" />`;
+
+        const segunda = bloqueado || semNome ? 'Ainda não disponível' : info.nome;
+
+        link.innerHTML = `
+            <div class="disney-episode-thumb-wrap">${miniatura}</div>
+            <div class="disney-episode-info">
+                <span class="disney-episode-title">Episódio ${dados.episodio}</span>
+                <span class="disney-episode-overview">${String(segunda).replace(/</g, '&lt;')}</span>
+            </div>`;
+        link.classList.add('disney-episode-card', 'cu-cal-card');
+        if (bloqueado) link.classList.add('cu-ep-bloqueado');
+
+        // A imagem do metahub existe mesmo para episódios sem still: ela morre
+        // no carregamento. Falhou, vira o mesmo vão de "sem arte".
+        const img = link.querySelector('img.disney-episode-thumb');
+        if (img) {
+            img.addEventListener('error', () => {
+                const wrap = img.closest('.disney-episode-thumb-wrap');
+                if (!wrap || wrap.querySelector('.disney-episode-thumb-vazia')) return;
+                const vazio = document.createElement('div');
+                vazio.className = 'disney-episode-thumb disney-episode-thumb-vazia';
+                vazio.innerHTML = RELOGIO;
+                img.replaceWith(vazio);
+            }, { once: true });
+        }
+    }
+
+    function sync() {
+        if (!document.body.classList.contains('route-calendar')) return;
+        const lista = document.querySelector('[class*="content"] > [class*="list"]');
+        if (!lista) return;
+
+        lista.querySelectorAll('[class*="item"]').forEach((item) => {
+            const link = item.querySelector('a[href*="/detail/"]');
+            if (!link) return;
+
+            const dados = leEndereco(link.getAttribute('href'));
+            if (!dados) return;
+
+            const mapa = meta[dados.imdb];
+            if (!mapa) { pedeMeta(dados.imdb); }
+            const info = mapa ? mapa[dados.temporada + ':' + dados.episodio] : null;
+
+            // Redesenha só quando o conteúdo muda: sem isto, o innerHTML seria
+            // reescrito 2,5 vezes por segundo e a imagem piscaria sem parar.
+            const assinatura = dados.imdb + '|' + dados.temporada + ':' + dados.episodio + '|' + (info ? info.nome + info.thumb : 'vazio');
+            if (link.dataset.cuAssinatura === assinatura) return;
+            link.dataset.cuAssinatura = assinatura;
+
+            // O nome da série sobe para o cabeçalho, junto da data.
+            const nomeSerie = (item.querySelector('[class*="name"]') || {}).textContent;
+            const cabecalho = item.querySelector('[class*="heading"]');
+            if (cabecalho && nomeSerie && !cabecalho.dataset.cuSerie) {
+                cabecalho.dataset.cuSerie = '1';
+                const marca = document.createElement('span');
+                marca.className = 'cu-cal-serie';
+                marca.textContent = nomeSerie.trim();
+                cabecalho.appendChild(marca);
+            }
+
+            monta(link, dados, info);
+        });
+    }
+
+    window.__cu.register(sync);
+})();

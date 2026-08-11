@@ -20,6 +20,7 @@ module.exports = {
             "05-discover.js",
             "06-trakt.js",
             "07-biblioteca.js",
+            "08-calendario.js",
             "99-main.js"
     ],
 };
