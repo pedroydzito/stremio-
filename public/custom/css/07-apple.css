@@ -2831,9 +2831,25 @@ body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.
     color: rgba(255, 255, 255, 0.9);
     pointer-events: none;
 }
+/* Um disco opaco ATRÁS do cadeado. Depois de medir o card com um probe (duas
+   vezes, inclusive sob hover), não há elemento de play no DOM — então o círculo
+   que sobrava vem de algo que querySelector não pega: um pseudo-elemento, um
+   <use> de svg, ou um fundo. Perseguir a classe não resolve. Um disco na cor do
+   card, do tamanho do play, cobre isso seja lá o que for. */
+.cu-cw-cadeado::before {
+    content: '';
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    border-radius: 100%;
+    background: rgba(12, 13, 16, 0.72);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+}
 .cu-cw-cadeado svg {
-    width: 34px;
-    height: 34px;
+    position: relative;
+    width: 30px;
+    height: 30px;
     filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.7));
 }
 
