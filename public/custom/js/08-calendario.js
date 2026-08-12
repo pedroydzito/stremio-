@@ -230,8 +230,17 @@
         hoje.setHours(23, 59, 59, 999);
 
         Array.from(grade.children).forEach((celula) => {
-            const num = celula.querySelector('[class*="heading"] [class*="day"]');
-            const dia = parseInt((num?.textContent || '').trim(), 10);
+            // O número do dia sai da PRIMEIRA folha com um número de 1 ou 2
+            // dígitos. Eu lia de `[class*="heading"] [class*="day"]`, e essa
+            // combinação não existe em toda célula — onde falhava, a célula era
+            // pulada inteira e a capa ficava colorida.
+            let dia = NaN;
+            const folhas = celula.querySelectorAll('*');
+            for (const el of folhas) {
+                if (el.children.length) continue;
+                const m = /^(\d{1,2})$/.exec((el.textContent || '').trim());
+                if (m) { dia = +m[1]; break; }
+            }
             if (!Number.isFinite(dia)) return;
 
             const data = new Date(hoje.getFullYear(), hoje.getMonth(), dia);
@@ -249,8 +258,18 @@
             // meus seletores por substring já erraram aqui uma vez — a marcação
             // entrava na célula e não chegava na imagem. Inline não depende de
             // adivinhar nome nenhum, e ganha de qualquer regra do app.
+            // A capa pode ser uma <img> OU uma div com background-image — os dois
+            // aparecem no app. Procuro pelos dois em vez de supor um.
+            const capas = new Set();
             celula.querySelectorAll('img').forEach((img) => {
-                const alvo = img.closest('[class*="poster"]') || img;
+                capas.add(img.closest('[class*="poster"]') || img);
+            });
+            celula.querySelectorAll('*').forEach((el) => {
+                const bg = getComputedStyle(el).backgroundImage || '';
+                if (bg && bg !== 'none' && /url\(/.test(bg)) capas.add(el);
+            });
+
+            capas.forEach((alvo) => {
                 if (futuro) {
                     alvo.style.setProperty('filter', 'grayscale(1)', 'important');
                     alvo.style.setProperty('opacity', '0.45', 'important');
@@ -261,7 +280,7 @@
             });
 
             // Cadeado no meio da capa.
-            const capa = celula.querySelector('[class*="poster"]') || celula.querySelector('img')?.parentElement;
+            const capa = [...capas][0]?.parentElement || celula.querySelector('[class*="poster"]');
             let cadeado = celula.querySelector('.cu-cal-cadeado');
             if (futuro && capa && !cadeado) {
                 // O contêiner precisa ser referência de posição para o cadeado
