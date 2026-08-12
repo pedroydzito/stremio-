@@ -20,7 +20,7 @@
     const CADEADO = `<svg viewBox="0 0 24 24" ${TRACO}><rect x="4.5" y="10.5" width="15" height="10" rx="2.2"/><path d="M8.2 10.5V7.2a3.8 3.8 0 0 1 7.6 0v3.3"/></svg>`;
     const RELOGIO = `<svg viewBox="0 0 24 24" ${TRACO}><circle cx="12" cy="12" r="8.4"/><path d="M12 7.2V12l3.1 2"/></svg>`;
 
-    const CHAVE = 'cu:calMeta';
+    const CHAVE = 'cu:calMeta2';
     let meta = {};
     try { meta = JSON.parse(localStorage.getItem(CHAVE) || '{}'); } catch (_) { /* ignore */ }
     const pedidos = new Set();
@@ -37,17 +37,26 @@
                     mapa[v.season + ':' + v.episode] = {
                         nome: v.name || '',
                         thumb: v.thumbnail || '',
-                        // Comparação por DIA, não por instante. O episódio que
-                        // sai hoje tem hora de estreia — e até essa hora chegar
-                        // ele aparecia bloqueado no dia em que estreou, que é
-                        // justamente o dia em que se olha o calendário.
-                        lancado: !v.released || new Date(v.released) <= fimDeHoje(),
+                        // A DATA, não o julgamento. Guardar "já lançou" foi um
+                        // erro: o valor era calculado no dia em que a série foi
+                        // buscada e ficava congelado no disco — o episódio que
+                        // estreou hoje continuava marcado como bloqueado porque
+                        // ontem ele era. Guardando a data, a conta é refeita a
+                        // cada abertura.
+                        estreia: v.released || '',
                     };
                 });
                 meta[imdb] = mapa;
                 try { localStorage.setItem(CHAVE, JSON.stringify(meta)); } catch (_) { /* ignore */ }
             })
             .catch(() => { pedidos.delete(imdb); });
+    }
+
+    // Estreia em qualquer hora de HOJE já conta como disponível. Calculado na
+    // hora de desenhar, nunca guardado.
+    function jaEstreou(quando) {
+        if (!quando) return true;
+        return new Date(quando) <= fimDeHoje();
     }
 
     // O último instante de hoje. Estreia em qualquer hora de hoje já conta.
@@ -73,7 +82,7 @@
         // arte, e é o caso comum de quem acompanha uma série em exibição)
         // apareciam idênticos aos que já saíram, justamente na tela feita para
         // mostrar o que ainda vem.
-        const bloqueado = info ? !info.lancado : false;
+        const bloqueado = info ? !jaEstreou(info.estreia) : false;
         const semArte = !bloqueado && (!info || !info.thumb);
 
         // Três casos, os mesmos da tela de detalhes:
@@ -205,6 +214,43 @@
         observador = { alvo, obs };
     }
 
+    // ---- capas da grade -------------------------------------------------
+    //
+    // A grade não diz nada sobre disponibilidade: 5, 12, 19 e 26 são capas
+    // idênticas, e as três últimas são de episódios que ainda não existem. O
+    // que separa um do outro é a data da própria célula — não preciso saber de
+    // que episódio se trata, só se aquele dia já chegou.
+    function marcaCelulas() {
+        const grade = document.querySelector('[class*="table"] [class*="grid"]');
+        if (!grade) return;
+
+        const rotulo = document.querySelector('[class*="table"]')?.textContent || '';
+        const ano = (/(\d{4})/.exec(rotulo) || [])[1];
+        const hoje = new Date();
+        hoje.setHours(23, 59, 59, 999);
+
+        Array.from(grade.children).forEach((celula) => {
+            const num = celula.querySelector('[class*="heading"] [class*="day"]');
+            const dia = parseInt((num?.textContent || '').trim(), 10);
+            if (!Number.isFinite(dia)) return;
+
+            // O mês vem do dia 1 da própria grade: ler o nome do mês e traduzir
+            // daria um segundo lugar para errar.
+            const mesRef = celula.closest('[class*="calendar"]');
+            void mesRef;
+            const data = new Date(hoje.getFullYear(), hoje.getMonth(), dia);
+            if (ano && +ano !== hoje.getFullYear()) {
+                data.setFullYear(+ano);
+            }
+
+            // Só o mês visível é comparável desta forma; nos meses vizinhos a
+            // conta erraria, então a marcação vale pelo dia dentro do mês
+            // exibido, que é o que a grade mostra.
+            const futuro = data > hoje;
+            celula.classList.toggle('cu-cal-futuro', futuro);
+        });
+    }
+
     function sync() {
         if (!document.body.classList.contains('route-calendar')) {
             if (observador) { observador.obs.disconnect(); observador = null; }
@@ -213,6 +259,7 @@
         observa();
         arrumaCabecalhos();
         marcaHoje();
+        marcaCelulas();
         const lista = document.querySelector('[class*="content"] > [class*="list"]');
         if (!lista) return;
 

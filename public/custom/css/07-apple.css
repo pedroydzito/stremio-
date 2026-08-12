@@ -2791,3 +2791,16 @@ body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.
 .custom-continue-watching-row [class*="meta-item-container"].cu-cw-indisponivel {
     display: none !important;
 }
+
+/* Capas de dias que ainda não chegaram: meio apagadas. A grade repete a mesma
+   arte em todas as datas, e sem isto não há como distinguir o que já saiu do
+   que só vai sair — que é justamente a pergunta que se leva ao calendário. */
+body.route-calendar [class*="cell"].cu-cal-futuro [class*="poster"],
+body.route-calendar [class*="cell"].cu-cal-futuro img {
+    opacity: 0.5 !important;
+    transition: opacity 0.2s ease;
+}
+body.route-calendar [class*="cell"].cu-cal-futuro:hover [class*="poster"],
+body.route-calendar [class*="cell"].cu-cal-futuro:hover img {
+    opacity: 0.75 !important;
+}
