@@ -2792,11 +2792,27 @@ body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.
    apagado, com um cadeado no lugar do play. Some da fileira seria mais limpo,
    mas esconder um card sem aviso faz procurar por ele; assim ele diz sozinho
    por que não dá para assistir. */
-.custom-continue-watching-row [class*="meta-item-container"].cu-cw-indisponivel [class*="poster-container"] {
+.custom-continue-watching-row [class*="meta-item-container"].cu-cw-indisponivel {
+    /* No CARD inteiro, não só na miniatura: o nome, o episódio e o degradê
+       também pertencem a algo que não dá para assistir, e deixá-los acesos
+       sobre uma arte apagada fazia o card parecer meio quebrado em vez de
+       indisponível. */
     filter: grayscale(1);
-}
-.custom-continue-watching-row [class*="meta-item-container"].cu-cw-indisponivel img[class*="poster-image"] {
     opacity: 0.45;
+    /* Vai para o fim da fileira. `order` em vez de mover o elemento: o React é
+       dono dessa lista e reordenaria de volta na próxima renderização. Quando o
+       episódio estreia, a classe sai e ele volta sozinho ao lugar que o app lhe
+       deu — que é o primeiro, por ser o mais recente. */
+    order: 1;
+}
+/* O cadeado não pode herdar a opacidade inteira, senão some junto com a arte.
+   Não dá para "desfazer" a opacidade do pai — o que dá é desenhá-lo mais forte
+   e com sombra, para ele continuar legível depois de apagado. */
+.custom-continue-watching-row [class*="meta-item-container"].cu-cw-indisponivel .cu-cw-cadeado {
+    color: #fff;
+}
+.custom-continue-watching-row [class*="meta-item-container"].cu-cw-indisponivel .cu-cw-cadeado svg {
+    filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.95));
 }
 /* O play sai: não há o que tocar. */
 .custom-continue-watching-row [class*="meta-item-container"].cu-cw-indisponivel [class*="play-icon"],
