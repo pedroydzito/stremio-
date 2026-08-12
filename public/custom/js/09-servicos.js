@@ -159,6 +159,9 @@
                 selecionado = (selecionado === valor) ? TUDO : valor;
                 try { localStorage.setItem(CHAVE, selecionado); } catch (_) { /* ignore */ }
                 aplica(true);
+                // As fileiras nativas voltam/somem no mesmo quadro do clique.
+                // Sem isto, quem esperava era o laço de 400ms.
+                requestAnimationFrame(() => { try { sync(); } catch (_) { /* ignore */ } });
             });
             barra.appendChild(b);
         };

@@ -329,5 +329,17 @@
         continuaSeChegouAoFim();
     }
 
+    // O clique não pode esperar a próxima volta do laço. Medido: trocar de
+    // serviço levava ~400ms para a tela mudar, e voltar para "Tudo" outros
+    // ~400ms — exatamente o intervalo do laço. Não era renderização lenta, era
+    // espera. Aqui a troca é refeita no quadro seguinte ao clique.
+    //
+    // O ouvinte é de bolha, no documento: assim ele roda DEPOIS do manipulador
+    // do próprio botão, que é quem atualiza qual serviço está escolhido.
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.cu-servico-btn')) return;
+        requestAnimationFrame(() => { try { sync(); } catch (_) { /* ignore */ } });
+    });
+
     window.__cu.register(sync);
 })();
