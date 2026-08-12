@@ -684,8 +684,9 @@
     // botão desmarca; senão marca. Um botão que faz as duas coisas conforme o
     // que já existe é mais previsível do que dois botões.
     function montaBotaoTemporada(body, videos) {
-        const btn = body.querySelector('.cu-temp-tudo');
+        const btn = body.querySelector('.cu-temp-check');
         if (!btn) return;
+        btn.innerHTML = CHECK;
 
         // Episódio que ainda não saiu não conta nem para a decisão nem para a
         // ação: marcar como visto algo que não existe não quer dizer nada.
@@ -698,7 +699,9 @@
         const vistos = elegiveis.filter((v) => v.watched).length;
         const marcarTudo = vistos < elegiveis.length;
 
-        btn.textContent = marcarTudo ? 'Marcar temporada' : 'Desmarcar temporada';
+        // O mesmo estado do check de um episódio: preenchido quando a temporada
+        // inteira já foi vista, contornado quando falta alguma.
+        btn.classList.toggle('cu-temp-vista', !marcarTudo);
         btn.title = marcarTudo
             ? `Marcar os ${elegiveis.length - vistos} episódios restantes como vistos`
             : `Marcar os ${elegiveis.length} episódios como não vistos`;
@@ -712,6 +715,9 @@
             if (!lista.length) return;
 
             lista.forEach((v) => { try { fn(v, !!v.watched); } catch (_) { /* segue */ } });
+            // O modelo só volta no próximo render; o check muda agora para o
+            // clique não parecer perdido.
+            btn.classList.toggle('cu-temp-vista', marcarTudo);
             showToast(marcarTudo
                 ? `${lista.length} episódios marcados como vistos`
                 : `${lista.length} episódios marcados como não vistos`);
@@ -820,8 +826,10 @@
             body.innerHTML = `
                 <div class="disney-season-picker">
                     <label class="disney-season-picker-label">Temporada</label>
-                    <select class="disney-season-select">${optionsHTML}</select>
-                    <button type="button" class="cu-temp-tudo" data-temporada="${selected}"></button>
+                    <span class="cu-temp-caixa">
+                        <select class="disney-season-select">${optionsHTML}</select>
+                        <button type="button" class="cu-temp-check" data-temporada="${selected}"></button>
+                    </span>
                 </div>
                 <div class="disney-episodes-list">${epsHTML}</div>`;
 

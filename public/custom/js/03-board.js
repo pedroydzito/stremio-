@@ -371,6 +371,24 @@
         return m ? { s: m[1], e: m[2] } : null;
     }
 
+    // A miniatura do EPISÓDIO — a mesma que a lista da tela de detalhes usa.
+    // Um card de "continuar assistindo" é sobre onde você parou, e o still do
+    // episódio diz isso; o banner da série é o mesmo em todos os episódios e
+    // não diferencia nada.
+    //
+    // O endereço se monta a partir do id: o metahub serve por série/temporada/
+    // episódio. Ele responde mesmo para episódios cujo still não existe, e aí
+    // a imagem morre no carregamento — por isso quem chama trata o `error`.
+    //
+    // Só séries. Filme não tem still: o metahub guarda pôster, fundo e logo,
+    // e nenhum deles é um quadro do filme.
+    function stillDoEpisodio(href) {
+        const id = /(tt\d+)/i.exec(decodeURIComponent(href || ''));
+        const se = seasonEpisode(href);
+        if (!id || !se) return null;
+        return `https://episodes.metahub.space/${id[1]}/${se.s}/${se.e}/w780.jpg`;
+    }
+
     function applyLandscapeArt(item) {
         // Tem que ser `img[...]`: existe uma <div class="poster-image-layer-…">
         // ANTES do <img class="poster-image-…"> no DOM, então um seletor só por
@@ -414,7 +432,23 @@
         }
 
         const landscape = landscapeFor(poster);
-        if (landscape && img.src !== landscape) img.src = landscape;
+
+        // Série: o still do episódio na frente do banner. Se ele não existir, o
+        // `error` devolve o card ao banner — melhor um banner do que um vão.
+        const fiberSE = getReactFiber(item);
+        const propsSE = fiberSE ? findFiberProps(fiberSE, (p) => p.href || p.deepLinks) : null;
+        const still = stillDoEpisodio(propsSE?.href || propsSE?.deepLinks?.metaDetailsStreams || '');
+
+        const alvo = still || landscape;
+        if (alvo && img.src !== alvo) {
+            if (still && img.dataset.cuStill !== still) {
+                img.dataset.cuStill = still;
+                img.addEventListener('error', function volta() {
+                    if (landscape && img.src !== landscape) img.src = landscape;
+                }, { once: true });
+            }
+            img.src = alvo;
+        }
 
         decorateCard(item, poster);
     }

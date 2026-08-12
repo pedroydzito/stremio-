@@ -2412,6 +2412,140 @@ body.cu-servico-ativo [class*="meta-row-container"]:not(.cu-cat-fileira) {
 /* ============================================================
    56. Marcar a temporada inteira
    ============================================================ */
+/* O check mora DENTRO da caixa da temporada, no canto direito: a ação é sobre
+   a temporada escolhida ali, e as duas coisas juntas dizem isso sem legenda.
+   É o mesmo desenho do check de um episódio — contornado quando falta algum,
+   preenchido quando a temporada toda foi vista. */
+.disney-season-picker { display: flex; align-items: center; gap: 0.6rem; }
+
+.cu-temp-caixa { position: relative; display: inline-flex; align-items: center; }
+/* Espaço para o check à direita, sem que ele fique sobre o texto. */
+.cu-temp-caixa .disney-season-select { padding-right: 2.6rem !important; }
+
+.cu-temp-check {
+    position: absolute;
+    right: 0.55rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 100%;
+    box-sizing: border-box;
+    background-color: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: rgba(255, 255, 255, 0.32);
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.cu-temp-check svg { width: 11px; height: 11px; }
+.cu-temp-check:hover { border-color: rgba(255, 255, 255, 0.45); color: rgba(255, 255, 255, 0.7); }
+.cu-temp-check.cu-temp-vista {
+    background-color: rgba(255, 255, 255, 0.22);
+    border-color: transparent;
+    color: #fff;
+}
+
+/* ============================================================
+   57. Telas de streaming
+   ============================================================ */
+/* Quase nada aqui de propósito: as fileiras são CLONES das nativas, então
+   herdam o estilo do app — espaçamento, tamanho de card, tipografia e o hover
+   que expande sem cortar. Tentar reproduzir isso à mão foi a primeira versão,
+   e cada medida saiu um pouco diferente. */
+.cu-cat-area { padding-bottom: 2rem; }
+
+/* Com um serviço escolhido, as fileiras nativas somem por CSS — no mesmo
+   quadro. Quando isso dependia só do laço de 400ms, uma fileira recém-chegada
+   (o Painel as carrega conforme a rolagem) piscava no topo antes de sumir. */
+body.cu-servico-ativo [class*="meta-row-container"]:not(.cu-cat-fileira) {
+    display: none !important;
+}
+
+.cu-cat-carregando {
+    padding: 4rem 0;
+    color: var(--apple-label-3);
+    font-size: 0.95rem;
+    text-align: center;
+}
+
+/* Fileiras retiradas do Início (idioma, últimos lançamentos). Classe própria em
+   vez de reusar `cu-fileira-oculta`: aquela é do filtro de serviços, e as duas
+   se apagariam uma à outra. */
+.cu-fileira-removida { display: none !important; }
+
+/* Fileira de gênero aberta: sai da rolagem horizontal e vira grade, para se
+   ver tudo de uma vez. As colunas se acomodam à largura disponível. */
+.cu-cat-expandida [class*="meta-items-container"] {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)) !important;
+    gap: 1rem 0.75rem !important;
+    overflow: visible !important;
+}
+.cu-cat-expandida [class*="meta-item-container"] {
+    width: auto !important;
+    max-width: none !important;
+    flex: none !important;
+}
+
+/* ============================================================
+   58. Cursor de mão no que é clicável
+   ============================================================ */
+/* O app deixa vários alvos com o cursor de seta — a logo, as abas, os cards.
+   Quem clica não deveria precisar descobrir por tentativa o que responde. */
+[class*="logo-container"],
+[class*="app-logo"],
+.custom-tab-item,
+.cu-servico-btn,
+.cu-cat-expandir,
+[class*="see-all-container"],
+[class*="meta-item-container"],
+[class*="button-container"],
+[class*="menu-option"],
+[class*="option-container"],
+.hero-btn,
+.hero-dot,
+.disney-episode-card:not(.cu-ep-bloqueado),
+.cu-ep-check,
+.cu-ep-nota,
+.disney-tab {
+    cursor: pointer;
+}
+/* Onde não há ação, o cursor não deve prometer uma. */
+.disney-episode-card.cu-ep-bloqueado,
+.cu-servico-btn:disabled {
+    cursor: default;
+}
+
+/* ============================================================
+   59. Cortina do pré-carregamento
+   ============================================================ */
+/* Cobre a tela enquanto o app desce até o fim para montar as fileiras. Some
+   junto com a subida, no mesmo meio segundo. Cor do fundo geral, não preto:
+   assim a saída é uma revelação, não um clarão. */
+.cu-cortina {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--apple-bg);
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+.cu-cortina.cu-cortina-saindo {
+    opacity: 0;
+    /* Ao desaparecer ela deixa de interceptar cliques na hora, mesmo ainda
+       visível — meio segundo de tela morta é tempo suficiente para alguém
+       tentar clicar em algo. */
+    pointer-events: none;
+}
+
+/* ============================================================
+   56. Marcar a temporada inteira
+   ============================================================ */
 /* Fica ao lado do seletor de temporada, empurrado para a direita: é uma ação
    sobre a temporada escolhida ali, e ler as duas coisas juntas é o que deixa
    claro o alcance do botão. Discreto de propósito — mexe em vários episódios
@@ -2438,42 +2572,54 @@ body.cu-servico-ativo [class*="meta-row-container"]:not(.cu-cat-fileira) {
 /* ============================================================
    57. Painel de ajustes do Stremio+
    ============================================================ */
-/* Mesmo material das outras seções da tela de Definições, para ler como parte
-   dela e não como um enxerto. */
+/* Um cartão pequeno, ancorado no canto inferior direito. Antes ele era uma
+   coluna da altura da tela, e isso dava a ele o peso de uma seção principal do
+   app — que não é o caso: são quatro ajustes de uma personalização. Flutuando,
+   também não disputa a rolagem das seções nativas. */
 .cu-ajustes {
-    margin: 1.5rem 0 3rem;
-    padding: 1.25rem 1.5rem 0.5rem;
-    background: var(--apple-surface-1);
+    position: fixed;
+    right: 1.25rem;
+    bottom: 1.25rem;
+    z-index: 40;
+    width: min(22rem, calc(100vw - 2.5rem));
+    max-height: min(26rem, calc(100vh - 6rem));
+    overflow-y: auto;
+    padding: 0.9rem 1rem 0.6rem;
+    background: rgba(28, 30, 34, 0.92);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    backdrop-filter: saturate(180%) blur(20px);
     border: 0.5px solid var(--apple-hairline);
-    border-radius: var(--radius-card);
+    border-radius: 14px;
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
 }
 .cu-ajustes-titulo {
-    font-size: 0.72rem;
+    font-size: 0.66rem;
     font-weight: 600;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.07em;
     text-transform: uppercase;
     color: var(--apple-label-2);
-    margin-bottom: 0.9rem;
+    margin-bottom: 0.5rem;
 }
 .cu-ajuste {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 0.85rem 0;
+    gap: 0.7rem;
+    padding: 0.6rem 0;
     border-top: 0.5px solid var(--apple-hairline);
 }
 .cu-ajuste:first-of-type { border-top: none; }
-.cu-ajuste-texto { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
-.cu-ajuste-nome { font-size: 0.95rem; color: #fff; }
-.cu-ajuste-desc { font-size: 0.8rem; color: var(--apple-label-2); line-height: 1.35; }
+.cu-ajuste-texto { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+.cu-ajuste-nome { font-size: 0.85rem; color: #fff; }
+.cu-ajuste-desc { font-size: 0.72rem; color: var(--apple-label-2); line-height: 1.3; }
 
-/* Interruptor. Desenhado aqui em vez de reaproveitar o do app: os do Stremio
-   são caixas de seleção, e um interruptor lê melhor para algo que vale na hora. */
+/* Interruptor no material do app: trilho escuro com bola branca quando
+   desligado, e a inversão quando ligado — branco com a bola escura. O verde
+   era de outro sistema e destoava de tudo em volta. */
 .cu-chave {
     margin-left: auto;
     flex-shrink: 0;
-    width: 3.1rem;
-    height: 1.8rem;
+    width: 2.6rem;
+    height: 1.5rem;
     border-radius: 980px;
     border: none;
     background: rgba(255, 255, 255, 0.16);
@@ -2482,19 +2628,19 @@ body.cu-servico-ativo [class*="meta-row-container"]:not(.cu-cat-fileira) {
     position: relative;
     transition: background-color 0.22s ease;
 }
-.cu-chave.ligada { background: #30d158; }
+.cu-chave.ligada { background: #ffffff; }
 .cu-chave-bola {
     position: absolute;
-    top: 0.17rem;
-    left: 0.17rem;
-    width: 1.46rem;
-    height: 1.46rem;
+    top: 0.15rem;
+    left: 0.15rem;
+    width: 1.2rem;
+    height: 1.2rem;
     border-radius: 100%;
     background: #fff;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
-    transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+    transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2), background-color 0.22s ease;
 }
-.cu-chave.ligada .cu-chave-bola { transform: translateX(1.3rem); }
+.cu-chave.ligada .cu-chave-bola { transform: translateX(1.1rem); background: #1c1e22; }
 
 .cu-ajuste-acao {
     margin-left: auto;
@@ -2503,8 +2649,8 @@ body.cu-servico-ativo [class*="meta-row-container"]:not(.cu-cat-fileira) {
     color: #fff;
     border: 0.5px solid var(--apple-hairline);
     border-radius: 980px;
-    padding: 0.35rem 0.85rem;
-    font-size: 0.82rem;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.75rem;
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
@@ -2513,11 +2659,11 @@ body.cu-servico-ativo [class*="meta-row-container"]:not(.cu-cat-fileira) {
 .cu-ajuste-recarregar {
     display: flex;
     align-items: center;
-    gap: 0.9rem;
-    margin-top: 0.4rem;
-    padding: 0.8rem 0;
+    gap: 0.6rem;
+    margin-top: 0.2rem;
+    padding: 0.6rem 0;
     border-top: 0.5px solid var(--apple-hairline);
-    font-size: 0.82rem;
+    font-size: 0.72rem;
     color: var(--apple-label-2);
 }
 .cu-ajuste-recarregar button {
@@ -2526,8 +2672,8 @@ body.cu-servico-ativo [class*="meta-row-container"]:not(.cu-cat-fileira) {
     color: #000;
     border: none;
     border-radius: 980px;
-    padding: 0.35rem 0.9rem;
-    font-size: 0.82rem;
+    padding: 0.25rem 0.7rem;
+    font-size: 0.75rem;
     font-weight: 600;
     cursor: pointer;
 }

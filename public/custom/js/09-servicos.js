@@ -119,7 +119,16 @@
     function tituloDaFileira(fileira) {
         const el = fileira.querySelector('[class*="title-container"] [class*="title"]')
             || fileira.querySelector('[class*="title"]');
-        return el ? chave(el.textContent) : '';
+        if (!el) return '';
+        // O 14-titulos.js reescreve estes títulos, e nas coleções ele TIRA o
+        // sufixo: "MCU Chronologically Order - Marvel" vira "UCM em ordem
+        // cronológica". Lendo o texto da tela, o sufixo já não estava lá — e
+        // sem ele nenhuma fileira da Marvel era reconhecida como dela: apareciam
+        // em "Tudo" e a aba MARVEL ficava vazia.
+        //
+        // `cuOriginal` é o nome como o addon o entregou, guardado lá justamente
+        // porque uma segunda passada não teria como reconstruí-lo.
+        return chave(el.dataset.cuOriginal || el.textContent);
     }
 
     function montaBarra(lista) {
