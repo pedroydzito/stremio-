@@ -44,7 +44,9 @@
             if (tab.label) {
                 const labelSpan = document.createElement('span');
                 labelSpan.className = 'tab-label';
-                labelSpan.textContent = tab.label;
+                // "Painel" descreve um lugar do app; "Início" descreve o que o
+                // botão faz. Só o rótulo muda — a rota segue sendo a mesma.
+                labelSpan.textContent = /^(painel|board)$/i.test(tab.label.trim()) ? 'Início' : tab.label;
                 tabItem.appendChild(labelSpan);
             }
             tabsContainer.appendChild(tabItem);

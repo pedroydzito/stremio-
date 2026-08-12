@@ -40,8 +40,9 @@
     const traduz = (g) => GENEROS[g] || g;
 
     const MINIMO_POR_GENERO = 8;
-    const MAX_FILEIRAS = 10;
     const POR_FILEIRA = 20;         // o que cabe numa fileira rolável
+    const LOTE = 4;                 // fileiras montadas por vez
+    const MARGEM_FIM = 700;         // px do fim da página que disparam o próximo lote
 
     function catalogosDoServico(servico) {
         let perfil;
@@ -122,8 +123,8 @@
         };
 
         const fileiras = [];
-        if (porTipo.movie?.length) fileiras.push({ titulo: 'Filmes', itens: porTipo.movie, verTudo: verTudo('movie') });
-        if (porTipo.series?.length) fileiras.push({ titulo: 'Séries', itens: porTipo.series, verTudo: verTudo('series') });
+        if (porTipo.movie?.length) fileiras.push({ titulo: 'Filmes populares', itens: porTipo.movie, verTudo: verTudo('movie') });
+        if (porTipo.series?.length) fileiras.push({ titulo: 'Séries populares', itens: porTipo.series, verTudo: verTudo('series') });
 
         // Filmes e séries entram juntos nas fileiras de gênero: quem procura
         // "Terror" quer terror, não uma lista de cada.
@@ -136,19 +137,17 @@
             });
         });
 
+        // Sem teto: entram todos os gêneros com material suficiente. Quem
+        // controla o peso é a montagem em lotes, não um corte na lista.
         [...porGenero.entries()]
             .filter(([, itens]) => itens.length >= MINIMO_POR_GENERO)
             .sort((a, b) => b[1].length - a[1].length)
-            .slice(0, MAX_FILEIRAS - fileiras.length)
             .forEach(([g, itens]) => {
-                // Gênero não é catálogo do addon; o "Ver tudo" leva ao catálogo
-                // do tipo predominante, que é o destino mais próximo que existe.
-                const filmes = itens.filter((x) => x.tipo === 'movie').length;
-                fileiras.push({
-                    titulo: traduz(g),
-                    itens,
-                    verTudo: verTudo(filmes >= itens.length / 2 ? 'movie' : 'series'),
-                });
+                // Sem "Ver tudo" aqui, de propósito: o addon IGNORA o filtro de
+                // gênero (testado — `genre=Drama` devolve os mesmos 98 itens,
+                // na mesma ordem). Um botão que levasse ao catálogo inteiro
+                // prometeria um filtro que não existe.
+                fileiras.push({ titulo: traduz(g), itens, verTudo: null });
             });
 
         return fileiras;
@@ -248,11 +247,34 @@
         }
         area.dataset.assinatura = assinatura;
         area.innerHTML = '';
-        fileiras.forEach((f) => area.appendChild(fazFileira(f)));
+        pendentes = fileiras.slice();
+        montaLote(area);
+    }
+
+    // ---- montagem em lotes ----------------------------------------------
+    // Um serviço rende mais de uma dúzia de gêneros. Montar tudo de uma vez
+    // significa criar centenas de cards antes de a primeira fileira aparecer;
+    // em lotes, a tela responde na hora e o resto chega enquanto você desce.
+    let pendentes = [];
+
+    function montaLote(area) {
+        if (!pendentes.length) return;
+        const lote = pendentes.splice(0, LOTE);
+        lote.forEach((f) => area.appendChild(fazFileira(f)));
+    }
+
+    function continuaSeChegouAoFim() {
+        if (!pendentes.length) return;
+        const area = document.querySelector('.cu-cat-area');
+        const cont = document.querySelector('[class*="board-content"]:not([class*="container"])');
+        if (!area || !cont) return;
+        const restante = cont.scrollHeight - cont.clientHeight - cont.scrollTop;
+        if (restante < MARGEM_FIM) montaLote(area);
     }
 
     function limpa() {
         document.querySelectorAll('.cu-cat-area').forEach((e) => e.remove());
+        pendentes = [];
     }
 
     function sync() {
@@ -267,6 +289,7 @@
 
         if (!servico || servico === 'tudo') { limpa(); return; }
         render(servico);
+        continuaSeChegouAoFim();
     }
 
     window.__cu.register(sync);

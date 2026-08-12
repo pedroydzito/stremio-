@@ -267,13 +267,19 @@
         aplica(!nova);
     }
 
-    // Clicar em "Painel" leva à tela inicial — e tela inicial é "Tudo". Sem
-    // isto ela reabria no serviço da última visita, o que não é o que se
-    // espera de um botão de "início".
+    // Só a LOGO volta para "Tudo". A aba de início preserva o serviço: sair
+    // para o Explorar e voltar é continuar de onde parou, não recomeçar. São
+    // dois gestos com significados diferentes, e antes eu tinha dado o mesmo
+    // comportamento aos dois.
+    //
+    // A POSIÇÃO DA ROLAGEM não é restaurada — só o serviço. Tentei guardá-la e
+    // reaplicá-la: o valor é guardado certo, mas o app zera o `scrollTop` ao
+    // remontar a tela, depois da nossa escrita e a cada volta do laço. Insistir
+    // viraria uma disputa a cada quadro. Fica registrado para não ser tentado
+    // de novo pelo mesmo caminho.
     document.addEventListener('click', (e) => {
-        const aba = e.target.closest('.custom-tab-item');
-        if (!aba) return;
-        if ((aba.dataset.route || '') !== '') return;
+        const logo = e.target.closest('[class*="logo-container"], [class*="app-logo"]');
+        if (!logo) return;
         selecionado = TUDO;
         try { localStorage.setItem(CHAVE, selecionado); } catch (_) { /* ignore */ }
     }, true);
