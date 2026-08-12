@@ -8,7 +8,7 @@
 
    A ideia é sua: descer até o fim e voltar ao topo assim que o app abre. As
    descidas são instantâneas — é trabalho de bastidor, e cada parada dá ao app
-   a chance de montar o que faltava. A SUBIDA é animada, em cerca de um
+   a chance de montar o que faltava. A SUBIDA é animada, em meio
    segundo: é a única parte que você vê, e um corte seco ali faria a página
    parecer que piscou.
 
@@ -22,7 +22,7 @@
 
     const PARADAS = 6;          // descidas até o fim
     const INTERVALO = 260;      // ms entre elas — tempo de o app montar a fileira
-    const SUBIDA = 1000;        // ms da volta ao topo
+    const SUBIDA = 500;         // ms da volta ao topo
 
     let rodando = false;
 
