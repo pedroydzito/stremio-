@@ -2711,10 +2711,14 @@ body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.
    intermediárias existem para a transição não ter uma borda perceptível. */
 .custom-continue-watching-row .cu-cw-sombra {
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 58%;
+    /* Estourando 1px para fora nos três lados: o card tem cantos arredondados e
+       o arredondamento de subpixel deixava uma linha da arte aparecendo por
+       baixo do degradê. Como o contêiner corta o que passa da borda, esse
+       excesso não aparece — só fecha a fresta. */
+    left: -1px;
+    right: -1px;
+    bottom: -1px;
+    height: calc(58% + 1px);
     z-index: 1;
     pointer-events: none;
     background: linear-gradient(

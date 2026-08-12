@@ -371,6 +371,70 @@
         return m ? { s: m[1], e: m[2] } : null;
     }
 
+    // ---- duração, ao lado do episódio -----------------------------------
+    //
+    // Duas fontes, nesta ordem:
+    //
+    //   1. `cu:duracoesEp`, que a tela de detalhes já preenche com a duração de
+    //      CADA episódio (vem do addon do TMDB). É a informação exata, e para
+    //      as séries que você abriu ela já está em disco — de graça aqui.
+    //   2. o Cinemeta, que devolve uma duração no nível do título: para filme é
+    //      a duração dele, para série é a duração típica de um episódio.
+    //
+    // A segunda existe porque a primeira só cobre o que já foi aberto. Melhor
+    // "46min" aproximado do que campo vazio.
+    const CHAVE_DUR = 'cu:duracoesEp';
+    const CHAVE_DUR_TITULO = 'cu:duracoesTitulo';
+
+    let duracoesEp = {};
+    let duracoesTitulo = {};
+    try { duracoesEp = JSON.parse(localStorage.getItem(CHAVE_DUR) || '{}'); } catch (_) { /* ignore */ }
+    try { duracoesTitulo = JSON.parse(localStorage.getItem(CHAVE_DUR_TITULO) || '{}'); } catch (_) { /* ignore */ }
+    const durPedidas = new Set();
+
+    // "1 h 45 min", "46 min", "46min" → "1h45" / "46min"
+    function arrumaDuracao(bruto) {
+        const txt = String(bruto || '').trim();
+        if (!txt) return '';
+        const h = /(\d+)\s*h/i.exec(txt);
+        const m = /(\d+)\s*min/i.exec(txt);
+        if (h && m) return `${h[1]}h${String(m[1]).padStart(2, '0')}`;
+        if (h) return `${h[1]}h`;
+        if (m) return `${m[1]}min`;
+        const so = /^(\d+)$/.exec(txt);
+        return so ? `${so[1]}min` : txt;
+    }
+
+    function buscaDuracaoTitulo(tipo, imdb) {
+        if (!imdb || duracoesTitulo[imdb] !== undefined || durPedidas.has(imdb)) return;
+        durPedidas.add(imdb);
+        fetch(`https://v3-cinemeta.strem.io/meta/${tipo}/${imdb}.json`)
+            .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+            .then((j) => {
+                // Grava até quando vem vazio: sem isso, um título sem duração
+                // seria pedido de novo a cada volta do laço, para sempre.
+                duracoesTitulo[imdb] = j.meta?.runtime || '';
+                try { localStorage.setItem(CHAVE_DUR_TITULO, JSON.stringify(duracoesTitulo)); } catch (_) { /* ignore */ }
+            })
+            .catch(() => { durPedidas.delete(imdb); });
+    }
+
+    function duracaoDe(href) {
+        const bruto = decodeURIComponent(href || '');
+        const id = /(tt\d+)/i.exec(bruto);
+        if (!id) return '';
+        const imdb = id[1];
+        const se = seasonEpisode(href);
+
+        if (se) {
+            const exata = duracoesEp[imdb] && duracoesEp[imdb][se.s + ':' + se.e];
+            if (exata) return arrumaDuracao(exata);
+        }
+        const doTitulo = duracoesTitulo[imdb];
+        if (doTitulo === undefined) buscaDuracaoTitulo(se ? 'series' : 'movie', imdb);
+        return arrumaDuracao(doTitulo || '');
+    }
+
     // A miniatura do EPISÓDIO — a mesma que a lista da tela de detalhes usa.
     // Um card de "continuar assistindo" é sobre onde você parou, e o still do
     // episódio diz isso; o banner da série é o mesmo em todos os episódios e
@@ -562,8 +626,12 @@
             // não deixado como está — senão ele conserva o do título anterior,
             // que é como o Homem-Aranha aparecia com "T4:E2".
             if (tag) tag.remove();
-            const vazio = pc.querySelector('.cu-cw-se');
-            if (vazio) vazio.textContent = '';
+            // Filme: sem temporada, mas a duração continua valendo.
+            const soDuracao = pc.querySelector('.cu-cw-se');
+            if (soDuracao) {
+                const d = duracaoDe(props?.href || props?.deepLinks?.metaDetailsStreams || '');
+                if (soDuracao.textContent !== d) soDuracao.textContent = d;
+            }
             return;
         }
         if (!tag) {
@@ -581,7 +649,11 @@
         // continua existindo no DOM (é o CSS que a esconde junto com o título)
         // para não mexer no que já funciona.
         const elSE = pc.querySelector('.cu-cw-se');
-        if (elSE && elSE.textContent !== txt) elSE.textContent = txt;
+        if (elSE) {
+            const d = duracaoDe(props?.href || props?.deepLinks?.metaDetailsStreams || '');
+            const completo = d ? `${txt} · ${d}` : txt;
+            if (elSE.textContent !== completo) elSE.textContent = completo;
+        }
     }
 
     // "Continuar a ver" -> "Continuar assistindo".
