@@ -475,10 +475,6 @@ body.route-calendar [class*="selector"] [class*="next"] svg {
 /* ============================================================
    15. Continuar a ver — logo, progresso e T/E
    ============================================================ */
-/* Logo sobre a capa, canto inferior esquerdo, com degradê escuro + blur atrás —
-   mesma ideia do painel de detalhes. A máscara faz o blur nascer do nada no
-   meio da faixa em vez de cortar numa linha reta. */
-
 
 
 /* "T4:E2" ao lado do nome */
@@ -537,7 +533,6 @@ body.route-calendar [class*="selector"] [class*="next"] svg {
 /* Logo no dobro do tamanho */
 
 
-
 /* O play nativo do Stremio aparece no hover e ficava sobreposto ao nosso */
 .custom-continue-watching-row [class*="play-icon"],
 .custom-continue-watching-row [class*="play-button"],
@@ -593,7 +588,6 @@ body.route-calendar [class*="selector"] [class*="next"] svg {
    20. Continuar a ver — correções
    ============================================================ */
 /* Logo a 0.6x do tamanho anterior */
-
 
 
 /* Os 3 pontinhos saem de baixo do nome e vão pro canto superior direito da
@@ -1819,7 +1813,6 @@ body.route-calendar [class*="selector"] [class*="next"] svg {
 .cu-ep-check { opacity: 0; }
 .disney-episode-card:hover .cu-ep-check,
 .disney-episode-card.cu-ep-visto .cu-ep-check { opacity: 1; }
-
 
 
 /* Episódio que ainda não saiu: sem imagem quebrada e sem convite ao clique.
