@@ -2339,3 +2339,46 @@ body.cu-servico-ativo [class*="meta-row-container"]:not(.cu-cat-fileira) {
    vez de reusar `cu-fileira-oculta`: aquela é do filtro de serviços, e as duas
    se apagariam uma à outra. */
 .cu-fileira-removida { display: none !important; }
+
+/* Fileira de gênero aberta: sai da rolagem horizontal e vira grade, para se
+   ver tudo de uma vez. As colunas se acomodam à largura disponível. */
+.cu-cat-expandida [class*="meta-items-container"] {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)) !important;
+    gap: 1rem 0.75rem !important;
+    overflow: visible !important;
+}
+.cu-cat-expandida [class*="meta-item-container"] {
+    width: auto !important;
+    max-width: none !important;
+    flex: none !important;
+}
+
+/* ============================================================
+   58. Cursor de mão no que é clicável
+   ============================================================ */
+/* O app deixa vários alvos com o cursor de seta — a logo, as abas, os cards.
+   Quem clica não deveria precisar descobrir por tentativa o que responde. */
+[class*="logo-container"],
+[class*="app-logo"],
+.custom-tab-item,
+.cu-servico-btn,
+.cu-cat-expandir,
+[class*="see-all-container"],
+[class*="meta-item-container"],
+[class*="button-container"],
+[class*="menu-option"],
+[class*="option-container"],
+.hero-btn,
+.hero-dot,
+.disney-episode-card:not(.cu-ep-bloqueado),
+.cu-ep-check,
+.cu-ep-nota,
+.disney-tab {
+    cursor: pointer;
+}
+/* Onde não há ação, o cursor não deve prometer uma. */
+.disney-episode-card.cu-ep-bloqueado,
+.cu-servico-btn:disabled {
+    cursor: default;
+}

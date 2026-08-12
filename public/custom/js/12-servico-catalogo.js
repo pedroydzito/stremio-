@@ -143,11 +143,14 @@
             .filter(([, itens]) => itens.length >= MINIMO_POR_GENERO)
             .sort((a, b) => b[1].length - a[1].length)
             .forEach(([g, itens]) => {
-                // Sem "Ver tudo" aqui, de propósito: o addon IGNORA o filtro de
-                // gênero (testado — `genre=Drama` devolve os mesmos 98 itens,
-                // na mesma ordem). Um botão que levasse ao catálogo inteiro
-                // prometeria um filtro que não existe.
-                fileiras.push({ titulo: traduz(g), itens, verTudo: null });
+                // O "Ver tudo" do gênero abre a lista AQUI, em grade, em vez de
+                // levar ao Explorar. Não é preferência: o Explorar não tem
+                // filtro de gênero para este catálogo — medido, ele oferece só
+                // "Filme" e "Netflix", e `?genre=Horror` não muda uma linha do
+                // resultado. Como o addon declara `extraSupported: []`, o app
+                // nem desenha o controle. Expandir no lugar é o único jeito de
+                // ver todos os itens daquele gênero.
+                fileiras.push({ titulo: traduz(g), itens, expandir: true });
             });
 
         return fileiras;
@@ -208,15 +211,40 @@
         const t = linha.querySelector('[class*="title-container"] [class*="title"]') || linha.querySelector('[class*="title"]');
         if (t) { t.textContent = f.titulo; t.setAttribute('title', f.titulo); }
 
+        const caixa = linha.querySelector('[class*="meta-items-container"]');
         const verTudo = linha.querySelector('a[class*="see-all"]');
+
+        const desenha = (todos) => {
+            caixa.innerHTML = '';
+            (todos ? f.itens : f.itens.slice(0, POR_FILEIRA)).forEach((it) => caixa.appendChild(fazItem(it)));
+            linha.classList.toggle('cu-cat-expandida', !!todos);
+            if (verTudo) {
+                const rotulo = verTudo.querySelector('[class*="label"]');
+                if (rotulo) rotulo.textContent = todos ? 'Mostrar menos' : 'Ver tudo';
+            }
+        };
+
         if (verTudo) {
-            if (f.verTudo) { verTudo.setAttribute('href', f.verTudo); verTudo.style.removeProperty('display'); }
-            else verTudo.style.display = 'none';
+            if (f.verTudo) {
+                verTudo.setAttribute('href', f.verTudo);
+                verTudo.style.removeProperty('display');
+            } else if (f.expandir && f.itens.length > POR_FILEIRA) {
+                // Vira um botão, não um link: o destino é esta mesma tela.
+                verTudo.removeAttribute('href');
+                verTudo.style.removeProperty('display');
+                verTudo.classList.add('cu-cat-expandir');
+                let aberta = false;
+                verTudo.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    aberta = !aberta;
+                    desenha(aberta);
+                });
+            } else {
+                verTudo.style.display = 'none';
+            }
         }
 
-        const caixa = linha.querySelector('[class*="meta-items-container"]');
-        caixa.innerHTML = '';
-        f.itens.slice(0, POR_FILEIRA).forEach((it) => caixa.appendChild(fazItem(it)));
+        desenha(false);
         return linha;
     }
 
