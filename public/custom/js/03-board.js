@@ -443,7 +443,12 @@
     }
 
     function buscaDuracaoTitulo(tipo, imdb) {
-        if (!imdb || duracoesTitulo[imdb] !== undefined || durPedidas.has(imdb)) return;
+        // A guarda tem que olhar as DUAS coisas que esta busca preenche. Ela
+        // olhava só a duração — e para as séries cuja duração já estava em
+        // disco de antes, a busca nunca mais rodava: as estreias ficavam vazias
+        // para sempre, e nenhum episódio era reconhecido como indisponível.
+        const temTudo = duracoesTitulo[imdb] !== undefined && estreias[imdb];
+        if (!imdb || temTudo || durPedidas.has(imdb)) return;
         durPedidas.add(imdb);
         fetch(`https://v3-cinemeta.strem.io/meta/${tipo}/${imdb}.json`)
             .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
