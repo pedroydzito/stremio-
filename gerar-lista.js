@@ -22,4 +22,10 @@ fs.writeFileSync(path.join(__dirname, 'arquivos.js'),
     `    JS: ${JSON.stringify(js, null, 8).replace(/\n/g, '\n    ')},\n` +
     '};\n');
 
-console.log(`arquivos.js: ${css.length} CSS, ${js.length} JS`);
+// A mesma lista em JSON, servida como arquivo estatico. O servidor local do
+// Windows e escrito em PowerShell e nao tem como executar um modulo do Node
+// para descobrir a ordem de carga - entao ele le esta lista.
+fs.writeFileSync(path.join(__dirname, 'public/custom/lista.json'),
+    JSON.stringify({ css, js }, null, 2) + '\n');
+
+console.log(`arquivos.js: ${css.length} CSS, ${js.length} JS (+ lista.json)`);
