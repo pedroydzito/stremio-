@@ -2799,11 +2799,6 @@ body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.
        indisponível. */
     filter: grayscale(1);
     opacity: 0.45;
-    /* Vai para o fim da fileira. `order` em vez de mover o elemento: o React é
-       dono dessa lista e reordenaria de volta na próxima renderização. Quando o
-       episódio estreia, a classe sai e ele volta sozinho ao lugar que o app lhe
-       deu — que é o primeiro, por ser o mais recente. */
-    order: 1;
 }
 /* O cadeado não pode herdar a opacidade inteira, senão some junto com a arte.
    Não dá para "desfazer" a opacidade do pai — o que dá é desenhá-lo mais forte
