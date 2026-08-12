@@ -34,7 +34,16 @@ param(
 $ErrorActionPreference = "Stop"
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-if (-not $Pasta) { $Pasta = Join-Path $env:LOCALAPPDATA "StremioMais\webui" }
+$base = Join-Path $env:LOCALAPPDATA "StremioMais"
+if (-not $Pasta) { $Pasta = Join-Path $base "webui" }
+
+# Quem instalou apontando para outro deploy deixou o endereco anotado; sem isso
+# o servidor iria buscar a personalizacao no lugar errado.
+$anotado = Join-Path $base "custom.txt"
+if ((Test-Path $anotado) -and -not $PSBoundParameters.ContainsKey('Custom')) {
+    $lido = (Get-Content $anotado -Raw).Trim()
+    if ($lido) { $Custom = $lido }
+}
 New-Item -ItemType Directory -Force -Path $Pasta | Out-Null
 $Custom = $Custom.TrimEnd('/')
 $Origem = $Origem.TrimEnd('/')
@@ -118,6 +127,19 @@ function MontaIndex($tags) {
     return [Text.Encoding]::UTF8.GetBytes($html)
 }
 
+# O service worker que substitui o do Stremio: em vez de guardar arquivos, ele
+# joga fora o que existia e se desregistra.
+$SW_TOCO = @'
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (e) => {
+    e.waitUntil(
+        caches.keys()
+            .then((keys) => Promise.all(keys.map((k) => caches.delete(k))))
+            .then(() => self.registration.unregister())
+    );
+});
+'@
+
 # ---- resposta ------------------------------------------------------------
 function Responde($fluxo, $codigo, $tipo, [byte[]]$corpo, $cache) {
     $cab = "HTTP/1.1 $codigo`r`n"
@@ -136,7 +158,7 @@ $ouvinte = [Net.Sockets.TcpListener]::new([Net.IPAddress]::Loopback, $Porta)
 try {
     $ouvinte.Start()
 } catch {
-    Write-Host "Nao consegui abrir a porta $Porta: $($_.Exception.Message)"
+    Write-Host "Nao consegui abrir a porta ${Porta}: $($_.Exception.Message)"
     exit 1
 }
 
@@ -165,7 +187,13 @@ while ($true) {
         $rota = ($rota -split '\?')[0]
         $rota = ($rota -split '#')[0]
 
-        if ($rota -eq '/' -or $rota -eq '/index.html') {
+        if ($rota -eq '/service-worker.js') {
+            # O service worker do Stremio guarda o HTML e passa a responder no
+            # lugar do servidor - o que anularia o no-store e faria a pagina
+            # continuar sendo a antiga depois de eu publicar. No lugar dele vai
+            # um que se desregistra e apaga o que ja tinha guardado.
+            Responde $fluxo '200 OK' 'text/javascript; charset=utf-8' ([Text.Encoding]::UTF8.GetBytes($SW_TOCO)) 'no-store'
+        } elseif ($rota -eq '/' -or $rota -eq '/index.html') {
             $corpo = MontaIndex $tags
             if ($corpo) { Responde $fluxo '200 OK' 'text/html; charset=utf-8' $corpo 'no-store, must-revalidate' }
             else { Responde $fluxo '502 Bad Gateway' 'text/plain' ([Text.Encoding]::UTF8.GetBytes('sem index')) 'no-store' }

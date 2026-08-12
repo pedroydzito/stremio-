@@ -1,46 +1,48 @@
 # Stremio+ - instalador para Windows.
 #
 # Cria um atalho "Stremio+" que abre o Stremio que voce ja tem instalado, com
-# a interface vindo da nuvem. Nome e icone proprios; o app original continua
+# a interface personalizada. Nome e icone proprios; o app original continua
 # intacto e pode ser usado normalmente.
 #
-# A PROVA DE ATUALIZACAO: no Windows o argumento vive no ATALHO, nao dentro do
-# programa. Quando o Stremio se atualiza, o executavel continua no mesmo lugar
-# e o atalho segue valendo - nao ha nada a refazer.
+# POR QUE TEM UM SERVIDOR LOCAL NO MEIO
 #
-# Uso:
+# A interface ja veio direto da nuvem, por https, e no Windows isso nao
+# funciona. O motivo e o motor: no Mac o Stremio desenha com WebKit, aqui com
+# WebView2, que e Chromium - e o Chromium novo exige permissao para uma pagina
+# https falar com 127.0.0.1. O servidor de streaming do Stremio nao responde o
+# cabecalho que essa permissao pede, e dentro de um app nao ha onde pedir
+# permissao ao usuario: a chamada falha calada, a interface conclui que nao ha
+# servidor, e o login nao dura de uma abertura para a outra.
+#
+# Servindo a pagina de 127.0.0.1, ela deixa de ser "remota" e nada disso se
+# aplica. O que continua na nuvem e o CSS e o JS da personalizacao - ou seja,
+# as atualizacoes seguem chegando sozinhas.
+#
+# A PROVA DE ATUALIZACAO: nada e escrito dentro da pasta do Stremio. O atalho
+# aponta para arquivos em LOCALAPPDATA, e o Stremio pode se atualizar a vontade.
+#
+# Uso (PowerShell):
 #   irm https://stremio-plus.vercel.app/instalar/instalar-windows.ps1 | iex
 #
-# Para apontar para outro deploy, defina a variavel antes de rodar:
-#   $env:STREMIO_MAIS_URL = "https://outra-url.vercel.app"
-#
-# TUDO vive dentro de uma funcao, e isso e proposital. Este script e feito para
-# chegar pelo `iex`, e ali o topo do arquivo nao e um script de verdade: um
-# bloco `param()` vira atribuicao solta e quebra na primeira linha, e um `exit`
-# fecharia a janela do PowerShell antes de voce ler o motivo. Dentro de uma
-# funcao, os parametros valem, `return` so sai da funcao, e o
-# ErrorActionPreference nao vaza para a sua sessao depois que termina.
+# TUDO vive dentro de uma funcao de proposito: chegando por `iex`, um bloco
+# param() no topo vira atribuicao solta e quebra na primeira linha, e um `exit`
+# fecharia a janela do PowerShell antes de dar tempo de ler o motivo.
 
 function Instalar-StremioMais {
     param(
-        [string]$Url = "https://stremio-plus.vercel.app",
-        [string]$IconeUrl = ""
+        [string]$Url = "https://stremio-plus.vercel.app"
     )
 
     $ErrorActionPreference = "Stop"
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
     if ($env:STREMIO_MAIS_URL) { $Url = $env:STREMIO_MAIS_URL }
     $Url = $Url.TrimEnd('/')
 
-    # O icone mora ao lado da interface, no mesmo lugar - quem trocar a URL leva
-    # o icone junto, sem ter que lembrar de um segundo endereco.
-    if (-not $IconeUrl) { $IconeUrl = "$Url/instalar/icone.ico" }
-
     function Escrever($texto) { Write-Host "> $texto" }
 
     # Join-Path com base vazia nao devolve erro, ele lanca - e uma pasta
-    # especial que o Windows nao conhece volta como string vazia. Melhor sair
-    # de mao vazia e ser filtrado adiante do que derrubar a instalacao.
+    # especial que o Windows nao conhece volta como string vazia.
     function Caminho($pasta, $arquivo) {
         $base = [Environment]::GetFolderPath($pasta)
         if (-not $base) { return "" }
@@ -48,14 +50,13 @@ function Instalar-StremioMais {
     }
 
     # ---- 1. achar o Stremio instalado ------------------------------------
-    $candidatos = @(
+    $exe = @(
+        "$env:LOCALAPPDATA\Programs\stremio\Stremio.exe",
         "$env:LOCALAPPDATA\Programs\LNV\Stremio-4\stremio.exe",
         "$env:LOCALAPPDATA\Programs\LNV\Stremio-5\stremio.exe",
-        "$env:LOCALAPPDATA\Programs\Stremio\stremio.exe",
         "${env:ProgramFiles}\Stremio\stremio.exe",
         "${env:ProgramFiles(x86)}\Stremio\stremio.exe"
-    )
-    $exe = $candidatos | Where-Object { Test-Path $_ } | Select-Object -First 1
+    ) | Where-Object { Test-Path $_ } | Select-Object -First 1
 
     if (-not $exe) {
         # Nao achou nos lugares de sempre: pergunta ao registro onde o
@@ -75,11 +76,8 @@ function Instalar-StremioMais {
     }
 
     if (-not $exe) {
-        # Ultimo recurso: o atalho que ja existe aponta para onde quer que
-        # esteja, mesmo que seja um lugar que eu nao conheca.
-        # Select-Object em vez de [0]: com UM resultado o Where-Object devolve
-        # a string crua, nao uma lista de um item - e [0] ali pega a primeira
-        # LETRA do caminho. Foi o que aconteceu na primeira versao disto.
+        # Select-Object em vez de [0]: com UM resultado o Where-Object devolve a
+        # string crua, e [0] ali pega a primeira LETRA do caminho.
         $atalho = @(
             (Caminho 'Programs' 'Stremio.lnk'),
             (Caminho 'CommonPrograms' 'Stremio.lnk'),
@@ -102,49 +100,59 @@ function Instalar-StremioMais {
     }
     Escrever "Stremio encontrado em: $exe"
 
-    # ---- 2. guardar o icone num lugar estavel ----------------------------
-    # O atalho aponta para o ARQUIVO do icone, entao ele nao pode ficar na
-    # pasta de Downloads, que uma hora voce vai limpar.
+    # ---- 2. a pasta do Stremio+ ------------------------------------------
+    # Fora da pasta do Stremio de proposito: la dentro, uma atualizacao do app
+    # levaria tudo junto.
     $destino = "$env:LOCALAPPDATA\StremioMais"
     New-Item -ItemType Directory -Force -Path $destino | Out-Null
-    $instalado = Join-Path $destino "icone.ico"
+    New-Item -ItemType Directory -Force -Path (Join-Path $destino "webui") | Out-Null
 
-    # Chegando pelo `iex` o script nao tem pasta, e $PSScriptRoot vem vazio -
-    # Join-Path com caminho vazio nao devolve erro, ele lanca. Por isso o
-    # caminho ao lado so e montado quando existe uma pasta de verdade.
-    $aoLado = if ($PSScriptRoot) { Join-Path $PSScriptRoot "icone.ico" } else { "" }
+    Set-Content -Path (Join-Path $destino "stremio.txt") -Value $exe
+    Set-Content -Path (Join-Path $destino "custom.txt")  -Value $Url
 
-    if ($aoLado -and (Test-Path $aoLado)) {
-        Copy-Item $aoLado $instalado -Force
-    } else {
-        try {
-            [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-            Invoke-WebRequest -Uri $IconeUrl -OutFile $instalado -UseBasicParsing
-        } catch {
-            # E so o icone. Perder a aparencia nao justifica abortar a
-            # instalacao inteira.
-            Escrever "Nao consegui baixar o icone; fica o icone padrao do Stremio"
+    # ---- 3. baixar as pecas ----------------------------------------------
+    # Se o script foi baixado com a pasta ao lado, usa o que ja esta em disco;
+    # senao busca cada peca. Chegando por `iex` nao ha pasta, e $PSScriptRoot
+    # vem vazio - Join-Path com caminho vazio lanca, por isso o teste antes.
+    $daPasta = if ($PSScriptRoot) { $PSScriptRoot } else { "" }
+
+    foreach ($peca in @("servidor.ps1", "abrir.ps1", "abrir.vbs", "icone.ico")) {
+        $alvo = Join-Path $destino $peca
+        $lado = if ($daPasta) { Join-Path $daPasta $peca } else { "" }
+
+        if ($lado -and (Test-Path $lado)) {
+            Copy-Item $lado $alvo -Force
+        } else {
+            try {
+                Invoke-WebRequest -Uri "$Url/instalar/$peca" -OutFile $alvo -UseBasicParsing
+            } catch {
+                if ($peca -eq "icone.ico") {
+                    # So a aparencia. Nao vale abortar a instalacao por isso.
+                    Escrever "nao consegui baixar o icone; fica o icone do Stremio"
+                } else {
+                    Write-Host ""
+                    Write-Host "Falhou ao baixar $peca de $Url/instalar/$peca"
+                    Write-Host "  $($_.Exception.Message)"
+                    Write-Host ""
+                    return
+                }
+            }
         }
     }
+    Escrever "Arquivos instalados em: $destino"
 
-    if (Test-Path $instalado) {
-        $icone = $instalado
-        Escrever "Icone instalado"
-    } else {
-        $icone = $exe
-    }
-
-    # ---- 3. montar o argumento -------------------------------------------
-    # O endereco do servidor de streaming vai codificado dentro da URL, do
-    # mesmo jeito que o app faz por conta propria.
-    $servidor = [System.Uri]::EscapeDataString("http://127.0.0.1:11470")
-    $argumento = "--webui-url=`"$Url/#/?streamingServerUrl=$servidor`""
+    $icone = Join-Path $destino "icone.ico"
+    if (-not (Test-Path $icone)) { $icone = $exe }
 
     # ---- 4. criar os atalhos ---------------------------------------------
-    # Os caminhos vem do proprio Windows em vez de "$env:USERPROFILE\Desktop":
-    # com o OneDrive ligado a area de trabalho fica dentro do OneDrive, e o
-    # caminho montado na mao aponta para uma pasta que nao existe mais.
+    # O atalho chama o wscript, nao o PowerShell: chamando o PowerShell direto,
+    # uma janela preta de console pisca antes do app aparecer.
     $sh = New-Object -ComObject WScript.Shell
+    $wscript = Join-Path $env:SystemRoot "System32\wscript.exe"
+    $vbs = Join-Path $destino "abrir.vbs"
+
+    # Os caminhos vem do proprio Windows em vez de "$env:USERPROFILE\Desktop":
+    # com o OneDrive ligado a area de trabalho fica dentro do OneDrive.
     $locais = @(
         (Caminho 'Desktop' 'Stremio+.lnk'),
         (Caminho 'Programs' 'Stremio+.lnk')
@@ -156,9 +164,9 @@ function Instalar-StremioMais {
         if (-not (Test-Path $pasta)) { continue }
 
         $atalho = $sh.CreateShortcut($caminho)
-        $atalho.TargetPath = $exe
-        $atalho.Arguments = $argumento
-        $atalho.WorkingDirectory = Split-Path $exe
+        $atalho.TargetPath = $wscript
+        $atalho.Arguments = "`"$vbs`""
+        $atalho.WorkingDirectory = $destino
         $atalho.IconLocation = $icone
         $atalho.Description = "Stremio+ - interface personalizada"
         $atalho.Save()
@@ -176,6 +184,9 @@ function Instalar-StremioMais {
     Write-Host ""
     Write-Host "Pronto! Abra o 'Stremio+' pela area de trabalho ou pelo menu Iniciar."
     Write-Host "Para fixar na barra de tarefas: botao direito no atalho > Fixar."
+    Write-Host ""
+    Write-Host "A primeira abertura demora um pouco: a interface esta sendo baixada"
+    Write-Host "para $destino\webui. Da segunda em diante ela sai do disco."
     Write-Host ""
     Write-Host "O Stremio original continua funcionando normalmente, sem alteracao."
     Write-Host ""
