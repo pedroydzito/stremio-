@@ -8,9 +8,14 @@
 
    A ideia é sua: descer até o fim e voltar ao topo assim que o app abre. As
    descidas são instantâneas — é trabalho de bastidor, e cada parada dá ao app
-   a chance de montar o que faltava. A SUBIDA é animada, em meio
-   segundo: é a única parte que você vê, e um corte seco ali faria a página
-   parecer que piscou.
+   a chance de montar o que faltava. A SUBIDA é animada, em meio segundo: é a
+   única parte que você vê, e um corte seco ali faria a página parecer que
+   piscou.
+
+   E uma cortina na cor do fundo cobre a tela durante as descidas, sumindo em
+   meio segundo junto com a subida — também sugestão sua. Sem ela, o que se via
+   no primeiro instante era o RODAPÉ da página, o que dá a impressão de o app
+   ter aberto no lugar errado.
 
    Uma vez por ABERTURA, não por visita ao Início: o marcador vive em
    `sessionStorage`, que morre junto com a janela. Repetir isso a cada volta ao
@@ -23,8 +28,31 @@
     const PARADAS = 6;          // descidas até o fim
     const INTERVALO = 260;      // ms entre elas — tempo de o app montar a fileira
     const SUBIDA = 500;         // ms da volta ao topo
+    const SEGURANCA = 8000;     // ms até a cortina sair de qualquer jeito
 
     let rodando = false;
+    let cortina = null;
+
+    // A cortina nasce no primeiro quadro em que há o que rolar, ANTES da
+    // primeira descida — se nascesse depois, o rodapé apareceria por um
+    // instante, que é justamente o que ela existe para evitar.
+    function abreCortina() {
+        if (cortina) return;
+        cortina = document.createElement('div');
+        cortina.className = 'cu-cortina';
+        document.body.appendChild(cortina);
+        // Rede lenta, erro no meio do caminho, qualquer imprevisto: a cortina
+        // não pode ficar tapando o app para sempre.
+        setTimeout(fechaCortina, SEGURANCA);
+    }
+
+    function fechaCortina() {
+        if (!cortina) return;
+        const alvo = cortina;
+        cortina = null;
+        alvo.classList.add('cu-cortina-saindo');
+        setTimeout(() => alvo.remove(), SUBIDA + 120);
+    }
 
     function conteudo() {
         return document.querySelector('[class*="board-content"]:not([class*="container"])');
@@ -35,6 +63,7 @@
         if (!c) return;
 
         rodando = true;
+        abreCortina();
         try { sessionStorage.setItem(MARCA, '1'); } catch (_) { /* ignore */ }
 
         let passo = 0;
@@ -57,6 +86,10 @@
     // porque ali a duração é decidida pelo navegador — e o que se quer aqui é
     // um tempo específico, longo o bastante para ler como movimento.
     function sobe(alvo) {
+        // A cortina sai JUNTO com a subida: as duas coisas levam o mesmo tempo,
+        // então o conteúdo se revela já em movimento em vez de aparecer parado.
+        fechaCortina();
+
         const inicio = alvo.scrollTop;
         if (inicio <= 0) { rodando = false; return; }
 

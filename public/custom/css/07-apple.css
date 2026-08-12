@@ -2382,3 +2382,25 @@ body.cu-servico-ativo [class*="meta-row-container"]:not(.cu-cat-fileira) {
 .cu-servico-btn:disabled {
     cursor: default;
 }
+
+/* ============================================================
+   59. Cortina do pré-carregamento
+   ============================================================ */
+/* Cobre a tela enquanto o app desce até o fim para montar as fileiras. Some
+   junto com a subida, no mesmo meio segundo. Cor do fundo geral, não preto:
+   assim a saída é uma revelação, não um clarão. */
+.cu-cortina {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--apple-bg);
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+.cu-cortina.cu-cortina-saindo {
+    opacity: 0;
+    /* Ao desaparecer ela deixa de interceptar cliques na hora, mesmo ainda
+       visível — meio segundo de tela morta é tempo suficiente para alguém
+       tentar clicar em algo. */
+    pointer-events: none;
+}
