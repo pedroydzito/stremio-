@@ -33,9 +33,15 @@
 /* O `transform: none` continua valendo para anular o que o app aplica — mas
    NÃO durante a entrada. Uma declaração com `!important` vence uma animação:
    com ela aqui, o zoom rodava (o nome da animação estava lá, medido) e a
-   imagem não saía do lugar. */
-[class*="metadetails-container"] [class*="background-image"]:not(.cu-fundo-zoom) {
+   imagem não saía do lugar.
+
+   E enquanto a animação não começa, a imagem fica INVISÍVEL. Sem isso ela
+   aparecia em tamanho normal durante o carregamento, pulava para 1.06 quando
+   a classe entrava e só então diminuía — três estados onde deveria haver um.
+   Quem revela é a própria animação, que parte de opacidade zero. */
+[class*="metadetails-container"] img[class*="background-image"]:not(.cu-fundo-zoom) {
     transform: none !important;
+    opacity: 0 !important;
 }
 /* Gradient concentrated in the BOTTOM-LEFT corner, behind the info block.
    Rest of the image stays clean. */

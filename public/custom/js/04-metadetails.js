@@ -1665,8 +1665,14 @@
             void img.offsetWidth;          // força o reinício da animação
             img.classList.add('cu-fundo-zoom');
         };
-        if (img.complete && img.naturalWidth) aplicar();
-        else img.addEventListener('load', aplicar, { once: true });
+        if (img.complete && img.naturalWidth) { aplicar(); return; }
+
+        img.addEventListener('load', aplicar, { once: true });
+        // Rede lenta, erro de carregamento, formato que o `load` não dispara:
+        // em qualquer desses casos a imagem ficaria invisível para sempre,
+        // porque é a animação que a revela. Passados 2,5s ela entra de todo
+        // jeito — sem zoom, se for o caso, mas na tela.
+        setTimeout(() => { if (!img.classList.contains('cu-fundo-zoom')) aplicar(); }, 2500);
     }
 
     window.__cu.register(animaFundo);
