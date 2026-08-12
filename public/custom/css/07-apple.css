@@ -2839,8 +2839,9 @@ body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.
 .cu-cw-cadeado::before {
     content: '';
     position: absolute;
-    width: 64px;
-    height: 64px;
+    /* Mesmo diâmetro do círculo de play do card. */
+    width: 44px;
+    height: 44px;
     border-radius: 100%;
     background: rgba(12, 13, 16, 0.72);
     -webkit-backdrop-filter: blur(4px);
@@ -2848,8 +2849,8 @@ body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.
 }
 .cu-cw-cadeado svg {
     position: relative;
-    width: 30px;
-    height: 30px;
+    width: 21px;
+    height: 21px;
     filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.7));
 }
 
