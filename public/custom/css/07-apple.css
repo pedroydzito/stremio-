@@ -2839,9 +2839,9 @@ body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.
 .cu-cw-cadeado::before {
     content: '';
     position: absolute;
-    /* Mesmo diâmetro do círculo de play do card. */
-    width: 44px;
-    height: 44px;
+    /* Um pouco maior que o círculo de play do card (44px + 3px de cada lado). */
+    width: 50px;
+    height: 50px;
     border-radius: 100%;
     background: rgba(12, 13, 16, 0.72);
     -webkit-backdrop-filter: blur(4px);
