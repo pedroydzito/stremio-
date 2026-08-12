@@ -671,6 +671,53 @@
     const CADEADO_SVG = `<svg viewBox="0 0 24 24" ${TRACO}><rect x="4.5" y="10.5" width="15" height="10" rx="2.2"/><path d="M8.2 10.5V7.2a3.8 3.8 0 0 1 7.6 0v3.3"/></svg>`;
     const RELOGIO_SVG = `<svg viewBox="0 0 24 24" ${TRACO}><circle cx="12" cy="12" r="8.4"/><path d="M12 7.2V12l3.1 2"/></svg>`;
 
+    // Marcar a temporada inteira. O trabalho é o mesmo do botão de um episódio,
+    // repetido — a função nativa só sabe marcar um vídeo por vez.
+    //
+    // Duas decisões que o comportamento nativo obriga:
+    //
+    // A função recebe o estado ATUAL e inverte sozinha. Então chamá-la para
+    // todos os episódios de uma temporada meio assistida DESMARCARIA os já
+    // vistos. Por isso ela só é chamada para os que estão no estado errado.
+    //
+    // E o alvo é decidido antes de mexer em nada: se a maioria já foi vista, o
+    // botão desmarca; senão marca. Um botão que faz as duas coisas conforme o
+    // que já existe é mais previsível do que dois botões.
+    function montaBotaoTemporada(body, videos) {
+        const btn = body.querySelector('.cu-temp-tudo');
+        if (!btn) return;
+
+        // Episódio que ainda não saiu não conta nem para a decisão nem para a
+        // ação: marcar como visto algo que não existe não quer dizer nada.
+        const elegiveis = videos.filter((v) => {
+            const noFuturo = v.released ? new Date(v.released).getTime() > Date.now() : false;
+            return !noFuturo;
+        });
+        if (!elegiveis.length) { btn.style.display = 'none'; return; }
+
+        const vistos = elegiveis.filter((v) => v.watched).length;
+        const marcarTudo = vistos < elegiveis.length;
+
+        btn.textContent = marcarTudo ? 'Marcar temporada' : 'Desmarcar temporada';
+        btn.title = marcarTudo
+            ? `Marcar os ${elegiveis.length - vistos} episódios restantes como vistos`
+            : `Marcar os ${elegiveis.length} episódios como não vistos`;
+
+        btn.addEventListener('click', () => {
+            const fn = achaMarcador();
+            if (typeof fn !== 'function') { showToast('Não foi possível alterar a temporada'); return; }
+
+            // Só os que estão no estado errado — ver o comentário acima.
+            const lista = elegiveis.filter((v) => !!v.watched !== marcarTudo);
+            if (!lista.length) return;
+
+            lista.forEach((v) => { try { fn(v, !!v.watched); } catch (_) { /* segue */ } });
+            showToast(marcarTudo
+                ? `${lista.length} episódios marcados como vistos`
+                : `${lista.length} episódios marcados como não vistos`);
+        });
+    }
+
     function renderTabContent(metaItem, libraryItem) {
         const body = document.querySelector('.disney-side-card .disney-tab-body');
         if (!body) return;
@@ -774,8 +821,11 @@
                 <div class="disney-season-picker">
                     <label class="disney-season-picker-label">Temporada</label>
                     <select class="disney-season-select">${optionsHTML}</select>
+                    <button type="button" class="cu-temp-tudo" data-temporada="${selected}"></button>
                 </div>
                 <div class="disney-episodes-list">${epsHTML}</div>`;
+
+            montaBotaoTemporada(body, bySeason[selected] || []);
 
             const select = body.querySelector('.disney-season-select');
             select.addEventListener('change', () => {

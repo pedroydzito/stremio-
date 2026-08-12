@@ -24,6 +24,9 @@
 (function () {
     const MARCA = 'cu:precarregado';
     try { if (sessionStorage.getItem(MARCA)) return; } catch (_) { /* segue */ }
+    // Desligável na tela de ajustes. Lido uma vez, aqui: este módulo age uma
+    // vez por abertura, então não faz sentido reavaliar depois.
+    try { if (localStorage.getItem('cu:precarregaDesligado') === '1') return; } catch (_) { /* segue */ }
 
     const PARADAS = 6;          // descidas até o fim
     const INTERVALO = 260;      // ms entre elas — tempo de o app montar a fileira

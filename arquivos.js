@@ -29,6 +29,7 @@ module.exports = {
             "13-sem-aviso-servidor.js",
             "14-titulos.js",
             "15-precarrega.js",
+            "16-ajustes.js",
             "99-main.js"
     ],
 };

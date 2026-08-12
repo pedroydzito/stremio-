@@ -2408,3 +2408,126 @@ body.cu-servico-ativo [class*="meta-row-container"]:not(.cu-cat-fileira) {
        tentar clicar em algo. */
     pointer-events: none;
 }
+
+/* ============================================================
+   56. Marcar a temporada inteira
+   ============================================================ */
+/* Fica ao lado do seletor de temporada, empurrado para a direita: é uma ação
+   sobre a temporada escolhida ali, e ler as duas coisas juntas é o que deixa
+   claro o alcance do botão. Discreto de propósito — mexe em vários episódios
+   de uma vez, e não deve competir com o de assistir. */
+.disney-season-picker { display: flex; align-items: center; gap: 0.6rem; }
+.cu-temp-tudo {
+    margin-left: auto;
+    background: rgba(255, 255, 255, 0.07);
+    color: var(--apple-label-2);
+    border: 0.5px solid var(--apple-hairline);
+    border-radius: 980px;
+    padding: 0.3rem 0.8rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+.cu-temp-tudo:hover {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+}
+
+/* ============================================================
+   57. Painel de ajustes do Stremio+
+   ============================================================ */
+/* Mesmo material das outras seções da tela de Definições, para ler como parte
+   dela e não como um enxerto. */
+.cu-ajustes {
+    margin: 1.5rem 0 3rem;
+    padding: 1.25rem 1.5rem 0.5rem;
+    background: var(--apple-surface-1);
+    border: 0.5px solid var(--apple-hairline);
+    border-radius: var(--radius-card);
+}
+.cu-ajustes-titulo {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--apple-label-2);
+    margin-bottom: 0.9rem;
+}
+.cu-ajuste {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 0;
+    border-top: 0.5px solid var(--apple-hairline);
+}
+.cu-ajuste:first-of-type { border-top: none; }
+.cu-ajuste-texto { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+.cu-ajuste-nome { font-size: 0.95rem; color: #fff; }
+.cu-ajuste-desc { font-size: 0.8rem; color: var(--apple-label-2); line-height: 1.35; }
+
+/* Interruptor. Desenhado aqui em vez de reaproveitar o do app: os do Stremio
+   são caixas de seleção, e um interruptor lê melhor para algo que vale na hora. */
+.cu-chave {
+    margin-left: auto;
+    flex-shrink: 0;
+    width: 3.1rem;
+    height: 1.8rem;
+    border-radius: 980px;
+    border: none;
+    background: rgba(255, 255, 255, 0.16);
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    transition: background-color 0.22s ease;
+}
+.cu-chave.ligada { background: #30d158; }
+.cu-chave-bola {
+    position: absolute;
+    top: 0.17rem;
+    left: 0.17rem;
+    width: 1.46rem;
+    height: 1.46rem;
+    border-radius: 100%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+.cu-chave.ligada .cu-chave-bola { transform: translateX(1.3rem); }
+
+.cu-ajuste-acao {
+    margin-left: auto;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.09);
+    color: #fff;
+    border: 0.5px solid var(--apple-hairline);
+    border-radius: 980px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.cu-ajuste-acao:hover { background: rgba(255, 255, 255, 0.16); }
+
+.cu-ajuste-recarregar {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    margin-top: 0.4rem;
+    padding: 0.8rem 0;
+    border-top: 0.5px solid var(--apple-hairline);
+    font-size: 0.82rem;
+    color: var(--apple-label-2);
+}
+.cu-ajuste-recarregar button {
+    margin-left: auto;
+    background: #fff;
+    color: #000;
+    border: none;
+    border-radius: 980px;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+}

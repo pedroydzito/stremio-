@@ -161,3 +161,18 @@ body.route-calendar [class*="table"] { animation: cu-surge 0.28s ease both; }
         transition-duration: 0.001ms !important;
     }
 }
+
+/* ============================================================
+   Desligar tudo (ajuste do painel)
+   ============================================================ */
+/* Um interruptor só, no corpo. `animation: none` mata as entradas; as
+   transições viram um tempo mínimo em vez de zero porque `transition: none`
+   quebra quem escuta `transitionend` — e há código nosso que espera esse
+   evento para limpar o que animou. */
+body.cu-sem-animacoes *,
+body.cu-sem-animacoes *::before,
+body.cu-sem-animacoes *::after {
+    animation: none !important;
+    transition-duration: 0.001s !important;
+    transition-delay: 0s !important;
+}
