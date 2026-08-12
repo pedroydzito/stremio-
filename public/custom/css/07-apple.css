@@ -2874,3 +2874,9 @@ body.route-calendar [class*="cell"].cu-cal-futuro:hover img {
     height: 22px;
     filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.85));
 }
+
+/* Card sem capa: casca deixada para trás ao remover um item da fileira. Sem
+   isto ela continua ocupando o espaço de um card e abre um buraco no meio. */
+.custom-continue-watching-row [class*="meta-item-container"].cu-cw-casca {
+    display: none !important;
+}
