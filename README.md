@@ -46,13 +46,24 @@ vercel --prod
 Clona o `Stremio.app`, renomeia para Stremio+, e faz o app abrir apontando para
 a URL. Depois disso, atualizações chegam sozinhas.
 
-**Windows** — no atalho do Stremio, em Destino, acrescente:
+**Windows** — no PowerShell, dentro da pasta `instalar`:
+
+```powershell
+.\instalar-windows.ps1
+```
+
+Cria um atalho "Stremio+" na área de trabalho e no menu Iniciar, com ícone e
+nome próprios, apontando para o Stremio que já está instalado. O original
+continua funcionando.
+
+Aqui não há nada a refazer quando o Stremio se atualiza: no Windows o argumento
+vive no ATALHO, não dentro do programa, e o executável não muda de lugar.
+
+Manualmente, se preferir: propriedades do atalho → Destino → acrescente
 
 ```
 --webui-url="https://SEU-PROJETO.vercel.app/#/?streamingServerUrl=http%3A%2F%2F127.0.0.1%3A11470"
 ```
-
-Nome e ícone saem das propriedades do próprio atalho.
 
 ## Mexer no visual
 
