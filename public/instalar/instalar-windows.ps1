@@ -14,11 +14,14 @@
 
 param(
     [string]$Url = "https://stremio-plus.vercel.app",
-    [string]$IconeUrl = "https://raw.githubusercontent.com/pedroydzito/stremio-/main/instalar/icone.ico"
+    [string]$IconeUrl = ""
 )
 
 $ErrorActionPreference = "Stop"
 $Url = $Url.TrimEnd('/')
+# O icone mora ao lado da interface, no mesmo lugar - quem trocar a URL leva o
+# icone junto, sem ter que lembrar de um segundo endereco.
+if (-not $IconeUrl) { $IconeUrl = "$Url/instalar/icone.ico" }
 
 function Escrever($texto) { Write-Host "> $texto" }
 

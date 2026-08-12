@@ -1,13 +1,37 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
-    { "source": "/custom/:caminho*", "destination": "/custom/:caminho*" },
-    { "source": "/(.*)", "destination": "/api/proxy" }
+    {
+      "source": "/custom/:caminho*",
+      "destination": "/custom/:caminho*"
+    },
+    {
+      "source": "/instalar/:caminho*",
+      "destination": "/instalar/:caminho*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/api/proxy"
+    }
   ],
   "headers": [
     {
       "source": "/custom/(.*)",
-      "headers": [{ "key": "Cache-Control", "value": "no-store, must-revalidate" }]
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/instalar/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, must-revalidate"
+        }
+      ]
     }
   ]
 }

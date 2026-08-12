@@ -40,16 +40,16 @@ vercel --prod
 **macOS** — uma vez só:
 
 ```bash
-./instalar/instalar-mac.sh https://SEU-PROJETO.vercel.app
+./public/instalar/instalar-mac.sh https://SEU-PROJETO.vercel.app
 ```
 
 Clona o `Stremio.app`, renomeia para Stremio+, e faz o app abrir apontando para
 a URL. Depois disso, atualizações chegam sozinhas.
 
-**Windows** — no PowerShell, dentro da pasta `instalar`:
+**Windows** — no PowerShell, sem baixar nada antes:
 
 ```powershell
-.\instalar-windows.ps1
+irm https://SEU-PROJETO.vercel.app/instalar/instalar-windows.ps1 | iex
 ```
 
 Cria um atalho "Stremio+" na área de trabalho e no menu Iniciar, com ícone e
