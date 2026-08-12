@@ -2634,12 +2634,6 @@ body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.
     cursor: pointer;
 }
 
-/* A grade some por um instante ao trocar de mês, enquanto a semana é virada
-   para começar no domingo. `visibility` e não `display`: assim ela continua
-   ocupando o espaço e a página não pula. */
-body.route-calendar [class*="table"] [class*="grid"].cu-cal-trocando {
-    visibility: hidden;
-}
 
 
 
@@ -2651,4 +2645,61 @@ body.route-calendar [class*="table"] [class*="grid"].cu-cal-trocando {
     font-size: 0.82rem;
     font-weight: 500;
     white-space: nowrap;
+}
+
+/* ============================================================
+   59. Card da temporada
+   ============================================================ */
+/* A caixa da temporada acompanha a largura dos cards de episódio: ela é o
+   cabeçalho da lista, e um cabeçalho mais curto que a lista lê como um
+   elemento solto em cima dela. */
+.disney-season-picker { display: flex; align-items: center; gap: 0.6rem; }
+.cu-temp-caixa { flex: 1 1 auto; min-width: 0; }
+.cu-temp-caixa .disney-season-select { width: 100% !important; }
+
+/* ============================================================
+   60. Continuar assistindo: selo e menu
+   ============================================================ */
+/* O selo de episódios novos. O original é um ícone de páginas empilhadas com o
+   número dentro, atrás do card (z-index negativo), espiando pela borda — o
+   número saía branco sobre a arte, ilegível. Aqui ele vem para a frente e usa o
+   mesmo material do selo de biblioteca e do olho de assistido, para os três
+   lerem como uma família. */
+.custom-continue-watching-row [class*="new-videos"].cu-cw-novos {
+    z-index: 3 !important;
+    top: 0.5rem !important;
+    right: 0.5rem !important;
+    left: auto !important;
+    overflow: visible !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: auto !important;
+    height: auto !important;
+    padding: 0.2rem 0.55rem;
+    border-radius: 980px;
+    background: rgba(20, 22, 26, 0.72) !important;
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    backdrop-filter: saturate(180%) blur(14px);
+    border: 0.5px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    color: #fff !important;
+    font-size: 0.72rem;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+/* O ícone de páginas do original vira fundo do selo se deixado; sai. */
+.custom-continue-watching-row [class*="new-videos"].cu-cw-novos svg,
+.custom-continue-watching-row [class*="new-videos"].cu-cw-novos img {
+    display: none !important;
+}
+
+/* Os três pontinhos ao lado do X, em vez de no canto oposto: as duas são ações
+   sobre o card, e separá-las nas pontas fazia procurar por uma delas. */
+.custom-continue-watching-row [class*="menu-container"] {
+    top: 0.5rem !important;
+    left: 3.1rem !important;
+    right: auto !important;
+    bottom: auto !important;
 }

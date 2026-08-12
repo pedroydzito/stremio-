@@ -117,89 +117,71 @@
         }
     }
 
-    // ---- semana começando no domingo ------------------------------------
-    //
-    // A grade é UMA grade só de 7 colunas (medido: `display: grid`, 36 células
-    // irmãs), não uma pilha de linhas de semana — por isso dá para virar a
-    // semana mexendo em uma coluna. O Stremio monta segunda→domingo porque o
-    // app está em português; a ordem vem do idioma, não de uma preferência.
-    //
-    // Cada data precisa andar uma coluna para a direita. Em vez de fixar "+1",
-    // que erraria no mês que começa num domingo, a coluna sai da própria
-    // grade: o número de células vazias antes do dia 1 revela o dia da semana
-    // dele, e daí sai a coluna certa na contagem que começa no domingo.
-    const DIAS = ['DOMINGO', 'SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO'];
+    // A semana volta a começar na SEGUNDA, que é a ordem que o app monta
+    // sozinho — então aqui não se mexe mais em coluna nenhuma. Ficou só a
+    // limpeza dos nomes: "SEGUNDA-FEIRA" é longo e o "-feira" não distingue
+    // nada quando os sete estão lado a lado.
+    const DIAS = ['SEGUNDA', 'TERÇA', 'QUARTA', 'QUINTA', 'SEXTA', 'SÁBADO', 'DOMINGO'];
 
-    function viraSemana() {
-        const grade = document.querySelector('[class*="table"] [class*="grid"]');
-        if (!grade) return;
-
-        const celulas = Array.from(grade.children);
-        if (!celulas.length) return;
-
-        const temDia = (c) => /\d/.test((c.textContent || '').trim());
-        const primeira = celulas.findIndex(temDia);
-        if (primeira < 0) return;
-
-        // primeira === quantidade de células vazias antes do dia 1.
-        // Na contagem que começa na segunda, o dia 1 cai na coluna primeira+1;
-        // na que começa no domingo, uma adiante (com o domingo voltando para 1).
-        const coluna = ((primeira + 1) % 7) + 1;
-        const alvo = celulas[primeira];
-        if (alvo.style.gridColumnStart !== String(coluna)) {
-            alvo.style.gridColumnStart = String(coluna);
-        }
-        // As vazias do começo não servem mais: quem abre a linha agora é a
-        // coluna definida acima. Deixá-las visíveis empurraria tudo de volta.
-        celulas.slice(0, primeira).forEach((c) => { c.style.display = 'none'; });
-
-        // Cabeçalhos: "SEGUNDA-FEIRA" → "SEGUNDA", e domingo na frente.
+    function arrumaCabecalhos() {
         const cabecalhos = Array.from(document.querySelectorAll('[class*="table"] *'))
             .filter((e) => !e.children.length && /-feira|sábado|domingo/i.test(e.textContent || ''));
-        if (cabecalhos.length === 7) {
-            cabecalhos.forEach((e, i) => {
-                const texto = DIAS[i];
-                if (e.textContent.trim() !== texto) e.textContent = texto;
-            });
-        }
+        if (cabecalhos.length !== 7) return;
+        cabecalhos.forEach((e, i) => {
+            if (e.textContent.trim() !== DIAS[i]) e.textContent = DIAS[i];
+        });
     }
 
-    // Trocar de mês monta a grade de novo, na ordem do app: segunda→domingo. A
-    // correção só chegava na volta seguinte do laço, até 400ms depois — daí o
-    // "pisca e se ajeita". Não era lentidão de desenho, era espera.
+    // ---- "Hoje" no lugar da data, sem o realce ----------------------------
     //
-    // Aqui o clique nas setas cobre esse intervalo: a grade fica invisível (não
-    // `display: none`, que zeraria a altura e faria a página pular) e volta
-    // assim que a semana está certa. O laço continua valendo como rede.
-    function cobreTroca() {
-        const grade = document.querySelector('[class*="table"] [class*="grid"]');
-        if (grade) grade.classList.add('cu-cal-trocando');
+    // A lista lateral marca o dia de hoje com um bloco branco que cobre a linha
+    // e engole o texto dentro dele. Tentei apagar esse realce por CSS e não
+    // peguei: a classe é gerada e não bate com nenhum padrão que eu chutasse.
+    // Aqui a régua é o ESTILO CALCULADO — se o fundo é claro, ele sai. Isso não
+    // depende de adivinhar nome de classe.
+    //
+    // E a data de hoje vira "Hoje": é a informação que se procura ali, e amanhã
+    // ela volta a ser uma data como as outras, sozinha.
+    function marcaHoje() {
+        const lista = document.querySelector('[class*="content"] > [class*="list"]');
+        if (!lista) return;
 
-        let quadros = 0;
-        const tenta = () => {
-            quadros += 1;
-            viraSemana();
-            const g = document.querySelector('[class*="table"] [class*="grid"]');
-            if (g) {
-                const pronto = Array.from(g.children).some((c) => c.style.gridColumnStart);
-                // 40 quadros ≈ 0,7s: se a grade não vier nesse tempo, é melhor
-                // mostrá-la torta do que deixar a tela vazia.
-                if (pronto || quadros > 40) { g.classList.remove('cu-cal-trocando'); return; }
+        const hoje = new Date();
+        const dia = String(hoje.getDate());
+        const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+
+        lista.querySelectorAll('*').forEach((el) => {
+            if (el.children.length) return;
+            const txt = (el.textContent || '').trim();
+            const m = /^(\d{1,2})\/(\d{2})$/.exec(txt);
+            if (!m) return;
+
+            const ehHoje = m[1] === dia && m[2] === mes;
+            if (ehHoje && txt !== 'Hoje') {
+                el.dataset.cuData = txt;
+                el.textContent = 'Hoje';
             }
-            requestAnimationFrame(tenta);
-        };
-        requestAnimationFrame(tenta);
-    }
 
-    document.addEventListener('click', (e) => {
-        if (!document.body.classList.contains('route-calendar')) return;
-        if (!e.target.closest('button, [class*="button"]')) return;
-        cobreTroca();
-    }, true);
+            // Um fundo claro em qualquer altura acima do rótulo é o realce.
+            let pai = el;
+            for (let n = 0; n < 3 && pai; n += 1) {
+                const fundo = getComputedStyle(pai).backgroundColor || '';
+                const rgb = fundo.match(/\d+/g);
+                const claro = rgb && +rgb[0] > 180 && +rgb[1] > 180 && +rgb[2] > 180
+                    && (rgb[3] === undefined || parseFloat(rgb[3]) > 0.2);
+                if (claro) {
+                    pai.style.setProperty('background-color', 'transparent', 'important');
+                    pai.style.setProperty('color', 'inherit', 'important');
+                }
+                pai = pai.parentElement;
+            }
+        });
+    }
 
     function sync() {
         if (!document.body.classList.contains('route-calendar')) return;
-        viraSemana();
+        arrumaCabecalhos();
+        marcaHoje();
         const lista = document.querySelector('[class*="content"] > [class*="list"]');
         if (!lista) return;
 

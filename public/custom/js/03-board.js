@@ -461,6 +461,24 @@
         const logoAntiga = pc.querySelector('.cu-cw-logo-wrap');
         if (logoAntiga) logoAntiga.remove();
 
+        // --- selo de episódios novos ---
+        // O app mostra só o número, dentro de um ícone de "páginas empilhadas"
+        // que fica atrás do card (z-index negativo) e espia pela borda — o
+        // número sai branco sobre a arte e não dá para ler. Aqui ele vira um
+        // selo com texto, no mesmo material do selo de biblioteca.
+        const selo = pc.querySelector('[class*="new-videos"]');
+        if (selo) {
+            const n = parseInt((selo.textContent || '').replace(/\D/g, ''), 10);
+            if (Number.isFinite(n) && n > 0) {
+                selo.classList.add('cu-cw-novos');
+                const texto = n === 1 ? '+1 episódio' : `+${n} episódios`;
+                if (selo.dataset.cuTexto !== texto) {
+                    selo.dataset.cuTexto = texto;
+                    selo.textContent = texto;
+                }
+            }
+        }
+
         // --- T{temporada}:E{episódio} ao lado do nome ---
         const fiber = getReactFiber(item);
         const props = fiber ? findFiberProps(fiber, (p) => p.href || p.deepLinks) : null;
