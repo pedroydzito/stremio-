@@ -837,8 +837,31 @@
                     item.style.maxWidth = `${cwItemWidth}px`;
                 }
 
-                applyLandscapeArt(item);
+                // Uma falha decorando um card não pode interromper o laço: os
+                // seguintes ficariam sem a largura aplicada acima.
+                try { applyLandscapeArt(item); } catch (_) { /* segue */ }
             });
+
+            // Indisponível vai para o FIM DA FILA — encostado no último card,
+            // não grudado na borda direita da tela.
+            //
+            // Era `order: 1` no CSS, e era isso que abria o buraco: o `order`
+            // muda onde o item aparece sem alterar a caixa que a fileira já
+            // reservou para ele, então sobrava um vão do tamanho de um card.
+            // Mover o elemento no DOM não tem esse efeito: ele passa a ser o
+            // último de verdade e os outros fecham a fila.
+            //
+            // Refeito a cada passada porque o React remonta a lista; e só
+            // quando está fora do lugar, para não mexer no DOM à toa.
+            if (cwContainer) {
+                Array.from(cwContainer.children)
+                    .filter((el) => el.classList.contains('cu-cw-indisponivel'))
+                    .forEach((trancado) => {
+                        if (trancado !== cwContainer.lastElementChild) {
+                            cwContainer.appendChild(trancado);
+                        }
+                    });
+            }
         });
     }
 
