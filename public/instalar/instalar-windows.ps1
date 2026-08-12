@@ -1,4 +1,4 @@
-﻿# Stremio+ - instalador para Windows.
+# Stremio+ - instalador para Windows.
 #
 # Cria um atalho "Stremio+" que abre o Stremio que voce ja tem instalado, com
 # a interface vindo da nuvem. Nome e icone proprios; o app original continua
@@ -77,15 +77,18 @@ function Instalar-StremioMais {
     if (-not $exe) {
         # Ultimo recurso: o atalho que ja existe aponta para onde quer que
         # esteja, mesmo que seja um lugar que eu nao conheca.
-        $atalhos = @(
+        # Select-Object em vez de [0]: com UM resultado o Where-Object devolve
+        # a string crua, nao uma lista de um item - e [0] ali pega a primeira
+        # LETRA do caminho. Foi o que aconteceu na primeira versao disto.
+        $atalho = @(
             (Caminho 'Programs' 'Stremio.lnk'),
             (Caminho 'CommonPrograms' 'Stremio.lnk'),
             (Caminho 'Desktop' 'Stremio.lnk')
-        ) | Where-Object { $_ -and (Test-Path $_) }
+        ) | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
 
-        if ($atalhos) {
+        if ($atalho) {
             $sh = New-Object -ComObject WScript.Shell
-            $exe = $sh.CreateShortcut($atalhos[0]).TargetPath
+            $exe = $sh.CreateShortcut($atalho).TargetPath
         }
     }
 
