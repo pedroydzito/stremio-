@@ -248,6 +248,15 @@
         return linha;
     }
 
+    // No começo do conteúdo, mas SEMPRE depois da barra de serviços. Inserir
+    // como primeiro filho jogava a barra para a segunda posição — e como ela é
+    // `sticky`, o ponto de partida dela passava a ser depois de todas as
+    // fileiras: media 1584px do topo, fora da tela. Parecia que ela sumia.
+    function insereNoTopo(conteudo, elemento) {
+        const barra = conteudo.querySelector(':scope > .cu-servicos');
+        conteudo.insertBefore(elemento, barra ? barra.nextSibling : conteudo.firstChild);
+    }
+
     function render(servico) {
         const conteudo = document.querySelector('[class*="board-content"]:not([class*="container"])');
         if (!conteudo || !pegaMoldes()) return;
@@ -271,12 +280,7 @@
         if (!area) {
             area = document.createElement('div');
             area.className = 'cu-cat-area';
-            // No COMEÇO do conteúdo, não no fim. Acrescentada ao fim, ela ficava
-            // depois das fileiras nativas — e enquanto alguma delas ainda não
-            // tinha sido escondida (as do Painel chegam conforme a rolagem), o
-            // que aparecia no topo era o esqueleto de outro serviço. Era preciso
-            // rolar bastante para achar a lista certa.
-            conteudo.insertBefore(area, conteudo.firstChild);
+            insereNoTopo(conteudo, area);
         }
         area.dataset.assinatura = assinatura;
         area.innerHTML = '';

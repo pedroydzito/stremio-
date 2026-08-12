@@ -102,6 +102,12 @@
         if (!conteudo) return null;
 
         let barra = conteudo.querySelector(':scope > .cu-servicos');
+        // Ela precisa ser o PRIMEIRO filho: sendo `sticky`, o lugar dela na
+        // ordem define onde ela começa a grudar. Se algo for inserido antes,
+        // ela volta para o topo aqui em vez de descer junto.
+        if (barra && barra !== conteudo.firstElementChild) {
+            conteudo.insertBefore(barra, conteudo.firstChild);
+        }
         if (barra && barra.dataset.itens === String(lista.length)) return barra;
 
         if (!barra) {
