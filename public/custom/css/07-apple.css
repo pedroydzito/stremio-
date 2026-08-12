@@ -2810,7 +2810,14 @@ body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.
     filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.95));
 }
 /* O play sai: não há o que tocar. */
+/* Todas as variantes do botão de play do app: no card ele pode ser play-icon,
+   play-circle, play-button ou o play-icon-layer que os embrulha. Meu seletor
+   cobria só duas e o círculo escapava — apareciam o play e o cadeado juntos.
+   `player-` (o do reprodutor) não existe nesta tela, então o curinga é seguro. */
 .custom-continue-watching-row [class*="meta-item-container"].cu-cw-indisponivel [class*="play-icon"],
+.custom-continue-watching-row [class*="meta-item-container"].cu-cw-indisponivel [class*="play-circle"],
+.custom-continue-watching-row [class*="meta-item-container"].cu-cw-indisponivel [class*="play-button"],
+.custom-continue-watching-row [class*="meta-item-container"].cu-cw-indisponivel [class*="play-overlay"],
 .custom-continue-watching-row [class*="meta-item-container"].cu-cw-indisponivel [class*="play-container"] {
     display: none !important;
 }
