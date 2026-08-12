@@ -416,9 +416,20 @@
         if (!id) return true;
 
         const mapa = estreias[id[1]];
-        // Ainda não sei: mostro. Esconder por falta de informação seria pior do
-        // que mostrar um card a mais por alguns segundos.
-        if (!mapa) return true;
+        if (!mapa) {
+            // Pede a busca DAQUI. Ela era disparada só pelo caminho da duração,
+            // e esse caminho tem uma saída antecipada: quando a duração exata do
+            // episódio já está em disco — o que vale para toda série que você
+            // abriu na tela de detalhes — ele retorna antes de pedir qualquer
+            // coisa. Resultado: justamente as séries que você acompanha nunca
+            // tinham as datas buscadas, e nenhuma ficava marcada como
+            // indisponível. Medido com um probe: o cache de estreias estava
+            // vazio e só o filme, que não tem duração exata, havia sido buscado.
+            buscaDuracaoTitulo('series', id[1]);
+            // Enquanto não chega, mostro: esconder por falta de informação seria
+            // pior do que mostrar um card a mais por alguns segundos.
+            return true;
+        }
 
         const quando = mapa[se.s + ':' + se.e];
         if (quando === undefined) return true;      // episódio que o Cinemeta não conhece
