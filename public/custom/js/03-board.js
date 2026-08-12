@@ -501,6 +501,39 @@
             }
         }
 
+        // --- nome e episódio DENTRO da miniatura ---
+        //
+        // Só acréscimo: os dois elementos são `absolute` dentro do contêiner da
+        // capa, então não entram no fluxo e não têm como mexer no tamanho do
+        // card. Da última vez eu reescrevi esta função inteira junto e a fileira
+        // virou vertical; desta vez o que já funciona fica intocado.
+        let sombra = pc.querySelector('.cu-cw-sombra');
+        if (!sombra) {
+            sombra = document.createElement('div');
+            sombra.className = 'cu-cw-sombra';
+            // Antes da barra de progresso no DOM: as duas ficam acima do
+            // degradê de hover, e a barra continua acima da sombra.
+            const barra = pc.querySelector('[class*="progress-bar-layer"]');
+            if (barra) pc.insertBefore(sombra, barra); else pc.appendChild(sombra);
+        }
+
+        const barraTitulo = item.querySelector('[class*="title-bar-container"]');
+        const elTitulo = barraTitulo ? barraTitulo.querySelector('[class*="title"]') : null;
+        const nome = (elTitulo?.textContent || '').trim();
+
+        if (nome) {
+            let dentro = pc.querySelector('.cu-cw-dentro');
+            if (!dentro) {
+                dentro = document.createElement('div');
+                dentro.className = 'cu-cw-dentro';
+                dentro.innerHTML = '<span class="cu-cw-nome"></span><span class="cu-cw-se"></span>';
+                const barra = pc.querySelector('[class*="progress-bar-layer"]');
+                if (barra) pc.insertBefore(dentro, barra); else pc.appendChild(dentro);
+            }
+            const elNome = dentro.querySelector('.cu-cw-nome');
+            if (elNome.textContent !== nome) elNome.textContent = nome;
+        }
+
         // --- T{temporada}:E{episódio} ao lado do nome ---
         const fiber = getReactFiber(item);
         const props = fiber ? findFiberProps(fiber, (p) => p.href || p.deepLinks) : null;
@@ -520,6 +553,12 @@
         }
         const txt = `T${se.s}:E${se.e}`;
         if (tag.textContent !== txt) tag.textContent = txt;
+
+        // O mesmo texto no canto inferior direito da miniatura. A tag antiga
+        // continua existindo no DOM (é o CSS que a esconde junto com o título)
+        // para não mexer no que já funciona.
+        const elSE = pc.querySelector('.cu-cw-se');
+        if (elSE && elSE.textContent !== txt) elSE.textContent = txt;
     }
 
     // "Continuar a ver" -> "Continuar assistindo".

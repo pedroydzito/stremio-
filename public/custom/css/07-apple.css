@@ -2695,3 +2695,72 @@ body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.
     display: none !important;
 }
 
+
+/* ============================================================
+   61. Continuar assistindo: nome dentro da miniatura
+   ============================================================ */
+/* A faixa de título nativa sai — o nome passou para dentro da arte. Seletor de
+   filho DIRETO: assim não há como acertar por engano outro título aninhado no
+   card. */
+.custom-continue-watching-row [class*="meta-item-container"] > [class*="title-bar-container"] {
+    display: none !important;
+}
+
+/* Degradê do próprio card: nasce transparente no meio e escurece até embaixo,
+   sem chegar ao preto — a arte continua visível atrás do texto. As paradas
+   intermediárias existem para a transição não ter uma borda perceptível. */
+.custom-continue-watching-row .cu-cw-sombra {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 58%;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+        to bottom,
+        rgba(8, 9, 12, 0) 0%,
+        rgba(8, 9, 12, 0.14) 36%,
+        rgba(8, 9, 12, 0.42) 60%,
+        rgba(8, 9, 12, 0.70) 80%,
+        rgba(8, 9, 12, 0.86) 100%);
+}
+
+/* Nome à esquerda, episódio à direita, os dois logo acima da barra de
+   progresso. `absolute` de propósito: nada aqui entra no fluxo do card. */
+.custom-continue-watching-row .cu-cw-dentro {
+    position: absolute;
+    left: 0.9rem;
+    right: 0.9rem;
+    bottom: 0.75rem;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.75rem;
+    pointer-events: none;
+}
+.custom-continue-watching-row .cu-cw-nome {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.2;
+    /* Uma linha só: um título de duas linhas empurraria o texto para dentro do
+       degradê e desalinharia os cards entre si. */
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 0 1px 5px rgba(0, 0, 0, 0.55);
+}
+.custom-continue-watching-row .cu-cw-se {
+    flex: none;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+}
+
+/* A barra de progresso acima de tudo: é a informação mais importante do card e
+   é uma linha fina — some sob qualquer coisa. */
+.custom-continue-watching-row [class*="progress-bar-layer"] { z-index: 3 !important; }
