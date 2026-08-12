@@ -2693,3 +2693,13 @@ body.route-calendar [class*="table"] [class*="grid"].cu-cal-trocando {
 /* A barra de progresso fica ACIMA do degradê e do texto: ela é a informação
    mais importante do card, e é uma linha fina — some sob qualquer coisa. */
 .custom-continue-watching-row [class*="progress-bar-layer"] { z-index: 3 !important; }
+
+/* A lista lateral do calendário marca o dia de hoje com um bloco branco — o
+   mesmo realce que o disco do dia usa na grade, mas aqui ele cobre a linha
+   inteira e o texto some dentro dele. Na grade o realce faz sentido; numa lista
+   em que só entra o que ainda vem, "hoje" já é o começo dela. */
+body.route-calendar [class*="content"] > [class*="list"] [class*="selected"],
+body.route-calendar [class*="content"] > [class*="list"] [class*="today"] {
+    background-color: transparent !important;
+    color: inherit !important;
+}
