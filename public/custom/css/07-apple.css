@@ -2732,7 +2732,8 @@ body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.
     position: absolute;
     left: 0.9rem;
     right: 0.9rem;
-    bottom: 0.75rem;
+    /* Acima da barra de progresso, que agora tem margem própria embaixo. */
+    bottom: 1.5rem;
     z-index: 2;
     display: flex;
     align-items: flex-end;
@@ -2764,3 +2765,15 @@ body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.
 /* A barra de progresso acima de tudo: é a informação mais importante do card e
    é uma linha fina — some sob qualquer coisa. */
 .custom-continue-watching-row [class*="progress-bar-layer"] { z-index: 3 !important; }
+
+/* A barra de progresso recuada das bordas, como uma barra de player: colada nos
+   cantos ela lia como parte da moldura do card, não como progresso. A margem
+   embaixo é o que abre espaço para o nome subir. */
+.custom-continue-watching-row [class*="progress-bar-layer"] {
+    left: 0.9rem !important;
+    right: 0.9rem !important;
+    bottom: 0.75rem !important;
+    width: auto !important;
+    border-radius: 980px !important;
+    overflow: hidden !important;
+}

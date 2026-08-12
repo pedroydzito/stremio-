@@ -424,6 +424,16 @@
         if (img.dataset.origPoster !== poster) {
             img.dataset.origPoster = poster;
             if (poster && img.src !== poster) img.src = poster;
+            // O React reaproveita o MESMO card para outro título quando a
+            // fileira se reordena. Sem apagar o que é nosso aqui, o card do
+            // Homem-Aranha ficava com o nome e o "T4:E2" do Ted Lasso até a
+            // próxima passada — e a miniatura do episódio, com a da série
+            // anterior. Some tudo agora; é repreenchido logo abaixo, já com os
+            // dados certos.
+            delete img.dataset.cuStill;
+            const pcAgora = item.querySelector('[class*="poster-container"]');
+            const dentroAntigo = pcAgora && pcAgora.querySelector('.cu-cw-dentro');
+            if (dentroAntigo) dentroAntigo.remove();
             const tagAntiga = item.querySelector('.cu-cw-ep');
             if (tagAntiga) tagAntiga.remove();
         }
@@ -470,6 +480,11 @@
             const cls = filho.className && filho.className.baseVal !== undefined
                 ? filho.className.baseVal : String(filho.className || '');
             if (/^cu-/.test(cls) || /progress-bar|poster-image/.test(cls)) return;
+            // O selo de episódios novos também é absoluto, no topo à direita —
+            // e foi ele que o laço moveu para a esquerda, no lugar do menu.
+            // Menu tem botão dentro; o selo é só texto.
+            if (/new-videos/.test(cls)) return;
+            if (!filho.querySelector('button, svg')) return;
 
             const s = getComputedStyle(filho);
             if (s.position !== 'absolute') return;
@@ -542,7 +557,15 @@
         if (!bar) return;
 
         let tag = bar.querySelector('.cu-cw-ep');
-        if (!se) { if (tag) tag.remove(); return; }
+        if (!se) {
+            // Filme: não há temporada nem episódio. O campo precisa ser LIMPO,
+            // não deixado como está — senão ele conserva o do título anterior,
+            // que é como o Homem-Aranha aparecia com "T4:E2".
+            if (tag) tag.remove();
+            const vazio = pc.querySelector('.cu-cw-se');
+            if (vazio) vazio.textContent = '';
+            return;
+        }
         if (!tag) {
             // Elemento nosso, separado do título nativo: o React reescreve o
             // título dele a cada render e apagaria qualquer texto que a gente
