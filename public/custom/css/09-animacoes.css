@@ -96,9 +96,20 @@
 .disney-episode-card:nth-child(4) { animation-delay: 0.07s; }
 .disney-episode-card:nth-child(n+5) { animation-delay: 0.09s; }
 
-/* O modal de fontes: o fundo escurece, o card cresce. */
+/* O modal de fontes: o fundo escurece, o card cresce.
+
+   O card é centralizado por `translate(-50%, -50%)`, e transform é UMA
+   propriedade só: uma animação que declara `scale` sozinho não se soma ao
+   translate, ela o substitui. Com `both`, o estado final ficava sem o
+   deslocamento e o card ia parar meio card para a direita e para baixo — que
+   é o que se via. Por isso este keyframe repete o translate em vez de usar o
+   `cu-cresce` genérico. Vale para qualquer elemento centralizado assim. */
+@keyframes cu-cresce-centro {
+    from { opacity: 0; transform: translate(-50%, -50%) scale(0.97); }
+    to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
 .disney-streams-backdrop { animation: cu-surge 0.18s ease both; }
-.disney-streams-popup { animation: cu-cresce 0.26s var(--ease-emphasis) both; }
+.disney-streams-popup { animation: cu-cresce-centro 0.26s var(--ease-emphasis) both; }
 
 /* ============================================================
    Explorar, Biblioteca, Calendário

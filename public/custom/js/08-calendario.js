@@ -56,14 +56,31 @@
 
     function monta(link, dados, info) {
         const semNome = !info || !info.nome || /^(tba|tbd)$/i.test(info.nome.trim());
-        const bloqueado = info ? (!info.lancado && semNome) : false;
+        // Não ter ido ao ar JÁ basta para bloquear — a tela de detalhes passou
+        // a valer assim e esta ficou para trás. Enquanto exigia também que o
+        // episódio não tivesse nome, os que já foram anunciados (com nome e
+        // arte, e é o caso comum de quem acompanha uma série em exibição)
+        // apareciam idênticos aos que já saíram, justamente na tela feita para
+        // mostrar o que ainda vem.
+        const bloqueado = info ? !info.lancado : false;
         const semArte = !bloqueado && (!info || !info.thumb);
 
-        const miniatura = (bloqueado || semArte || !info)
-            ? `<div class="disney-episode-thumb disney-episode-thumb-vazia">${bloqueado ? CADEADO : RELOGIO}</div>`
-            : `<img class="disney-episode-thumb" src="${info.thumb}" alt="" loading="lazy" />`;
+        // Três casos, os mesmos da tela de detalhes:
+        //   bloqueado COM arte → a arte fica, apagada, e o cadeado por cima:
+        //     dá para reconhecer o episódio e ver que ainda não saiu
+        //   bloqueado SEM arte → só o vão com o cadeado
+        //   disponível         → a imagem normal
+        const miniatura = (bloqueado && info && info.thumb)
+            ? `<img class="disney-episode-thumb" src="${info.thumb}" alt="" loading="lazy" />
+               <div class="cu-ep-cadeado">${CADEADO}</div>`
+            : ((bloqueado || semArte || !info)
+                ? `<div class="disney-episode-thumb disney-episode-thumb-vazia">${bloqueado ? CADEADO : RELOGIO}</div>`
+                : `<img class="disney-episode-thumb" src="${info.thumb}" alt="" loading="lazy" />`);
 
-        const segunda = bloqueado || semNome ? 'Ainda não disponível' : info.nome;
+        // Só a FALTA de nome vira "Ainda não disponível". O episódio que ainda
+        // não saiu mas já tem nome mantém o nome: aqui ele é o conteúdo da
+        // tela, e o cadeado já diz que não saiu.
+        const segunda = semNome ? 'Ainda não disponível' : info.nome;
 
         link.innerHTML = `
             <div class="disney-episode-thumb-wrap">${miniatura}</div>
