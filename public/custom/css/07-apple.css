@@ -2706,16 +2706,14 @@ body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.
     display: none !important;
 }
 
-/* O degradê é um ::after do PRÓPRIO contêiner da capa, não um filho. Como filho
-   ele ficava sujeito ao recorte do contêiner: mesmo estourando 1px para fora, o
-   arredondamento de subpixel deixava a última linha da arte escapando por
-   baixo. No pseudo-elemento não há esse intermediário — ele herda a caixa e o
-   arredondamento de quem o desenha.
+/* O degradê volta a ser um ELEMENTO nosso, não um ::after do contêiner: o app
+   já usa o `::after` dessa caixa para o escurecimento de hover, e a minha regra
+   simplesmente tomou o lugar dele — sumiu o degradê de baixo e o de hover
+   passou a aparecer no meio da capa.
 
-   E o último trecho é sólido, não translúcido: com 0.86 de opacidade, uma arte
-   clara (o azul do Ted Lasso) ainda aparecia na base e lia como uma linha. */
-.custom-continue-watching-row [class*="poster-container"]::after {
-    content: '';
+   O 1px que sobrava na base não era recorte: era o último tom, translúcido
+   (0.86), deixando a arte clara aparecer. Agora ele termina SÓLIDO. */
+.custom-continue-watching-row .cu-cw-sombra {
     position: absolute;
     left: 0;
     right: 0;
@@ -2723,7 +2721,6 @@ body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.
     height: 58%;
     z-index: 1;
     pointer-events: none;
-    border-radius: inherit;
     background: linear-gradient(
         to bottom,
         rgba(8, 9, 12, 0) 0%,
@@ -2788,8 +2785,43 @@ body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.
 
 /* Série cujo próximo episódio ainda não estreou sai do Continuar assistindo —
    ver o comentário no 03-board.js. */
-.custom-continue-watching-row [class*="meta-item-container"].cu-cw-indisponivel {
+/* Episódio que ainda não estreou: continua na fileira, mas em preto e branco e
+   apagado, com um cadeado no lugar do play. Some da fileira seria mais limpo,
+   mas esconder um card sem aviso faz procurar por ele; assim ele diz sozinho
+   por que não dá para assistir. */
+.custom-continue-watching-row [class*="meta-item-container"].cu-cw-indisponivel [class*="poster-container"] {
+    filter: grayscale(1);
+}
+.custom-continue-watching-row [class*="meta-item-container"].cu-cw-indisponivel img[class*="poster-image"] {
+    opacity: 0.45;
+}
+/* O play sai: não há o que tocar. */
+.custom-continue-watching-row [class*="meta-item-container"].cu-cw-indisponivel [class*="play-icon"],
+.custom-continue-watching-row [class*="meta-item-container"].cu-cw-indisponivel [class*="play-container"] {
     display: none !important;
+}
+.cu-cw-cadeado {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.9);
+    pointer-events: none;
+}
+.cu-cw-cadeado svg {
+    width: 34px;
+    height: 34px;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.7));
+}
+
+/* Miniatura de episódio bloqueado, nas duas listas — detalhes e calendário —
+   em preto e branco. O cadeado já dizia que não saiu; a cor a menos faz a
+   diferença aparecer antes da leitura. */
+.disney-episode-card.cu-ep-bloqueado img.disney-episode-thumb,
+.disney-episode-card.cu-ep-bloqueado .disney-episode-thumb-vazia {
+    filter: grayscale(1);
 }
 
 /* Capas de dias que ainda não chegaram: meio apagadas. A grade repete a mesma

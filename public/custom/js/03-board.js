@@ -645,9 +645,26 @@
         // capa, então não entram no fluxo e não têm como mexer no tamanho do
         // card. Da última vez eu reescrevi esta função inteira junto e a fileira
         // virou vertical; desta vez o que já funciona fica intocado.
-        // Sobra de quando o degradê era um elemento; hoje ele é um ::after.
-        const sombraAntiga = pc.querySelector('.cu-cw-sombra');
-        if (sombraAntiga) sombraAntiga.remove();
+        let sombra = pc.querySelector('.cu-cw-sombra');
+        if (!sombra) {
+            sombra = document.createElement('div');
+            sombra.className = 'cu-cw-sombra';
+            // Antes da barra de progresso no DOM: a barra fica acima dela.
+            const barraProg = pc.querySelector('[class*="progress-bar-layer"]');
+            if (barraProg) pc.insertBefore(sombra, barraProg); else pc.appendChild(sombra);
+        }
+
+        // Cadeado no lugar do play, quando o episódio ainda não estreou.
+        const trancado = item.classList.contains('cu-cw-indisponivel');
+        let cadeado = pc.querySelector('.cu-cw-cadeado');
+        if (trancado && !cadeado) {
+            cadeado = document.createElement('div');
+            cadeado.className = 'cu-cw-cadeado';
+            cadeado.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.2"/><path d="M8.2 10.5V7.2a3.8 3.8 0 0 1 7.6 0v3.3"/></svg>';
+            pc.appendChild(cadeado);
+        } else if (!trancado && cadeado) {
+            cadeado.remove();
+        }
 
         const barraTitulo = item.querySelector('[class*="title-bar-container"]');
         const elTitulo = barraTitulo ? barraTitulo.querySelector('[class*="title"]') : null;
