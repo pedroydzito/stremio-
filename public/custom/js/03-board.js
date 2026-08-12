@@ -409,6 +409,23 @@
     let estreias = {};
     try { estreias = JSON.parse(localStorage.getItem(CHAVE_ESTREIA) || '{}'); } catch (_) { /* ignore */ }
 
+    // Data de estreia do próximo episódio, "12/08/2026", quando ele é futuro.
+    // Sai do MESMO cache de estreias que a régua usa — não há segunda fonte.
+    function dataEstreia(href) {
+        const se = seasonEpisode(href);
+        if (!se) return '';
+        const id = /(tt\d+)/i.exec(decodeURIComponent(href || ''));
+        if (!id) return '';
+        const mapa = estreias[id[1]];
+        if (!mapa) return '';
+        const quando = mapa[se.s + ':' + se.e];
+        if (!quando) return '';
+        const d = new Date(quando);
+        if (isNaN(d)) return '';
+        const p2 = (n) => String(n).padStart(2, '0');
+        return `${p2(d.getDate())}/${p2(d.getMonth() + 1)}/${d.getFullYear()}`;
+    }
+
     function jaEstreou(href) {
         const se = seasonEpisode(href);
         if (!se) return true;                       // filme: sempre disponível
@@ -680,6 +697,28 @@
             pc.appendChild(cadeado);
         } else if (!trancado && cadeado) {
             cadeado.remove();
+        }
+
+        // Tag com a data de estreia, no canto superior direito. Reusa a classe
+        // do selo de episódio novo (cu-cw-novos) para o desenho ser IDÊNTICO,
+        // sem duplicar CSS — só o conteúdo muda.
+        let tagData = pc.querySelector('.cu-cw-estreia');
+        if (trancado) {
+            const fibD = getReactFiber(item);
+            const prD = fibD ? findFiberProps(fibD, (p) => p.href || p.deepLinks) : null;
+            const data = dataEstreia(prD?.href || prD?.deepLinks?.metaDetailsStreams || '');
+            if (data) {
+                if (!tagData) {
+                    tagData = document.createElement('div');
+                    tagData.className = 'cu-cw-novos cu-cw-estreia';
+                    pc.appendChild(tagData);
+                }
+                if (tagData.textContent !== data) tagData.textContent = data;
+            } else if (tagData) {
+                tagData.remove();
+            }
+        } else if (tagData) {
+            tagData.remove();
         }
 
         const barraTitulo = item.querySelector('[class*="title-bar-container"]');

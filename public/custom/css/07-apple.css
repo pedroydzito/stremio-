@@ -2665,11 +2665,14 @@ body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.
    número saía branco sobre a arte, ilegível. Aqui ele vem para a frente e usa o
    mesmo material do selo de biblioteca e do olho de assistido, para os três
    lerem como uma família. */
-.custom-continue-watching-row [class*="new-videos"].cu-cw-novos {
+.custom-continue-watching-row [class*="new-videos"].cu-cw-novos,
+.custom-continue-watching-row .cu-cw-estreia {
+    position: absolute !important;
     z-index: 3 !important;
     top: 0.5rem !important;
     right: 0.5rem !important;
     left: auto !important;
+    bottom: auto !important;
     overflow: visible !important;
     display: flex !important;
     align-items: center;
