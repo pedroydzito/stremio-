@@ -13,7 +13,8 @@
 #   .\instalar-windows.ps1 -Url "https://outra-url.vercel.app"
 
 param(
-    [string]$Url = "https://stremio-plus.vercel.app"
+    [string]$Url = "https://stremio-plus.vercel.app",
+    [string]$IconeUrl = "https://raw.githubusercontent.com/pedroydzito/stremio-/main/instalar/icone.ico"
 )
 
 $ErrorActionPreference = "Stop"
@@ -58,14 +59,27 @@ Escrever "Stremio encontrado em: $exe"
 $destino = "$env:LOCALAPPDATA\StremioMais"
 New-Item -ItemType Directory -Force -Path $destino | Out-Null
 
-$icone = Join-Path $PSScriptRoot "icone.ico"
-if (Test-Path $icone) {
-    Copy-Item $icone (Join-Path $destino "icone.ico") -Force
-    $icone = Join-Path $destino "icone.ico"
+$instalado = Join-Path $destino "icone.ico"
+$aoLado = Join-Path $PSScriptRoot "icone.ico"
+
+if (Test-Path $aoLado) {
+    Copy-Item $aoLado $instalado -Force
+} else {
+    # Rodou o script sozinho, sem o resto da pasta: busca o icone no repositorio.
+    # E so o icone que falta, entao vale a pena tentar antes de desistir dele.
+    try {
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+        Invoke-WebRequest -Uri $IconeUrl -OutFile $instalado -UseBasicParsing
+    } catch {
+        Escrever "Nao consegui baixar o icone; fica o icone padrao do Stremio"
+    }
+}
+
+if (Test-Path $instalado) {
+    $icone = $instalado
     Escrever "Icone instalado"
 } else {
     $icone = $exe          # sem o arquivo, fica o icone do proprio Stremio
-    Escrever "icone.ico nao veio junto; usando o icone padrao"
 }
 
 # ---- 3. montar o argumento ----------------------------------------------
