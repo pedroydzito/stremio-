@@ -244,6 +244,36 @@
             // exibido, que é o que a grade mostra.
             const futuro = data > hoje;
             celula.classList.toggle('cu-cal-futuro', futuro);
+
+            // Estilo INLINE e não por CSS: o nome da classe da capa é gerado, e
+            // meus seletores por substring já erraram aqui uma vez — a marcação
+            // entrava na célula e não chegava na imagem. Inline não depende de
+            // adivinhar nome nenhum, e ganha de qualquer regra do app.
+            celula.querySelectorAll('img').forEach((img) => {
+                const alvo = img.closest('[class*="poster"]') || img;
+                if (futuro) {
+                    alvo.style.setProperty('filter', 'grayscale(1)', 'important');
+                    alvo.style.setProperty('opacity', '0.45', 'important');
+                } else {
+                    alvo.style.removeProperty('filter');
+                    alvo.style.removeProperty('opacity');
+                }
+            });
+
+            // Cadeado no meio da capa.
+            const capa = celula.querySelector('[class*="poster"]') || celula.querySelector('img')?.parentElement;
+            let cadeado = celula.querySelector('.cu-cal-cadeado');
+            if (futuro && capa && !cadeado) {
+                // O contêiner precisa ser referência de posição para o cadeado
+                // ficar sobre a capa, e não no canto da célula.
+                if (getComputedStyle(capa).position === 'static') capa.style.position = 'relative';
+                cadeado = document.createElement('div');
+                cadeado.className = 'cu-cal-cadeado';
+                cadeado.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="10.5" width="15" height="10" rx="2.2"/><path d="M8.2 10.5V7.2a3.8 3.8 0 0 1 7.6 0v3.3"/></svg>';
+                capa.appendChild(cadeado);
+            } else if (!futuro && cadeado) {
+                cadeado.remove();
+            }
         });
     }
 

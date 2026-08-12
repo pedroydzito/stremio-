@@ -2836,3 +2836,22 @@ body.route-calendar [class*="cell"].cu-cal-futuro:hover [class*="poster"],
 body.route-calendar [class*="cell"].cu-cal-futuro:hover img {
     opacity: 0.75 !important;
 }
+
+/* O cadeado sobre a capa do calendário. Fora do filtro de preto e branco por
+   estar acima dele no DOM — o `filter` do pai atingiria o cadeado junto, e um
+   cadeado cinza sobre uma capa cinza desaparece. */
+.cu-cal-cadeado {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    pointer-events: none;
+}
+.cu-cal-cadeado svg {
+    width: 22px;
+    height: 22px;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.85));
+}
