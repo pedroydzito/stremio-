@@ -424,11 +424,9 @@
         if (img.dataset.origPoster !== poster) {
             img.dataset.origPoster = poster;
             if (poster && img.src !== poster) img.src = poster;
-            const pcAntigo = item.querySelector('[class*="poster-container"]');
-            const wrapAntigo = pcAntigo && pcAntigo.querySelector('.cu-cw-logo-wrap');
-            if (wrapAntigo) wrapAntigo.remove();
-            const tagAntiga = item.querySelector('.cu-cw-ep');
-            if (tagAntiga) tagAntiga.remove();
+            // A faixa de informação é redesenhada logo abaixo com os dados do
+            // item certo; o que não pode ficar é a miniatura do anterior.
+            delete img.dataset.cuStill;
         }
 
         const landscape = landscapeFor(poster);
@@ -453,7 +451,62 @@
         decorateCard(item, poster);
     }
 
-    // Logo sobre a capa + "T4:E2" no título.
+    // Nome e episódio DENTRO da miniatura, sobre um degradê.
+    //
+    // Saiu a logo da série. Ela ocupava o canto e repetia o que o nome já diz —
+    // e como cada título entrega a logo num tamanho e num peso diferentes, a
+    // fileira nunca ficava alinhada. Texto resolve as duas coisas.
+    //
+    // O degradê é do próprio card, não uma faixa: ele nasce transparente no
+    // meio e escurece até embaixo, sem chegar ao preto. Uma tarja opaca cortaria
+    // a imagem em duas; assim a arte continua visível atrás do texto.
+    function decorateCard(item, posterUrl) {
+        const pc = item.querySelector('[class*="poster-container"]');
+        if (!pc) return;
+
+        // A logo era nossa e agora não é mais desenhada: qualquer uma que tenha
+        // sobrado de uma versão anterior sai daqui.
+        const logoAntiga = pc.querySelector('.cu-cw-logo-wrap');
+        if (logoAntiga) logoAntiga.remove();
+
+        let sombra = pc.querySelector('.cu-cw-sombra');
+        if (!sombra) {
+            sombra = document.createElement('div');
+            sombra.className = 'cu-cw-sombra';
+            const barra = pc.querySelector('[class*="progress-bar-layer"]');
+            if (barra) pc.insertBefore(sombra, barra); else pc.appendChild(sombra);
+        }
+
+        // --- nome + T{temporada}:E{episódio} ---
+        const fiber = getReactFiber(item);
+        const props = fiber ? findFiberProps(fiber, (p) => p.href || p.deepLinks) : null;
+        const se = seasonEpisode(props?.href || props?.deepLinks?.metaDetailsStreams || '');
+
+        // O nome sai do título nativo, que o CSS esconde: ele é o que o app já
+        // resolveu para este item, sem eu ter que descobrir de novo nas props.
+        const bar = item.querySelector('[class*="title-bar-container"]');
+        const nomeEl = bar ? bar.querySelector('[class*="title"]') : null;
+        const nome = (nomeEl?.textContent || '').trim();
+        if (!nome) return;
+
+        let info = pc.querySelector('.cu-cw-info');
+        if (!info) {
+            info = document.createElement('div');
+            info.className = 'cu-cw-info';
+            info.innerHTML = '<span class="cu-cw-nome"></span><span class="cu-cw-ep"></span>';
+            const barra = pc.querySelector('[class*="progress-bar-layer"]');
+            if (barra) pc.insertBefore(info, barra); else pc.appendChild(info);
+        }
+
+        const elNome = info.querySelector('.cu-cw-nome');
+        if (elNome.textContent !== nome) elNome.textContent = nome;
+
+        const elEp = info.querySelector('.cu-cw-ep');
+        const txt = se ? `T${se.s}:E${se.e}` : '';
+        if (elEp.textContent !== txt) elEp.textContent = txt;
+        elEp.style.display = txt ? '' : 'none';
+    }
+
     function decorateCard(item, posterUrl) {
         const pc = item.querySelector('[class*="poster-container"]');
         if (!pc) return;

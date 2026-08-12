@@ -83,6 +83,14 @@
             const tipo = m[2].trim();
 
             // Coleção: o nome útil é o do CATÁLOGO, que aqui é o prefixo.
+            // Marca a fileira com a coleção a que ela pertence. O 09-servicos
+            // lia isso do TÍTULO, e o título é justamente o que este módulo
+            // reescreve — tirando o sufixo que identificava a coleção. Ler um
+            // texto que o vizinho reescreve é frágil por natureza; uma marca no
+            // elemento não depende de quem passou primeiro.
+            const ehColecao = !ehFilme(tipo) && !ehSerie(tipo);
+            if (ehColecao) fileira.dataset.cuColecao = tipo.replace(/\s+/g, ' ').trim().toLowerCase();
+
             const colecao = COLECOES[tipo.toLowerCase()];
             if (colecao) {
                 if (!alvo.dataset.cuOriginal) alvo.dataset.cuOriginal = original;
@@ -94,7 +102,15 @@
                 return;
             }
 
-            if (!ehFilme(tipo) && !ehSerie(tipo)) return;
+            if (ehColecao) {
+                // Coleção sem tradução: fica o nome do catálogo, sem o sufixo.
+                if (!alvo.dataset.cuOriginal) alvo.dataset.cuOriginal = original;
+                if (alvo.textContent.trim() !== prefixo) {
+                    alvo.textContent = prefixo;
+                    alvo.setAttribute('title', prefixo);
+                }
+                return;
+            }
 
             // Guarda o nome de origem: sem isso, uma segunda passada leria o
             // título já reescrito e não encontraria mais o padrão.

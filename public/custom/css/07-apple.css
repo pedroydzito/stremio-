@@ -478,48 +478,11 @@ body.route-calendar [class*="selector"] [class*="next"] svg {
 /* Logo sobre a capa, canto inferior esquerdo, com degradê escuro + blur atrás —
    mesma ideia do painel de detalhes. A máscara faz o blur nascer do nada no
    meio da faixa em vez de cortar numa linha reta. */
-.custom-continue-watching-row [class*="poster-container"] .cu-cw-logo-wrap {
-    position: absolute;
-    inset: 0;
-    /* z-index 1, igual à barra de progresso — e o JS insere esta faixa ANTES
-       da barra no DOM, então a barra fica acima dela. O ganho: as duas passam
-       a ficar acima do degradê de hover (z-index 0), que antes escurecia a
-       logo junto com a thumb. */
-    z-index: 1;
-    display: flex;
-    align-items: flex-end;
-    justify-content: flex-start;
-    padding: 0 0.9rem 0.9rem;
-    pointer-events: none;
-    /* Radial ancorado no canto inferior ESQUERDO, não mais uma faixa reta
-       subindo da base: o escurecimento e o blur nascem atrás da logo e se
-       dissolvem em direção ao centro da capa. */
-    /* Sem escurecimento: só o blur, recortado pela máscara radial. */
-    background: none;
-    -webkit-backdrop-filter: blur(7px) saturate(120%);
-    backdrop-filter: blur(7px) saturate(120%);
-    -webkit-mask-image: radial-gradient(105% 88% at 0% 100%,
-        #000 0%, #000 34%, rgba(0, 0, 0, 0.35) 58%, transparent 76%);
-    mask-image: radial-gradient(105% 88% at 0% 100%,
-        #000 0%, #000 34%, rgba(0, 0, 0, 0.35) 58%, transparent 76%);
-}
-.custom-continue-watching-row .cu-cw-logo {
-    max-width: 46%;
-    max-height: 2.3rem;
-    width: auto;
-    object-fit: contain;
-    object-position: left bottom;
-    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
-}
+
+
 
 /* "T4:E2" ao lado do nome */
-.custom-continue-watching-row .cu-cw-ep {
-    margin-left: 0.45rem;
-    color: var(--apple-label-2);
-    font-size: 0.82rem;
-    font-weight: 500;
-    white-space: nowrap;
-}
+
 
 /* ============================================================
    16. Episódios e Extras — hover sem corte
@@ -572,13 +535,8 @@ body.route-calendar [class*="selector"] [class*="next"] svg {
    18. Continuar a ver — ajustes
    ============================================================ */
 /* Logo no dobro do tamanho */
-.custom-continue-watching-row .cu-cw-logo {
-    max-width: 62% !important;
-    max-height: 4.6rem !important;
-}
-.custom-continue-watching-row [class*="poster-container"] .cu-cw-logo-wrap {
-    padding: 3rem 0.9rem 0.95rem !important;
-}
+
+
 
 /* O play nativo do Stremio aparece no hover e ficava sobreposto ao nosso */
 .custom-continue-watching-row [class*="play-icon"],
@@ -635,13 +593,8 @@ body.route-calendar [class*="selector"] [class*="next"] svg {
    20. Continuar a ver — correções
    ============================================================ */
 /* Logo a 0.6x do tamanho anterior */
-.custom-continue-watching-row .cu-cw-logo {
-    max-width: 37% !important;
-    max-height: 2.75rem !important;
-}
-.custom-continue-watching-row [class*="poster-container"] .cu-cw-logo-wrap {
-    padding: 2.2rem 0.9rem 0.9rem !important;
-}
+
+
 
 /* Os 3 pontinhos saem de baixo do nome e vão pro canto superior direito da
    thumb, espelhando o × de remover que fica no canto esquerdo. */
@@ -2677,3 +2630,73 @@ body.cu-servico-ativo [class*="meta-row-container"]:not(.cu-cat-fileira) {
     font-weight: 600;
     cursor: pointer;
 }
+
+/* A grade some por um instante ao trocar de mês, enquanto a semana é virada
+   para começar no domingo. `visibility` e não `display`: assim ela continua
+   ocupando o espaço e a página não pula. */
+body.route-calendar [class*="table"] [class*="grid"].cu-cal-trocando {
+    visibility: hidden;
+}
+
+
+/* ============================================================
+   58. Continuar assistindo: nome dentro da miniatura
+   ============================================================ */
+/* O nome e o episódio vivem SOBRE a arte, como num player. Fora dela, o texto
+   empurrava a fileira para baixo e o card virava duas coisas empilhadas. */
+.custom-continue-watching-row [class*="title-bar-container"] { display: none !important; }
+
+/* Degradê do próprio card: nasce transparente no meio e escurece até embaixo,
+   sem chegar ao preto — a arte continua visível atrás do texto. As paradas
+   intermediárias existem para a transição não ter uma borda perceptível, que é
+   o que acontece com um degradê linear de dois pontos. */
+.custom-continue-watching-row .cu-cw-sombra {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 62%;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(
+        to bottom,
+        rgba(10, 11, 13, 0) 0%,
+        rgba(10, 11, 13, 0.12) 34%,
+        rgba(10, 11, 13, 0.38) 58%,
+        rgba(10, 11, 13, 0.66) 78%,
+        rgba(10, 11, 13, 0.82) 100%);
+}
+
+.custom-continue-watching-row .cu-cw-info {
+    position: absolute;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.6rem;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    pointer-events: none;
+}
+.custom-continue-watching-row .cu-cw-nome {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.2;
+    /* Uma linha só: dois títulos de alturas diferentes desalinhariam a fileira
+       inteira, e o degradê tem altura fixa. */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+.custom-continue-watching-row .cu-cw-ep {
+    font-size: 0.76rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.72);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* A barra de progresso fica ACIMA do degradê e do texto: ela é a informação
+   mais importante do card, e é uma linha fina — some sob qualquer coisa. */
+.custom-continue-watching-row [class*="progress-bar-layer"] { z-index: 3 !important; }

@@ -92,8 +92,15 @@
         return [...tipos.values()];
     }
 
-    // "MCU Chronologically Order - Marvel" → pertence à coleção "Marvel".
-    function colecaoDaFileira(titulo, lista) {
+    // A coleção vem da MARCA que o 14-titulos põe na fileira. Deduzi-la do
+    // título não funciona: é o 14-titulos quem reescreve esse título, e nas
+    // coleções ele tira justamente o sufixo que as identificava.
+    //
+    // O título continua como reserva para o primeiro quadro, antes de o
+    // 14-titulos ter passado — sem isso as fileiras piscariam na tela errada.
+    function colecaoDaFileira(fileira, titulo, lista) {
+        const marca = fileira.dataset.cuColecao;
+        if (marca) return lista.includes(marca) ? marca : null;
         return lista.find((c) => titulo.endsWith(' - ' + c)) || null;
     }
 
@@ -120,14 +127,8 @@
         const el = fileira.querySelector('[class*="title-container"] [class*="title"]')
             || fileira.querySelector('[class*="title"]');
         if (!el) return '';
-        // O 14-titulos.js reescreve estes títulos, e nas coleções ele TIRA o
-        // sufixo: "MCU Chronologically Order - Marvel" vira "UCM em ordem
-        // cronológica". Lendo o texto da tela, o sufixo já não estava lá — e
-        // sem ele nenhuma fileira da Marvel era reconhecida como dela: apareciam
-        // em "Tudo" e a aba MARVEL ficava vazia.
-        //
-        // `cuOriginal` é o nome como o addon o entregou, guardado lá justamente
-        // porque uma segunda passada não teria como reconstruí-lo.
+        // `cuOriginal` é o nome como o addon o entregou; o 14-titulos o guarda
+        // ali antes de reescrever a tela.
         return chave(el.dataset.cuOriginal || el.textContent);
     }
 
@@ -289,7 +290,7 @@
 
             const titulo = tituloDaFileira(fileira);
             const dono = lista.find((s) => titulo.startsWith(s));
-            const col = colecaoDaFileira(titulo, cols);
+            const col = colecaoDaFileira(fileira, titulo, cols);
 
             // Três estados:
             //   Tudo      → as genéricas aparecem; streamings e coleções somem,

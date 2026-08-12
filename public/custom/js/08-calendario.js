@@ -37,13 +37,24 @@
                     mapa[v.season + ':' + v.episode] = {
                         nome: v.name || '',
                         thumb: v.thumbnail || '',
-                        lancado: !v.released || new Date(v.released).getTime() <= Date.now(),
+                        // Comparação por DIA, não por instante. O episódio que
+                        // sai hoje tem hora de estreia — e até essa hora chegar
+                        // ele aparecia bloqueado no dia em que estreou, que é
+                        // justamente o dia em que se olha o calendário.
+                        lancado: !v.released || new Date(v.released) <= fimDeHoje(),
                     };
                 });
                 meta[imdb] = mapa;
                 try { localStorage.setItem(CHAVE, JSON.stringify(meta)); } catch (_) { /* ignore */ }
             })
             .catch(() => { pedidos.delete(imdb); });
+    }
+
+    // O último instante de hoje. Estreia em qualquer hora de hoje já conta.
+    function fimDeHoje() {
+        const d = new Date();
+        d.setHours(23, 59, 59, 999);
+        return d;
     }
 
     // "#/detail/series/tt10986410/tt10986410%3A4%3A1" → { imdb, temporada, episodio }
@@ -152,6 +163,39 @@
             });
         }
     }
+
+    // Trocar de mês monta a grade de novo, na ordem do app: segunda→domingo. A
+    // correção só chegava na volta seguinte do laço, até 400ms depois — daí o
+    // "pisca e se ajeita". Não era lentidão de desenho, era espera.
+    //
+    // Aqui o clique nas setas cobre esse intervalo: a grade fica invisível (não
+    // `display: none`, que zeraria a altura e faria a página pular) e volta
+    // assim que a semana está certa. O laço continua valendo como rede.
+    function cobreTroca() {
+        const grade = document.querySelector('[class*="table"] [class*="grid"]');
+        if (grade) grade.classList.add('cu-cal-trocando');
+
+        let quadros = 0;
+        const tenta = () => {
+            quadros += 1;
+            viraSemana();
+            const g = document.querySelector('[class*="table"] [class*="grid"]');
+            if (g) {
+                const pronto = Array.from(g.children).some((c) => c.style.gridColumnStart);
+                // 40 quadros ≈ 0,7s: se a grade não vier nesse tempo, é melhor
+                // mostrá-la torta do que deixar a tela vazia.
+                if (pronto || quadros > 40) { g.classList.remove('cu-cal-trocando'); return; }
+            }
+            requestAnimationFrame(tenta);
+        };
+        requestAnimationFrame(tenta);
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!document.body.classList.contains('route-calendar')) return;
+        if (!e.target.closest('button, [class*="button"]')) return;
+        cobreTroca();
+    }, true);
 
     function sync() {
         if (!document.body.classList.contains('route-calendar')) return;

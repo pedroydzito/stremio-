@@ -768,7 +768,10 @@
                 // verdade (o Cinemeta manda "TBA"), ou com data no futuro. Em vez
                 // da imagem quebrada, ganha um visual próprio de bloqueado.
                 const semNome = !titleTxt || /^(tba|tbd)$/i.test(titleTxt.trim());
-                const noFuturo = v.released ? new Date(v.released).getTime() > Date.now() : false;
+                // Por DIA, não por instante: as duas telas precisam concordar,
+                // e o episódio que estreia hoje não é "ainda não disponível".
+                const hoje = new Date(); hoje.setHours(23, 59, 59, 999);
+                const noFuturo = v.released ? new Date(v.released) > hoje : false;
                 // Data de estreia no futuro basta para bloquear. Antes eu exigia
                 // TAMBÉM que o episódio não tivesse nome, e por isso os que já
                 // foram anunciados — com nome e arte, mas sem ter ido ao ar —
