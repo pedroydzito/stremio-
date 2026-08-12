@@ -243,7 +243,12 @@
         if (!area) {
             area = document.createElement('div');
             area.className = 'cu-cat-area';
-            conteudo.appendChild(area);
+            // No COMEÇO do conteúdo, não no fim. Acrescentada ao fim, ela ficava
+            // depois das fileiras nativas — e enquanto alguma delas ainda não
+            // tinha sido escondida (as do Painel chegam conforme a rolagem), o
+            // que aparecia no topo era o esqueleto de outro serviço. Era preciso
+            // rolar bastante para achar a lista certa.
+            conteudo.insertBefore(area, conteudo.firstChild);
         }
         area.dataset.assinatura = assinatura;
         area.innerHTML = '';

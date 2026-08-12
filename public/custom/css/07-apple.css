@@ -2321,9 +2321,21 @@ body.route-board [class*="board-content"]::-webkit-scrollbar,
    e cada medida saiu um pouco diferente. */
 .cu-cat-area { padding-bottom: 2rem; }
 
+/* Com um serviço escolhido, as fileiras nativas somem por CSS — no mesmo
+   quadro. Quando isso dependia só do laço de 400ms, uma fileira recém-chegada
+   (o Painel as carrega conforme a rolagem) piscava no topo antes de sumir. */
+body.cu-servico-ativo [class*="meta-row-container"]:not(.cu-cat-fileira) {
+    display: none !important;
+}
+
 .cu-cat-carregando {
     padding: 4rem 0;
     color: var(--apple-label-3);
     font-size: 0.95rem;
     text-align: center;
 }
+
+/* Fileiras retiradas do Início (idioma, últimos lançamentos). Classe própria em
+   vez de reusar `cu-fileira-oculta`: aquela é do filtro de serviços, e as duas
+   se apagariam uma à outra. */
+.cu-fileira-removida { display: none !important; }
