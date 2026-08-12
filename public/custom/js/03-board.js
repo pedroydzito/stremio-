@@ -461,6 +461,28 @@
         const logoAntiga = pc.querySelector('.cu-cw-logo-wrap');
         if (logoAntiga) logoAntiga.remove();
 
+        // --- os três pontinhos, ao lado do X ---
+        // Por JS e não por CSS: a classe do botão é gerada, e o seletor por
+        // substring que eu tinha escrito não pegou nenhum elemento. Aqui a
+        // busca é pelo que ele É — um filho posicionado do card, ancorado à
+        // direita, que não é nosso nem a barra de progresso.
+        Array.from(pc.children).forEach((filho) => {
+            const cls = filho.className && filho.className.baseVal !== undefined
+                ? filho.className.baseVal : String(filho.className || '');
+            if (/^cu-/.test(cls) || /progress-bar|poster-image/.test(cls)) return;
+
+            const s = getComputedStyle(filho);
+            if (s.position !== 'absolute') return;
+            // Ancorado à direita e no topo: é o menu. O X usa a esquerda.
+            if (s.right === 'auto' || parseFloat(s.right) > 40) return;
+            if (parseFloat(s.top) > 40) return;
+
+            filho.style.setProperty('right', 'auto', 'important');
+            filho.style.setProperty('left', '3.1rem', 'important');
+            filho.style.setProperty('top', '0.5rem', 'important');
+            filho.dataset.cuMovido = '1';
+        });
+
         // --- selo de episódios novos ---
         // O app mostra só o número, dentro de um ícone de "páginas empilhadas"
         // que fica atrás do card (z-index negativo) e espia pela borda — o

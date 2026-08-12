@@ -2695,11 +2695,3 @@ body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.
     display: none !important;
 }
 
-/* Os três pontinhos ao lado do X, em vez de no canto oposto: as duas são ações
-   sobre o card, e separá-las nas pontas fazia procurar por uma delas. */
-.custom-continue-watching-row [class*="menu-container"] {
-    top: 0.5rem !important;
-    left: 3.1rem !important;
-    right: auto !important;
-    bottom: auto !important;
-}

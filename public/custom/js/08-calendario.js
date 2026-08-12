@@ -178,8 +178,39 @@
         });
     }
 
+    // O laço de 400ms é lento demais para isto: trocar de mês remonta a lista,
+    // e o realce branco do app fica visível até a volta seguinte — quase um
+    // segundo. Um observador reage à remontagem no mesmo quadro.
+    //
+    // Ele observa o CONTÊINER da lista e não a lista em si: ao trocar de mês o
+    // app substitui a lista inteira, e um observador preso ao elemento antigo
+    // morreria junto com ele.
+    let observador = null;
+    let agendado = false;
+
+    function observa() {
+        const alvo = document.querySelector('[class*="content"]');
+        if (!alvo || observador?.alvo === alvo) return;
+
+        if (observador) observador.obs.disconnect();
+        const obs = new MutationObserver(() => {
+            if (agendado) return;
+            agendado = true;
+            requestAnimationFrame(() => {
+                agendado = false;
+                try { marcaHoje(); } catch (_) { /* segue */ }
+            });
+        });
+        obs.observe(alvo, { childList: true, subtree: true });
+        observador = { alvo, obs };
+    }
+
     function sync() {
-        if (!document.body.classList.contains('route-calendar')) return;
+        if (!document.body.classList.contains('route-calendar')) {
+            if (observador) { observador.obs.disconnect(); observador = null; }
+            return;
+        }
+        observa();
         arrumaCabecalhos();
         marcaHoje();
         const lista = document.querySelector('[class*="content"] > [class*="list"]');
