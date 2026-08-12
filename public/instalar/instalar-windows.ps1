@@ -63,9 +63,13 @@ $destino = "$env:LOCALAPPDATA\StremioMais"
 New-Item -ItemType Directory -Force -Path $destino | Out-Null
 
 $instalado = Join-Path $destino "icone.ico"
-$aoLado = Join-Path $PSScriptRoot "icone.ico"
 
-if (Test-Path $aoLado) {
+# Rodando pelo comando de uma linha, o script nao tem pasta e $PSScriptRoot vem
+# vazio - e Join-Path com caminho vazio nao devolve erro de leitura, ele PARA o
+# script. Por isso o caminho ao lado so e montado quando existe uma pasta.
+$aoLado = if ($PSScriptRoot) { Join-Path $PSScriptRoot "icone.ico" } else { "" }
+
+if ($aoLado -and (Test-Path $aoLado)) {
     Copy-Item $aoLado $instalado -Force
 } else {
     # Rodou o script sozinho, sem o resto da pasta: busca o icone no repositorio.
