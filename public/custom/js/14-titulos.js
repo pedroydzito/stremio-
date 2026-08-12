@@ -22,6 +22,38 @@
     // Fileiras que não acrescentam nada ao Início.
     const REMOVER = /^(idioma|language|[úu]ltimos lan[çc]amentos|latest|novidades)$/i;
 
+    // As coleções (Marvel, DC) chegam como "<Catálogo> - Marvel", com o nome do
+    // catálogo em inglês. Aqui o tipo sai — dentro da tela da Marvel, repetir
+    // "Marvel" em toda fileira não informa nada — e o catálogo ganha nome em
+    // português.
+    //
+    // Catálogo que eu não tenha traduzido mantém o nome original, só sem o
+    // sufixo: é melhor ler "Batman Collection" do que um palpite errado, e o
+    // addon pode acrescentar listas a qualquer momento.
+    const COLECOES = {
+        marvel: {
+            'mcu chronologically order': 'UCM em ordem cronológica',
+            'mcu release order': 'UCM em ordem de lançamento',
+            'x-men': 'X-Men',
+            'movies': 'Filmes',
+            'series': 'Séries',
+            'animations': 'Animações',
+        },
+        dc: {
+            'chronological order': 'Em ordem cronológica',
+            'release order': 'Em ordem de lançamento',
+            'movies': 'Filmes',
+            'dceu movies': 'Filmes do DCEU',
+            'series': 'Séries',
+            'dc modern series': 'Séries modernas',
+            'animations': 'Animações',
+            'batman animations': 'Animações do Batman',
+            'superman animations': 'Animações do Superman',
+            'batman collection': 'Coleção Batman',
+            'superman collection': 'Coleção Superman',
+        },
+    };
+
     const ehFilme = (t) => /^(filmes?|movies?)$/i.test(t);
     const ehSerie = (t) => /^(s[ée]ries?|shows?)$/i.test(t);
 
@@ -49,6 +81,19 @@
 
             const prefixo = m[1].trim();
             const tipo = m[2].trim();
+
+            // Coleção: o nome útil é o do CATÁLOGO, que aqui é o prefixo.
+            const colecao = COLECOES[tipo.toLowerCase()];
+            if (colecao) {
+                if (!alvo.dataset.cuOriginal) alvo.dataset.cuOriginal = original;
+                const nome = colecao[prefixo.toLowerCase()] || prefixo;
+                if (alvo.textContent.trim() !== nome) {
+                    alvo.textContent = nome;
+                    alvo.setAttribute('title', nome);
+                }
+                return;
+            }
+
             if (!ehFilme(tipo) && !ehSerie(tipo)) return;
 
             // Guarda o nome de origem: sem isso, uma segunda passada leria o

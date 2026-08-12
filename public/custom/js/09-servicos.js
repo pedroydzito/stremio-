@@ -66,6 +66,37 @@
         return [...contagem.values()].filter((x) => x.vezes >= 2).map((x) => x.nome);
     }
 
+    // ---- coleções (Marvel, DC) ------------------------------------------
+    //
+    // Um addon de coleção declara um TIPO próprio — "Marvel", "DC" — em vez de
+    // usar movie/series, e cada catálogo dele vira uma fileira
+    // "<Catálogo> - Marvel". Isso inverte o que identifica o grupo: nos
+    // streamings o nome do serviço é o PREFIXO da fileira, aqui é o SUFIXO.
+    //
+    // Sai do manifesto e não de uma lista fixa: instalar o addon da DC (ou
+    // qualquer outro do mesmo formato) já põe o botão na barra, sem eu mexer
+    // aqui. O que precisa de linha nova é só o logotipo.
+    const TIPOS_PADRAO = /^(movie|series|tv|channel|other|filme|s[ée]rie)s?$/i;
+
+    function colecoes() {
+        let perfil;
+        try { perfil = JSON.parse(localStorage.getItem('profile') || '{}'); } catch (_) { return []; }
+        const tipos = new Map();
+        (perfil.addons || []).forEach((a) => {
+            (a.manifest?.catalogs || []).forEach((c) => {
+                const t = normaliza(c.type);
+                if (!t || TIPOS_PADRAO.test(t)) return;
+                if (!tipos.has(chave(t))) tipos.set(chave(t), t);
+            });
+        });
+        return [...tipos.values()];
+    }
+
+    // "MCU Chronologically Order - Marvel" → pertence à coleção "Marvel".
+    function colecaoDaFileira(titulo, lista) {
+        return lista.find((c) => titulo.endsWith(' - ' + c)) || null;
+    }
+
     function servicosDasFileiras() {
         const achados = [];
         document.querySelectorAll('[class*="meta-row-container"]').forEach((f) => {
@@ -108,7 +139,8 @@
         if (barra && barra !== conteudo.firstElementChild) {
             conteudo.insertBefore(barra, conteudo.firstChild);
         }
-        if (barra && barra.dataset.itens === String(lista.length)) return barra;
+        const total = lista.servicos.length + lista.colecoes.length;
+        if (barra && barra.dataset.itens === String(total)) return barra;
 
         if (!barra) {
             document.querySelectorAll('.cu-servicos').forEach((b) => b.remove());
@@ -116,7 +148,7 @@
             barra.className = 'cu-servicos';
             conteudo.insertBefore(barra, conteudo.firstChild);
         }
-        barra.dataset.itens = String(lista.length);
+        barra.dataset.itens = String(total);
         barra.innerHTML = '';
 
         // Pastilha que desliza de um botão para o outro. É ela que pinta o
@@ -133,13 +165,19 @@
             'disney+': 'disney-plus',
             'prime video': 'prime-video',
             'apple tv+': 'apple-tv',
+            'marvel': 'marvel',
+            'dc': 'dc',
         };
 
-        const botao = (rotulo, valor) => {
+        const botao = (rotulo, valor, ehColecao) => {
             const b = document.createElement('button');
             b.type = 'button';
             b.className = 'cu-servico-btn';
             b.dataset.servico = valor;
+            // Marca para o 12-servico-catalogo.js: as fileiras de coleção já
+            // existem no Painel, montadas pelo próprio app, então ali não há
+            // catálogo para buscar — só o que mostrar e o que esconder.
+            if (ehColecao) b.dataset.colecao = '1';
 
             const arquivo = LOGOS[valor];
             if (arquivo) {
@@ -167,7 +205,10 @@
         };
 
         botao('Tudo', TUDO);
-        lista.forEach((nome) => botao(nome, chave(nome)));
+        lista.servicos.forEach((nome) => botao(nome, chave(nome), false));
+        // As coleções vão no fim: são um acréscimo aos streamings, não um
+        // deles, e a ordem dos cinco primeiros é a que você já conhece.
+        lista.colecoes.forEach((nome) => botao(nome, chave(nome), true));
         return barra;
     }
 
@@ -228,6 +269,8 @@
 
         const emTudo = selecionado === TUDO;
         const lista = servicos().map(chave);
+        const cols = colecoes().map(chave);
+        const numaColecao = cols.includes(selecionado);
 
         document.querySelectorAll('[class*="meta-row-container"]').forEach((fileira) => {
             // As fileiras que o 12-servico-catalogo monta são CLONES das
@@ -237,13 +280,20 @@
 
             const titulo = tituloDaFileira(fileira);
             const dono = lista.find((s) => titulo.startsWith(s));
-            // Em "Tudo": as genéricas aparecem e as de streaming somem.
-            // Num serviço: só as dele — o resto da página sai de cena, incluindo
-            // o destaque grande do topo (pela classe no body).
-            // Num serviço, TODAS as fileiras nativas saem: as do próprio
-            // serviço também, porque quem monta a tela dele agora é o
-            // 12-servico-catalogo.js, com muito mais listas.
-            const mostrar = emTudo ? !dono : false;
+            const col = colecaoDaFileira(titulo, cols);
+
+            // Três estados:
+            //   Tudo      → as genéricas aparecem; streamings e coleções somem,
+            //               porque estão atrás dos botões
+            //   streaming → nenhuma fileira nativa: quem monta a tela é o
+            //               12-servico-catalogo.js, com muito mais listas
+            //   coleção   → só as fileiras dela. Aqui não há catálogo a buscar:
+            //               o app já monta essas fileiras sozinho, e são todas
+            //               as que o addon tem
+            let mostrar;
+            if (emTudo) mostrar = !dono && !col;
+            else if (numaColecao) mostrar = col === selecionado;
+            else mostrar = false;
             fileira.classList.toggle('cu-fileira-oculta', !mostrar);
         });
 
@@ -267,8 +317,8 @@
         // A lista sai do manifesto guardado no perfil, que já está no
         // localStorage quando a página abre — a barra não precisa esperar as
         // fileiras chegarem. Era essa espera que a fazia aparecer atrasada.
-        const lista = servicos();
-        if (!lista.length) return;
+        const lista = { servicos: servicos(), colecoes: colecoes() };
+        if (!lista.servicos.length && !lista.colecoes.length) return;
 
         const nova = !document.querySelector('.cu-servicos');
         if (!montaBarra(lista)) return;

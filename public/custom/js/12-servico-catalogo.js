@@ -321,6 +321,11 @@
         adianta();
 
         const escolhido = document.querySelector('.cu-servico-btn.selecionado');
+        // Coleção (Marvel, DC) não passa por aqui: as fileiras dela já existem
+        // no Painel, montadas pelo próprio app, e são todas as que o addon tem.
+        // Este módulo existe para o addon de streamings, que entrega 98 itens
+        // numa lista só e precisa ser fatiado.
+        if (escolhido && escolhido.dataset.colecao) { limpa(); return; }
         const rotulo = escolhido ? (escolhido.getAttribute('aria-label') || escolhido.textContent) : '';
         const servico = String(rotulo || '').replace(/\s+/g, ' ').trim().toLowerCase();
 

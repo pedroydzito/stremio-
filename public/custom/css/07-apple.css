@@ -2239,6 +2239,10 @@ body.route-calendar [class*="content"] > [class*="list"] [class*="item"] > [clas
 .cu-logo-disney-plus { width: 50px; -webkit-mask-image: url("/custom/img/disney-plus.svg"); mask-image: url("/custom/img/disney-plus.svg"); }
 .cu-logo-prime-video { width: 51px; -webkit-mask-image: url("/custom/img/prime-video.svg"); mask-image: url("/custom/img/prime-video.svg"); }
 .cu-logo-apple-tv    { width: 28px; -webkit-mask-image: url("/custom/img/apple-tv.svg");    mask-image: url("/custom/img/apple-tv.svg"); }
+/* Coleções. As larguras seguem a mesma conta dos demais — altura x proporção
+   do viewBox: Marvel 1948/1014, DC 912/1014. */
+.cu-logo-marvel      { width: 38px; -webkit-mask-image: url("/custom/img/marvel.svg");      mask-image: url("/custom/img/marvel.svg"); }
+.cu-logo-dc          { width: 18px; -webkit-mask-image: url("/custom/img/dc.svg");          mask-image: url("/custom/img/dc.svg"); }
 
 /* Com logotipo o botão vira uma caixa de ícone: o respiro passa a ser dele. */
 .cu-servico-btn:has(.cu-logo) { padding: 0.3rem 0.8rem; }
