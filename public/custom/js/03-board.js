@@ -810,23 +810,6 @@
 
             const items = Array.from(row.querySelectorAll('[class*="meta-item-container"]'));
             items.forEach((item, idx) => {
-                // Card sem capa é casca: sobra no DOM quando você remove um
-                // item da fileira, e a largura que ESTE código escreveu nele
-                // continua valendo — o buraco no meio da lista era isso, uma
-                // caixa vazia com 2 pôsteres de largura.
-                //
-                // Some, e some com a largura junto: deixar `display: none` sem
-                // limpar o `flex` traria o buraco de volta se o app voltasse a
-                // exibir o elemento.
-                if (!item.querySelector('[class*="poster-container"]')) {
-                    item.classList.add('cu-cw-casca');
-                    item.style.removeProperty('flex');
-                    item.style.removeProperty('width');
-                    item.style.removeProperty('max-width');
-                    return;
-                }
-                item.classList.remove('cu-cw-casca');
-
                 item.classList.add('force-landscape');
                 if (idx >= maxCols) item.classList.add('cw-overflow');
                 else item.classList.remove('cw-overflow');
