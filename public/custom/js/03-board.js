@@ -392,6 +392,43 @@
     try { duracoesTitulo = JSON.parse(localStorage.getItem(CHAVE_DUR_TITULO) || '{}'); } catch (_) { /* ignore */ }
     const durPedidas = new Set();
 
+    // ---- episódio que ainda não estreou --------------------------------
+    //
+    // O Continuar assistindo aponta para o PRÓXIMO episódio. Terminado o último
+    // que saiu, ele passa a apontar para um que ainda não existe: a série fica
+    // na fileira com um card que não dá para assistir, e sem stream nenhum.
+    //
+    // É o que Netflix, Disney+ e Max fazem: a série sai da fileira quando você
+    // se põe em dia, e volta sozinha quando estreia o próximo — ali sim com o
+    // selo de episódio novo. A fileira passa a significar "o que dá para
+    // continuar agora", que é o nome dela.
+    //
+    // A régua é a mesma do calendário e da tela de detalhes: estreia em
+    // qualquer hora de HOJE já conta como disponível.
+    const CHAVE_ESTREIA = 'cu:estreiasEp';
+    let estreias = {};
+    try { estreias = JSON.parse(localStorage.getItem(CHAVE_ESTREIA) || '{}'); } catch (_) { /* ignore */ }
+
+    function jaEstreou(href) {
+        const se = seasonEpisode(href);
+        if (!se) return true;                       // filme: sempre disponível
+        const id = /(tt\d+)/i.exec(decodeURIComponent(href || ''));
+        if (!id) return true;
+
+        const mapa = estreias[id[1]];
+        // Ainda não sei: mostro. Esconder por falta de informação seria pior do
+        // que mostrar um card a mais por alguns segundos.
+        if (!mapa) return true;
+
+        const quando = mapa[se.s + ':' + se.e];
+        if (quando === undefined) return true;      // episódio que o Cinemeta não conhece
+        if (!quando) return true;                   // sem data: não dá para afirmar que é futuro
+
+        const fimDeHoje = new Date();
+        fimDeHoje.setHours(23, 59, 59, 999);
+        return new Date(quando) <= fimDeHoje;
+    }
+
     // "1 h 45 min", "46 min", "46min" → "1h45" / "46min"
     function arrumaDuracao(bruto) {
         const txt = String(bruto || '').trim();
@@ -415,6 +452,18 @@
                 // seria pedido de novo a cada volta do laço, para sempre.
                 duracoesTitulo[imdb] = j.meta?.runtime || '';
                 try { localStorage.setItem(CHAVE_DUR_TITULO, JSON.stringify(duracoesTitulo)); } catch (_) { /* ignore */ }
+
+                // A MESMA resposta traz a estreia de cada episódio. Guardar
+                // agora evita uma segunda ida à rede pela informação que já
+                // está aqui na mão.
+                const mapa = {};
+                (j.meta?.videos || []).forEach((v) => {
+                    if (v.season != null && v.episode != null) {
+                        mapa[v.season + ':' + v.episode] = v.released || '';
+                    }
+                });
+                estreias[imdb] = mapa;
+                try { localStorage.setItem(CHAVE_ESTREIA, JSON.stringify(estreias)); } catch (_) { /* ignore */ }
             })
             .catch(() => { durPedidas.delete(imdb); });
     }
@@ -502,6 +551,16 @@
             if (tagAntiga) tagAntiga.remove();
         }
 
+        // Série em dia, com o próximo episódio ainda por estrear: o card sai
+        // da fileira. A busca que preenche `estreias` é a mesma da duração, e
+        // acontece logo abaixo — até ela responder, o card fica visível.
+        const hrefAgora = (() => {
+            const f = getReactFiber(item);
+            const pr = f ? findFiberProps(f, (p) => p.href || p.deepLinks) : null;
+            return pr?.href || pr?.deepLinks?.metaDetailsStreams || '';
+        })();
+        item.classList.toggle('cu-cw-indisponivel', !jaEstreou(hrefAgora));
+
         const landscape = landscapeFor(poster);
 
         // Série: o still do episódio na frente do banner. Se ele não existir, o
@@ -586,15 +645,9 @@
         // capa, então não entram no fluxo e não têm como mexer no tamanho do
         // card. Da última vez eu reescrevi esta função inteira junto e a fileira
         // virou vertical; desta vez o que já funciona fica intocado.
-        let sombra = pc.querySelector('.cu-cw-sombra');
-        if (!sombra) {
-            sombra = document.createElement('div');
-            sombra.className = 'cu-cw-sombra';
-            // Antes da barra de progresso no DOM: as duas ficam acima do
-            // degradê de hover, e a barra continua acima da sombra.
-            const barra = pc.querySelector('[class*="progress-bar-layer"]');
-            if (barra) pc.insertBefore(sombra, barra); else pc.appendChild(sombra);
-        }
+        // Sobra de quando o degradê era um elemento; hoje ele é um ::after.
+        const sombraAntiga = pc.querySelector('.cu-cw-sombra');
+        if (sombraAntiga) sombraAntiga.remove();
 
         const barraTitulo = item.querySelector('[class*="title-bar-container"]');
         const elTitulo = barraTitulo ? barraTitulo.querySelector('[class*="title"]') : null;
