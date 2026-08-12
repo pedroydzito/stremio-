@@ -2274,7 +2274,12 @@ body.route-board [class*="board-content"]::-webkit-scrollbar,
 /* Com um serviço escolhido, as fileiras nativas somem por CSS — no mesmo
    quadro. Quando isso dependia só do laço de 400ms, uma fileira recém-chegada
    (o Painel as carrega conforme a rolagem) piscava no topo antes de sumir. */
-body.cu-servico-ativo [class*="meta-row-container"]:not(.cu-cat-fileira) {
+/* `:not(.cu-colecao-ativa)`: numa coleção as fileiras são NATIVAS — quem as
+   monta é o próprio app, e são todas as que o addon tem. Esta regra foi
+   escrita para os streamings, onde a tela é remontada do zero, e sem a
+   exceção ela apagava justamente o que o JS mandava mostrar: escolher
+   MARVEL abria uma página vazia. */
+body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.cu-cat-fileira) {
     display: none !important;
 }
 
@@ -2408,7 +2413,12 @@ body.cu-servico-ativo [class*="meta-row-container"]:not(.cu-cat-fileira) {
 /* Com um serviço escolhido, as fileiras nativas somem por CSS — no mesmo
    quadro. Quando isso dependia só do laço de 400ms, uma fileira recém-chegada
    (o Painel as carrega conforme a rolagem) piscava no topo antes de sumir. */
-body.cu-servico-ativo [class*="meta-row-container"]:not(.cu-cat-fileira) {
+/* `:not(.cu-colecao-ativa)`: numa coleção as fileiras são NATIVAS — quem as
+   monta é o próprio app, e são todas as que o addon tem. Esta regra foi
+   escrita para os streamings, onde a tela é remontada do zero, e sem a
+   exceção ela apagava justamente o que o JS mandava mostrar: escolher
+   MARVEL abria uma página vazia. */
+body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.cu-cat-fileira) {
     display: none !important;
 }
 

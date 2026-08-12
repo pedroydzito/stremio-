@@ -308,6 +308,7 @@
         });
 
         document.body.classList.toggle('cu-servico-ativo', !emTudo);
+        document.body.classList.toggle('cu-colecao-ativa', numaColecao);
         naoOcuparEspaco(emTudo);
         moveP1lula(animar !== false);
     }
@@ -320,7 +321,7 @@
             if (barra) barra.remove();
             // Sair do Painel não pode deixar fileira escondida em outra tela.
             document.querySelectorAll('.cu-fileira-oculta').forEach((f) => f.classList.remove('cu-fileira-oculta'));
-            document.body.classList.remove('cu-com-servicos', 'cu-servico-ativo');
+            document.body.classList.remove('cu-com-servicos', 'cu-servico-ativo', 'cu-colecao-ativa');
             return;
         }
 

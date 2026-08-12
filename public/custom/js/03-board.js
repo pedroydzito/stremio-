@@ -634,7 +634,11 @@
                     item.style.maxWidth = `${cwItemWidth}px`;
                 }
 
-                applyLandscapeArt(item);
+                // A largura já foi aplicada acima. Sem este cerco, uma falha
+                // decorando o PRIMEIRO card interrompia o forEach e todos os
+                // seguintes ficavam sem largura — a fileira inteira voltava ao
+                // formato vertical por causa de um card só.
+                try { applyLandscapeArt(item); } catch (_) { /* segue */ }
             });
         });
     }
