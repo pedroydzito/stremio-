@@ -52,18 +52,31 @@ a URL. Depois disso, atualizações chegam sozinhas.
 irm https://SEU-PROJETO.vercel.app/instalar/instalar-windows.ps1 | iex
 ```
 
-Cria um atalho "Stremio+" na área de trabalho e no menu Iniciar, com ícone e
-nome próprios, apontando para o Stremio que já está instalado. O original
-continua funcionando.
+Cria um atalho "Stremio+" na área de trabalho e no menu Iniciar. O original
+continua funcionando, e nada é escrito dentro da pasta do Stremio — lá dentro,
+uma atualização do app levaria tudo junto.
 
-Aqui não há nada a refazer quando o Stremio se atualiza: no Windows o argumento
-vive no ATALHO, não dentro do programa, e o executável não muda de lugar.
+No Windows a interface **não** pode vir direto da nuvem, e a razão é o motor: no
+Mac o Stremio desenha com WebKit, no Windows com WebView2, que é Chromium. O
+Chromium novo exige permissão para uma página https falar com 127.0.0.1 —
+permissão que o servidor de streaming não responde e que, dentro de um app, não
+tem onde ser pedida. A chamada falha calada: a interface conclui que não há
+servidor, e o login não dura de uma abertura para a outra.
 
-Manualmente, se preferir: propriedades do atalho → Destino → acrescente
+Por isso a instalação do Windows monta um servidor local:
 
 ```
---webui-url="https://SEU-PROJETO.vercel.app/#/?streamingServerUrl=http%3A%2F%2F127.0.0.1%3A11470"
+atalho → wscript → abrir.ps1 ─┬─► servidor.ps1  (127.0.0.1:11471)
+                              │        └─ webui/ ← baixa de web.stremio.com o
+                              │                    que faltar, uma vez cada
+                              └─► Stremio.exe --webui-url=http://127.0.0.1:11471/…
 ```
+
+Servida de 127.0.0.1, a página deixa de ser remota e nada daquilo se aplica. O
+CSS e o JS continuam vindo da Vercel — publicar segue chegando sozinho; só o
+HTML e os arquivos do próprio Stremio passam pelo disco.
+
+O `wscript` no meio existe só para não piscar um console preto antes do app.
 
 ## Mexer no visual
 
