@@ -2717,8 +2717,11 @@ body.cu-servico-ativo:not(.cu-colecao-ativa) [class*="meta-row-container"]:not(.
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
-    height: 58%;
+    /* 1px além da base: o card arredonda em subpixel, e sem essa sobra a última
+       linha da arte escapava por baixo. O contêiner recorta o excesso, então
+       ele não aparece — só fecha a fresta. */
+    bottom: -1px;
+    height: calc(58% + 1px);
     z-index: 1;
     pointer-events: none;
     background: linear-gradient(
