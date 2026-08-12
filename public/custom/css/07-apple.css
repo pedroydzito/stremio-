@@ -2642,74 +2642,13 @@ body.route-calendar [class*="table"] [class*="grid"].cu-cal-trocando {
 }
 
 
-/* ============================================================
-   58. Continuar assistindo: nome dentro da miniatura
-   ============================================================ */
-/* O nome e o episódio vivem SOBRE a arte, como num player. Fora dela, o texto
-   empurrava a fileira para baixo e o card virava duas coisas empilhadas. */
-.custom-continue-watching-row [class*="title-bar-container"] { display: none !important; }
 
-/* Degradê do próprio card: nasce transparente no meio e escurece até embaixo,
-   sem chegar ao preto — a arte continua visível atrás do texto. As paradas
-   intermediárias existem para a transição não ter uma borda perceptível, que é
-   o que acontece com um degradê linear de dois pontos. */
-.custom-continue-watching-row .cu-cw-sombra {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 62%;
-    z-index: 1;
-    pointer-events: none;
-    background: linear-gradient(
-        to bottom,
-        rgba(10, 11, 13, 0) 0%,
-        rgba(10, 11, 13, 0.12) 34%,
-        rgba(10, 11, 13, 0.38) 58%,
-        rgba(10, 11, 13, 0.66) 78%,
-        rgba(10, 11, 13, 0.82) 100%);
-}
-
-.custom-continue-watching-row .cu-cw-info {
-    position: absolute;
-    left: 0.75rem;
-    right: 0.75rem;
-    bottom: 0.6rem;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    gap: 0.1rem;
-    pointer-events: none;
-}
-.custom-continue-watching-row .cu-cw-nome {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: #fff;
-    line-height: 1.2;
-    /* Uma linha só: dois títulos de alturas diferentes desalinhariam a fileira
-       inteira, e o degradê tem altura fixa. */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-}
+/* O "T4:E2" ao lado do nome, no Continuar assistindo. Esta regra tinha sido
+   levada junto na remoção do CSS da logo — as duas apareciam no mesmo bloco. */
 .custom-continue-watching-row .cu-cw-ep {
-    font-size: 0.76rem;
+    margin-left: 0.45rem;
+    color: var(--apple-label-2);
+    font-size: 0.82rem;
     font-weight: 500;
-    color: rgba(255, 255, 255, 0.72);
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-}
-
-/* A barra de progresso fica ACIMA do degradê e do texto: ela é a informação
-   mais importante do card, e é uma linha fina — some sob qualquer coisa. */
-.custom-continue-watching-row [class*="progress-bar-layer"] { z-index: 3 !important; }
-
-/* A lista lateral do calendário marca o dia de hoje com um bloco branco — o
-   mesmo realce que o disco do dia usa na grade, mas aqui ele cobre a linha
-   inteira e o texto some dentro dele. Na grade o realce faz sentido; numa lista
-   em que só entra o que ainda vem, "hoje" já é o começo dela. */
-body.route-calendar [class*="content"] > [class*="list"] [class*="selected"],
-body.route-calendar [class*="content"] > [class*="list"] [class*="today"] {
-    background-color: transparent !important;
-    color: inherit !important;
+    white-space: nowrap;
 }
