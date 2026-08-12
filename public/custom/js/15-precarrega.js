@@ -6,10 +6,11 @@
    fileira nativa montada para servir de molde, e fazia a página parecer
    incompleta nos primeiros segundos.
 
-   A ideia é sua: descer até o fim e voltar ao topo assim que o app abre. O
-   trajeto acontece em um punhado de quadros, cada parada dando ao app a chance
-   de montar o que faltava. Ao terminar, a página volta exatamente para onde
-   estava — o topo — e ninguém vê o percurso.
+   A ideia é sua: descer até o fim e voltar ao topo assim que o app abre. As
+   descidas são instantâneas — é trabalho de bastidor, e cada parada dá ao app
+   a chance de montar o que faltava. A SUBIDA é animada, em cerca de um
+   segundo: é a única parte que você vê, e um corte seco ali faria a página
+   parecer que piscou.
 
    Uma vez por ABERTURA, não por visita ao Início: o marcador vive em
    `sessionStorage`, que morre junto com a janela. Repetir isso a cada volta ao
@@ -21,6 +22,7 @@
 
     const PARADAS = 6;          // descidas até o fim
     const INTERVALO = 260;      // ms entre elas — tempo de o app montar a fileira
+    const SUBIDA = 1000;        // ms da volta ao topo
 
     let rodando = false;
 
@@ -46,15 +48,29 @@
                 setTimeout(descer, INTERVALO);
                 return;
             }
-            // De volta ao topo sem rolagem suave: o percurso é trabalho de
-            // bastidor, e animá-lo seria mostrar justamente o que não interessa.
-            const suave = alvo.style.scrollBehavior;
-            alvo.style.scrollBehavior = 'auto';
-            alvo.scrollTop = 0;
-            requestAnimationFrame(() => { alvo.style.scrollBehavior = suave; });
-            rodando = false;
+            sobe(alvo);
         };
         descer();
+    }
+
+    // Volta ao topo em ~1s. Feito à mão em vez de `scroll-behavior: smooth`
+    // porque ali a duração é decidida pelo navegador — e o que se quer aqui é
+    // um tempo específico, longo o bastante para ler como movimento.
+    function sobe(alvo) {
+        const inicio = alvo.scrollTop;
+        if (inicio <= 0) { rodando = false; return; }
+
+        const t0 = performance.now();
+        // Saída suave: parte rápido e freia perto do topo.
+        const curva = (t) => 1 - Math.pow(1 - t, 3);
+
+        const passo = (agora) => {
+            const t = Math.min(1, (agora - t0) / SUBIDA);
+            alvo.scrollTop = inicio * (1 - curva(t));
+            if (t < 1) requestAnimationFrame(passo);
+            else { alvo.scrollTop = 0; rodando = false; }
+        };
+        requestAnimationFrame(passo);
     }
 
     window.__cu.register(function () {
