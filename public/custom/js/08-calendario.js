@@ -234,10 +234,6 @@
             const dia = parseInt((num?.textContent || '').trim(), 10);
             if (!Number.isFinite(dia)) return;
 
-            // O mês vem do dia 1 da própria grade: ler o nome do mês e traduzir
-            // daria um segundo lugar para errar.
-            const mesRef = celula.closest('[class*="calendar"]');
-            void mesRef;
             const data = new Date(hoje.getFullYear(), hoje.getMonth(), dia);
             if (ano && +ano !== hoje.getFullYear()) {
                 data.setFullYear(+ano);
