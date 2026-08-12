@@ -70,6 +70,44 @@
         }
     }
 
+    // Se o localStorage some mas o cookie e o IndexedDB ficam, o problema é
+    // de UMA gaveta e tem conserto. Se some tudo, o app está abrindo numa
+    // sessão nova a cada vez e a correção é outra - vale saber qual antes de
+    // escrever qualquer código.
+    function cookie() {
+        try {
+            const anterior = /cu:diagbolo=(\d+)/.exec(document.cookie || '');
+            document.cookie = 'cu:diagbolo=' + Date.now() + '; max-age=31536000; path=/';
+            const gravou = /cu:diagbolo=/.test(document.cookie || '');
+            if (!gravou) return 'nao grava';
+            return anterior ? 'SOBREVIVEU' : 'sumiu (ou e a primeira vez)';
+        } catch (e) { return 'erro: ' + e.name; }
+    }
+
+    function indexado() {
+        return new Promise((ok) => {
+            if (!window.indexedDB) { ok('sem IndexedDB'); return; }
+            let req;
+            try { req = indexedDB.open('cu-diag', 1); } catch (e) { ok('erro: ' + e.name); return; }
+            req.onupgradeneeded = () => req.result.createObjectStore('m');
+            req.onerror = () => ok('erro ao abrir');
+            req.onsuccess = () => {
+                const db = req.result;
+                let t;
+                try { t = db.transaction('m', 'readwrite'); } catch (e) { ok('erro: ' + e.name); return; }
+                const loja = t.objectStore('m');
+                const leitura = loja.get('marca');
+                leitura.onsuccess = () => {
+                    const antes = leitura.result;
+                    loja.put(Date.now(), 'marca');
+                    ok(antes ? 'SOBREVIVEU' : 'sumiu (ou e a primeira vez)');
+                };
+                leitura.onerror = () => ok('erro na leitura');
+            };
+            setTimeout(() => ok('demorou demais'), 3000);
+        });
+    }
+
     function motor() {
         const ua = navigator.userAgent || '';
         if (/Edg\//.test(ua)) return 'WebView2 / Edge (Chromium)';
@@ -116,7 +154,7 @@
         const gravou = registraVisita(anterior);
         const chaves = chavesDoStremio();
 
-        testaServidor().then((servidor) => {
+        Promise.all([testaServidor(), indexado()]).then(([servidor, idb]) => {
             caixa([
                 'ARMAZENAMENTO',
                 '  escrita         : ' + testaEscrita(),
@@ -124,6 +162,8 @@
                 '  abertura anterior: ' + (anterior
                     ? 'ENCONTRADA - visita #' + anterior.visitas + ' em ' + anterior.quando
                     : 'NAO ENCONTRADA  <-- o armazenamento nao sobreviveu'),
+                '  cookie          : ' + cookie(),
+                '  indexeddb       : ' + idb,
                 '  chaves guardadas : ' + chaves.total,
                 '  perfil salvo     : ' + (chaves.temPerfil ? 'sim' : 'NAO'),
                 '  sessao (login)   : ' + (chaves.temSessao ? 'sim' : 'NAO'),
